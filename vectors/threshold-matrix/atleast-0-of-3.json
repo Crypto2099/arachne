@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "threshold-matrix/atleast-0-of-3",
   "family": "threshold-matrix",
   "question": "Does every k in 0..n+1 behave as the reference evaluator says, including the degenerate ends?",
@@ -50,39 +50,81 @@
     }
   ],
   "encoding": {
-    "cborHex": "830300838200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d8200581cfb8252e9ec0fba2a5031d14922a62c76ebfbaea23f2f633694128a03",
-    "preimageHex": "00830300838200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d8200581cfb8252e9ec0fba2a5031d14922a62c76ebfbaea23f2f633694128a03",
-    "scriptHash": "1e53c03606458bcf1173bda959ff068333958c012e9f4eebcae6cd6e",
-    "cborBytes": 100
+    "definite": {
+      "cborHex": "830300838200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d8200581cfb8252e9ec0fba2a5031d14922a62c76ebfbaea23f2f633694128a03",
+      "preimageHex": "00830300838200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d8200581cfb8252e9ec0fba2a5031d14922a62c76ebfbaea23f2f633694128a03",
+      "scriptHash": "1e53c03606458bcf1173bda959ff068333958c012e9f4eebcae6cd6e",
+      "cborBytes": 100
+    },
+    "cardanoBinary": {
+      "cborHex": "830300838200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d8200581cfb8252e9ec0fba2a5031d14922a62c76ebfbaea23f2f633694128a03",
+      "preimageHex": "00830300838200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d8200581cfb8252e9ec0fba2a5031d14922a62c76ebfbaea23f2f633694128a03",
+      "scriptHash": "1e53c03606458bcf1173bda959ff068333958c012e9f4eebcae6cd6e",
+      "cborBytes": 100
+    },
+    "encodingSensitive": false
   },
   "credentials": {
-    "enterprise": {
-      "mainnet": "addr1wy098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms75c864",
-      "preview": "addr_test1wq098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms9uvm4s",
-      "preprod": "addr_test1wq098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms9uvm4s"
-    },
-    "baseScriptStake": {
-      "mainnet": "addr1xy098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms720qrvpj93083zuaa49vl7p5rxw2ccqfwna8whjhxe4hq3f7rvg",
-      "preview": "addr_test1xq098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms720qrvpj93083zuaa49vl7p5rxw2ccqfwna8whjhxe4hqjlrrqh",
-      "preprod": "addr_test1xq098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms720qrvpj93083zuaa49vl7p5rxw2ccqfwna8whjhxe4hqjlrrqh"
-    },
-    "reward": {
-      "mainnet": "stake17y098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6msz7cpx8",
-      "preview": "stake_test17q098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms95jrz6",
-      "preprod": "stake_test17q098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms95jrz6"
-    },
-    "governance": {
-      "drep": {
-        "cip129": "drep1yv098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6msl056n0",
-        "cip105": "drep_script1refuqdsxgk9u7ytnhk54nlcxsveetrqp9605a672umxkuzrvgds"
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1wy098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms75c864",
+        "preview": "addr_test1wq098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms9uvm4s",
+        "preprod": "addr_test1wq098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms9uvm4s"
       },
-      "ccCold": {
-        "cip129": "cc_cold1zv098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6msm8jv6t",
-        "cip105": "cc_cold_script1refuqdsxgk9u7ytnhk54nlcxsveetrqp9605a672umxkuu2m7a2"
+      "baseScriptStake": {
+        "mainnet": "addr1xy098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms720qrvpj93083zuaa49vl7p5rxw2ccqfwna8whjhxe4hq3f7rvg",
+        "preview": "addr_test1xq098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms720qrvpj93083zuaa49vl7p5rxw2ccqfwna8whjhxe4hqjlrrqh",
+        "preprod": "addr_test1xq098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms720qrvpj93083zuaa49vl7p5rxw2ccqfwna8whjhxe4hqjlrrqh"
       },
-      "ccHot": {
-        "cip129": "cc_hot1qv098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6msdmxsqz",
-        "cip105": "cc_hot_script1refuqdsxgk9u7ytnhk54nlcxsveetrqp9605a672umxkuc5xplp"
+      "reward": {
+        "mainnet": "stake17y098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6msz7cpx8",
+        "preview": "stake_test17q098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms95jrz6",
+        "preprod": "stake_test17q098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms95jrz6"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1yv098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6msl056n0",
+          "cip105": "drep_script1refuqdsxgk9u7ytnhk54nlcxsveetrqp9605a672umxkuzrvgds"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zv098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6msm8jv6t",
+          "cip105": "cc_cold_script1refuqdsxgk9u7ytnhk54nlcxsveetrqp9605a672umxkuu2m7a2"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qv098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6msdmxsqz",
+          "cip105": "cc_hot_script1refuqdsxgk9u7ytnhk54nlcxsveetrqp9605a672umxkuc5xplp"
+        }
+      }
+    },
+    "cardanoBinary": {
+      "enterprise": {
+        "mainnet": "addr1wy098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms75c864",
+        "preview": "addr_test1wq098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms9uvm4s",
+        "preprod": "addr_test1wq098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms9uvm4s"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1xy098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms720qrvpj93083zuaa49vl7p5rxw2ccqfwna8whjhxe4hq3f7rvg",
+        "preview": "addr_test1xq098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms720qrvpj93083zuaa49vl7p5rxw2ccqfwna8whjhxe4hqjlrrqh",
+        "preprod": "addr_test1xq098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms720qrvpj93083zuaa49vl7p5rxw2ccqfwna8whjhxe4hqjlrrqh"
+      },
+      "reward": {
+        "mainnet": "stake17y098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6msz7cpx8",
+        "preview": "stake_test17q098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms95jrz6",
+        "preprod": "stake_test17q098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6ms95jrz6"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1yv098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6msl056n0",
+          "cip105": "drep_script1refuqdsxgk9u7ytnhk54nlcxsveetrqp9605a672umxkuzrvgds"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zv098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6msm8jv6t",
+          "cip105": "cc_cold_script1refuqdsxgk9u7ytnhk54nlcxsveetrqp9605a672umxkuu2m7a2"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qv098spkqezchnc3ww76jk0lq6pn89vvqyhf7nhtetnv6msdmxsqz",
+          "cip105": "cc_hot_script1refuqdsxgk9u7ytnhk54nlcxsveetrqp9605a672umxkuc5xplp"
+        }
       }
     }
   },

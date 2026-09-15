@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "duplicate-keys/dup-3x-need-2",
   "family": "duplicate-keys",
   "question": "Does a repeated key hash under one threshold count once or once per occurrence?",
@@ -53,39 +53,81 @@
     }
   ],
   "encoding": {
-    "cborHex": "830302838200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad264570718",
-    "preimageHex": "00830302838200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad264570718",
-    "scriptHash": "d6c0687624a06970124c46285add6dc0726be64da15f32711a35c8cb",
-    "cborBytes": 100
+    "definite": {
+      "cborHex": "830302838200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad264570718",
+      "preimageHex": "00830302838200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad264570718",
+      "scriptHash": "d6c0687624a06970124c46285add6dc0726be64da15f32711a35c8cb",
+      "cborBytes": 100
+    },
+    "cardanoBinary": {
+      "cborHex": "830302838200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad264570718",
+      "preimageHex": "00830302838200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad264570718",
+      "scriptHash": "d6c0687624a06970124c46285add6dc0726be64da15f32711a35c8cb",
+      "cborBytes": 100
+    },
+    "encodingSensitive": false
   },
   "credentials": {
-    "enterprise": {
-      "mainnet": "addr1w8tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jc6drk8n",
-      "preview": "addr_test1wrtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcp9h2gk",
-      "preprod": "addr_test1wrtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcp9h2gk"
-    },
-    "baseScriptStake": {
-      "mainnet": "addr1x8tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3j7kcp58vf9qd9cpynzx9pdd6mwqwf47vndptue8zx34er9swxrzlk",
-      "preview": "addr_test1xrtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3j7kcp58vf9qd9cpynzx9pdd6mwqwf47vndptue8zx34er9sds7znf",
-      "preprod": "addr_test1xrtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3j7kcp58vf9qd9cpynzx9pdd6mwqwf47vndptue8zx34er9sds7znf"
-    },
-    "reward": {
-      "mainnet": "stake178tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcx8rsmp",
-      "preview": "stake_test17rtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcpdfjlu",
-      "preprod": "stake_test17rtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcpdfjlu"
-    },
-    "governance": {
-      "drep": {
-        "cip129": "drep1y0tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcmk0twf",
-        "cip105": "drep_script16mqxsa3y5p5hqyjvgc594htdcpexhejd590nyug6xhyvkempgce"
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1w8tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jc6drk8n",
+        "preview": "addr_test1wrtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcp9h2gk",
+        "preprod": "addr_test1wrtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcp9h2gk"
       },
-      "ccCold": {
-        "cip129": "cc_cold1z0tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcl7fa8d",
-        "cip105": "cc_cold_script16mqxsa3y5p5hqyjvgc594htdcpexhejd590nyug6xhyvk8jk7gr"
+      "baseScriptStake": {
+        "mainnet": "addr1x8tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3j7kcp58vf9qd9cpynzx9pdd6mwqwf47vndptue8zx34er9swxrzlk",
+        "preview": "addr_test1xrtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3j7kcp58vf9qd9cpynzx9pdd6mwqwf47vndptue8zx34er9sds7znf",
+        "preprod": "addr_test1xrtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3j7kcp58vf9qd9cpynzx9pdd6mwqwf47vndptue8zx34er9sds7znf"
       },
-      "ccHot": {
-        "cip129": "cc_hot1q0tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcfzapay",
-        "cip105": "cc_hot_script16mqxsa3y5p5hqyjvgc594htdcpexhejd590nyug6xhyvkrvtp2g"
+      "reward": {
+        "mainnet": "stake178tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcx8rsmp",
+        "preview": "stake_test17rtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcpdfjlu",
+        "preprod": "stake_test17rtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcpdfjlu"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1y0tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcmk0twf",
+          "cip105": "drep_script16mqxsa3y5p5hqyjvgc594htdcpexhejd590nyug6xhyvkempgce"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1z0tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcl7fa8d",
+          "cip105": "cc_cold_script16mqxsa3y5p5hqyjvgc594htdcpexhejd590nyug6xhyvk8jk7gr"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1q0tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcfzapay",
+          "cip105": "cc_hot_script16mqxsa3y5p5hqyjvgc594htdcpexhejd590nyug6xhyvkrvtp2g"
+        }
+      }
+    },
+    "cardanoBinary": {
+      "enterprise": {
+        "mainnet": "addr1w8tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jc6drk8n",
+        "preview": "addr_test1wrtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcp9h2gk",
+        "preprod": "addr_test1wrtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcp9h2gk"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1x8tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3j7kcp58vf9qd9cpynzx9pdd6mwqwf47vndptue8zx34er9swxrzlk",
+        "preview": "addr_test1xrtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3j7kcp58vf9qd9cpynzx9pdd6mwqwf47vndptue8zx34er9sds7znf",
+        "preprod": "addr_test1xrtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3j7kcp58vf9qd9cpynzx9pdd6mwqwf47vndptue8zx34er9sds7znf"
+      },
+      "reward": {
+        "mainnet": "stake178tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcx8rsmp",
+        "preview": "stake_test17rtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcpdfjlu",
+        "preprod": "stake_test17rtvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcpdfjlu"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1y0tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcmk0twf",
+          "cip105": "drep_script16mqxsa3y5p5hqyjvgc594htdcpexhejd590nyug6xhyvkempgce"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1z0tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcl7fa8d",
+          "cip105": "cc_cold_script16mqxsa3y5p5hqyjvgc594htdcpexhejd590nyug6xhyvk8jk7gr"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1q0tvq6rkyjsxjuqjf3rzskkadhq8y6lxfks47vn3rg6u3jcfzapay",
+          "cip105": "cc_hot_script16mqxsa3y5p5hqyjvgc594htdcpexhejd590nyug6xhyvkrvtp2g"
+        }
       }
     }
   },

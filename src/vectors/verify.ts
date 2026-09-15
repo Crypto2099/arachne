@@ -1,5 +1,10 @@
 import { parseScript } from '../model/json.js';
-import { encodeScript, hashPreimage, scriptHash } from '../encode/script.js';
+import {
+  encodeScript,
+  hashPreimage,
+  scriptHash,
+  isEncodingSensitive,
+} from '../encode/script.js';
 import { toHex } from '../encode/cbor.js';
 import { evaluate } from '../evaluate/evaluate.js';
 import type { Vector } from './schema.js';
@@ -27,36 +32,53 @@ export function verifyVector(vector: Vector): VerificationFinding[] {
   const findings: VerificationFinding[] = [];
   const script = parseScript(vector.script);
 
-  const cborHex = toHex(encodeScript(script));
-  if (cborHex !== vector.encoding.cborHex) {
+  // Both encodings are checked. A port may implement only one, but the corpus
+  // records both because the same script has two valid hashes.
+  for (const encoding of ['definite', 'cardanoBinary'] as const) {
+    const recorded = vector.encoding[encoding];
+
+    const cborHex = toHex(encodeScript(script, encoding));
+    if (cborHex !== recorded.cborHex) {
+      findings.push({
+        vectorId: vector.id,
+        kind: 'encoding',
+        detail: `${encoding}: CBOR does not match the recorded encoding`,
+        expected: recorded.cborHex,
+        actual: cborHex,
+      });
+    }
+
+    const preimageHex = toHex(hashPreimage(script, encoding));
+    if (preimageHex !== recorded.preimageHex) {
+      findings.push({
+        vectorId: vector.id,
+        kind: 'encoding',
+        detail: `${encoding}: hash preimage does not match, so the language tag or the CBOR differs`,
+        expected: recorded.preimageHex,
+        actual: preimageHex,
+      });
+    }
+
+    const hash = scriptHash(script, encoding);
+    if (hash !== recorded.scriptHash) {
+      findings.push({
+        vectorId: vector.id,
+        kind: 'hash',
+        detail: `${encoding}: script hash does not match`,
+        expected: recorded.scriptHash,
+        actual: hash,
+      });
+    }
+  }
+
+  const sensitive = isEncodingSensitive(script);
+  if (sensitive !== vector.encoding.encodingSensitive) {
     findings.push({
       vectorId: vector.id,
       kind: 'encoding',
-      detail: 'CBOR does not match the recorded encoding',
-      expected: vector.encoding.cborHex,
-      actual: cborHex,
-    });
-  }
-
-  const preimageHex = toHex(hashPreimage(script));
-  if (preimageHex !== vector.encoding.preimageHex) {
-    findings.push({
-      vectorId: vector.id,
-      kind: 'encoding',
-      detail: 'hash preimage does not match, so the language tag or the CBOR differs',
-      expected: vector.encoding.preimageHex,
-      actual: preimageHex,
-    });
-  }
-
-  const hash = scriptHash(script);
-  if (hash !== vector.encoding.scriptHash) {
-    findings.push({
-      vectorId: vector.id,
-      kind: 'hash',
-      detail: 'script hash does not match',
-      expected: vector.encoding.scriptHash,
-      actual: hash,
+      detail: 'encodingSensitive does not match the script structure',
+      expected: String(vector.encoding.encodingSensitive),
+      actual: String(sensitive),
     });
   }
 

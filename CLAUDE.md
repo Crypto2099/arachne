@@ -19,6 +19,7 @@ Any change that blurs that line is a bad change however well it tests.
 ```
 npm run verify            lint, format, typecheck, offline suites, corpus check
 npm test                  the unit and conformance suites
+npm run test:cli          cross-check the corpus against cardano-cli
 npm run test:unit         one suite
 npm run test:conformance  one suite
 npx vitest run -t 'name'  one test by name
@@ -56,6 +57,36 @@ decision. They fail for different reasons and are proved by different means.
 parameterized families. `src/vectors/` builds, loads and verifies the corpus, and is the
 public conformance API. Everything flows one way: model, encode and evaluate, then
 generate, then vectors.
+
+### A script has two valid hashes, and that is the central fact
+
+`cardano-binary`, under cardano-node and cardano-cli, frames a sub-script list as a
+definite-length CBOR array up to 23 children and an indefinite-length array from 24 up.
+cardano-serialization-lib and most JavaScript tooling use definite length at every size.
+So a container with 24 or more children has two valid encodings, two valid hashes, two
+valid addresses and two valid governance identifiers.
+
+Neither is canonical. Every vector records both under `encoding.definite` and
+`encoding.cardanoBinary`, with `encodingSensitive` saying whether they differ, and
+`credentials` carries a set per encoding. `scriptHashes(script)` returns both.
+
+The safe primitive for a script that arrives as bytes is `scriptHashFromCbor`, which
+hashes what was received. Decoding and re-encoding can change the framing and therefore
+the hash. `decodeScript` reports which framings reproduce the bytes it read, and an
+empty `framings` array means neither standard encoder produces them, so re-encoding is
+unsafe. Full account in `spec/07-encoding-divergence.md`.
+
+### Three oracles, deliberately
+
+| Oracle                      | Implements         | Authority                                              |
+| --------------------------- | ------------------ | ------------------------------------------------------ |
+| `cardano-cli`               | `cardanoBinary`    | Shares cardano-api's serialization path with the node  |
+| `cardano-serialization-lib` | `definite`         | Independent Rust implementation, what most wallets run |
+| The ledger source           | Satisfaction rules | `evalTimelock`, transcribed                            |
+
+cardano-cli is the strongest, so the `cli` vitest project pins the node side and the CSL
+cross-check pins the ecosystem side. Agreeing with both is worth more than either. The
+`cli` project skips cleanly when the binary is absent and CI installs a pinned version.
 
 ### The CBOR encoder is hand-rolled on purpose
 
@@ -128,6 +159,14 @@ deliberate decision carried by a human, not a refactor.
   size limits and CDDL rules are quoted from the document that defines them, with the
   source named in a comment or in `spec/`. This covers CIPs and the ledger equally. If a
   source cannot be reached, mark the claim unverified rather than assuming it.
+
+## Known defects
+
+**Recursion limits in this implementation.** `parseScript` throws a `RangeError` at
+around depth 1800 and `evaluate` at around 2048, while `encodeScript` survives to about 6000. The deepest linear `all` that fits in a 16,384-byte transaction is 5450, and
+cardano-cli handled 4096 without complaint, so scripts the ledger would accept crash
+this library. The tree walks are recursive and need converting to explicit stacks. This
+is exactly the unspecified-implementation-limit risk the spec describes, found here.
 
 ## Known limits, and where they come from
 

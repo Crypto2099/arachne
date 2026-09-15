@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "breadth/any-w005",
   "family": "breadth",
   "question": "How many sub-scripts fit in one container before the transaction exceeds its size limit?",
@@ -53,39 +53,81 @@
   },
   "remarks": [],
   "encoding": {
-    "cborHex": "8202858200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d8200581cfb8252e9ec0fba2a5031d14922a62c76ebfbaea23f2f633694128a038200581c3c344cd87d7582ed8c75405f3274d3f808a8c3d1e42f5dba5a19266c8200581c21e06870162d4678d0ed4b1fce2c92d6c0321a1d4716803a7d7fc64f",
-    "preimageHex": "008202858200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d8200581cfb8252e9ec0fba2a5031d14922a62c76ebfbaea23f2f633694128a038200581c3c344cd87d7582ed8c75405f3274d3f808a8c3d1e42f5dba5a19266c8200581c21e06870162d4678d0ed4b1fce2c92d6c0321a1d4716803a7d7fc64f",
-    "scriptHash": "7fe1e9fbbeefa72d2963d324eeb41cd5954748400854f345d2491722",
-    "cborBytes": 163
+    "definite": {
+      "cborHex": "8202858200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d8200581cfb8252e9ec0fba2a5031d14922a62c76ebfbaea23f2f633694128a038200581c3c344cd87d7582ed8c75405f3274d3f808a8c3d1e42f5dba5a19266c8200581c21e06870162d4678d0ed4b1fce2c92d6c0321a1d4716803a7d7fc64f",
+      "preimageHex": "008202858200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d8200581cfb8252e9ec0fba2a5031d14922a62c76ebfbaea23f2f633694128a038200581c3c344cd87d7582ed8c75405f3274d3f808a8c3d1e42f5dba5a19266c8200581c21e06870162d4678d0ed4b1fce2c92d6c0321a1d4716803a7d7fc64f",
+      "scriptHash": "7fe1e9fbbeefa72d2963d324eeb41cd5954748400854f345d2491722",
+      "cborBytes": 163
+    },
+    "cardanoBinary": {
+      "cborHex": "8202858200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d8200581cfb8252e9ec0fba2a5031d14922a62c76ebfbaea23f2f633694128a038200581c3c344cd87d7582ed8c75405f3274d3f808a8c3d1e42f5dba5a19266c8200581c21e06870162d4678d0ed4b1fce2c92d6c0321a1d4716803a7d7fc64f",
+      "preimageHex": "008202858200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d8200581cfb8252e9ec0fba2a5031d14922a62c76ebfbaea23f2f633694128a038200581c3c344cd87d7582ed8c75405f3274d3f808a8c3d1e42f5dba5a19266c8200581c21e06870162d4678d0ed4b1fce2c92d6c0321a1d4716803a7d7fc64f",
+      "scriptHash": "7fe1e9fbbeefa72d2963d324eeb41cd5954748400854f345d2491722",
+      "cborBytes": 163
+    },
+    "encodingSensitive": false
   },
   "credentials": {
-    "enterprise": {
-      "mainnet": "addr1w9l7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsn95w6n",
-      "preview": "addr_test1wpl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsgdqj4k",
-      "preprod": "addr_test1wpl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsgdqj4k"
-    },
-    "baseScriptStake": {
-      "mainnet": "addr1x9l7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgnlu85lh0h05ukjjc7nynhtg8x4j4r5ssqg2ne5t5jfzu3qgj2rss",
-      "preview": "addr_test1xpl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgnlu85lh0h05ukjjc7nynhtg8x4j4r5ssqg2ne5t5jfzu3qtyhru0",
-      "preprod": "addr_test1xpl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgnlu85lh0h05ukjjc7nynhtg8x4j4r5ssqg2ne5t5jfzu3qtyhru0"
-    },
-    "reward": {
-      "mainnet": "stake179l7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgs005gxp",
-      "preview": "stake_test17pl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsg972zu",
-      "preprod": "stake_test17pl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsg972zu"
-    },
-    "governance": {
-      "drep": {
-        "cip129": "drep1ydl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsj7cnnf",
-        "cip105": "drep_script10ls7n7a7a7nj62tr6vjwadqu6k25wjzqpp20x3wjfytjylw6x3g"
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1w9l7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsn95w6n",
+        "preview": "addr_test1wpl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsgdqj4k",
+        "preprod": "addr_test1wpl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsgdqj4k"
       },
-      "ccCold": {
-        "cip129": "cc_cold1zdl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgskk796d",
-        "cip105": "cc_cold_script10ls7n7a7a7nj62tr6vjwadqu6k25wjzqpp20x3wjfytjyp8dspj"
+      "baseScriptStake": {
+        "mainnet": "addr1x9l7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgnlu85lh0h05ukjjc7nynhtg8x4j4r5ssqg2ne5t5jfzu3qgj2rss",
+        "preview": "addr_test1xpl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgnlu85lh0h05ukjjc7nynhtg8x4j4r5ssqg2ne5t5jfzu3qtyhru0",
+        "preprod": "addr_test1xpl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgnlu85lh0h05ukjjc7nynhtg8x4j4r5ssqg2ne5t5jfzu3qtyhru0"
       },
-      "ccHot": {
-        "cip129": "cc_hot1qdl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsq22eqy",
-        "cip105": "cc_hot_script10ls7n7a7a7nj62tr6vjwadqu6k25wjzqpp20x3wjfytjy9es0re"
+      "reward": {
+        "mainnet": "stake179l7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgs005gxp",
+        "preview": "stake_test17pl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsg972zu",
+        "preprod": "stake_test17pl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsg972zu"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1ydl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsj7cnnf",
+          "cip105": "drep_script10ls7n7a7a7nj62tr6vjwadqu6k25wjzqpp20x3wjfytjylw6x3g"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zdl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgskk796d",
+          "cip105": "cc_cold_script10ls7n7a7a7nj62tr6vjwadqu6k25wjzqpp20x3wjfytjyp8dspj"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qdl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsq22eqy",
+          "cip105": "cc_hot_script10ls7n7a7a7nj62tr6vjwadqu6k25wjzqpp20x3wjfytjy9es0re"
+        }
+      }
+    },
+    "cardanoBinary": {
+      "enterprise": {
+        "mainnet": "addr1w9l7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsn95w6n",
+        "preview": "addr_test1wpl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsgdqj4k",
+        "preprod": "addr_test1wpl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsgdqj4k"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1x9l7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgnlu85lh0h05ukjjc7nynhtg8x4j4r5ssqg2ne5t5jfzu3qgj2rss",
+        "preview": "addr_test1xpl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgnlu85lh0h05ukjjc7nynhtg8x4j4r5ssqg2ne5t5jfzu3qtyhru0",
+        "preprod": "addr_test1xpl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgnlu85lh0h05ukjjc7nynhtg8x4j4r5ssqg2ne5t5jfzu3qtyhru0"
+      },
+      "reward": {
+        "mainnet": "stake179l7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgs005gxp",
+        "preview": "stake_test17pl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsg972zu",
+        "preprod": "stake_test17pl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsg972zu"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1ydl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsj7cnnf",
+          "cip105": "drep_script10ls7n7a7a7nj62tr6vjwadqu6k25wjzqpp20x3wjfytjylw6x3g"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zdl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgskk796d",
+          "cip105": "cc_cold_script10ls7n7a7a7nj62tr6vjwadqu6k25wjzqpp20x3wjfytjyp8dspj"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qdl7r60mhmh6wtffv0fjfm45rn2e236ggqy9fu696fy3wgsq22eqy",
+          "cip105": "cc_hot_script10ls7n7a7a7nj62tr6vjwadqu6k25wjzqpp20x3wjfytjy9es0re"
+        }
       }
     }
   },

@@ -1,7 +1,13 @@
 import { serializeScript } from '../model/json.js';
 import { remarksFor, shapeOf } from '../model/invariants.js';
 import type { NativeScript } from '../model/types.js';
-import { encodeScript, hashPreimage, scriptHash, blake2b224 } from '../encode/script.js';
+import {
+  encodeScript,
+  hashPreimage,
+  scriptHash,
+  blake2b224,
+  type ArrayEncoding,
+} from '../encode/script.js';
 import { toHex } from '../encode/cbor.js';
 import {
   baseAddressScriptStake,
@@ -16,8 +22,10 @@ import type { Family } from '../generate/families.js';
 import {
   VECTOR_FORMAT_VERSION,
   type CorpusIndex,
+  type EncodingRecord,
   type SatisfactionCase,
   type Vector,
+  type VectorCredentials,
 } from './schema.js';
 
 const TESTNETS: Network[] = ['preview', 'preprod'];
@@ -38,10 +46,33 @@ const EXHAUSTIVE_KEY_LIMIT = 6;
  */
 const BOUNDARY_OFFSETS = [-1, 0, 1];
 
+function encodingRecord(script: NativeScript, encoding: ArrayEncoding): EncodingRecord {
+  const cbor = encodeScript(script, encoding);
+  return {
+    cborHex: toHex(cbor),
+    preimageHex: toHex(hashPreimage(script, encoding)),
+    scriptHash: scriptHash(script, encoding),
+    cborBytes: cbor.length,
+  };
+}
+
+function credentialsFor(hash: string): VectorCredentials {
+  return {
+    enterprise: fromNetworks(ALL_NETWORKS, (n) => enterpriseAddress(hash, n)),
+    baseScriptStake: fromNetworks(ALL_NETWORKS, (n) => baseAddressScriptStake(hash, hash, n)),
+    reward: fromNetworks(ALL_NETWORKS, (n) => rewardAddress(hash, n)),
+    governance: {
+      drep: { cip129: govIdCip129(hash, 'drep'), cip105: govIdCip105(hash, 'drep') },
+      ccCold: { cip129: govIdCip129(hash, 'ccCold'), cip105: govIdCip105(hash, 'ccCold') },
+      ccHot: { cip129: govIdCip129(hash, 'ccHot'), cip105: govIdCip105(hash, 'ccHot') },
+    },
+  };
+}
+
 export function buildVector<P extends object>(family: Family<P>, params: P): Vector {
   const script = family.build(params);
-  const cbor = encodeScript(script);
-  const hash = scriptHash(script);
+  const definite = encodingRecord(script, 'definite');
+  const cardanoBinary = encodingRecord(script, 'cardanoBinary');
 
   return {
     formatVersion: VECTOR_FORMAT_VERSION,
@@ -53,20 +84,13 @@ export function buildVector<P extends object>(family: Family<P>, params: P): Vec
     shape: shapeOf(script),
     remarks: remarksFor(script),
     encoding: {
-      cborHex: toHex(cbor),
-      preimageHex: toHex(hashPreimage(script)),
-      scriptHash: hash,
-      cborBytes: cbor.length,
+      definite,
+      cardanoBinary,
+      encodingSensitive: definite.scriptHash !== cardanoBinary.scriptHash,
     },
     credentials: {
-      enterprise: fromNetworks(ALL_NETWORKS, (n) => enterpriseAddress(hash, n)),
-      baseScriptStake: fromNetworks(ALL_NETWORKS, (n) => baseAddressScriptStake(hash, hash, n)),
-      reward: fromNetworks(ALL_NETWORKS, (n) => rewardAddress(hash, n)),
-      governance: {
-        drep: { cip129: govIdCip129(hash, 'drep'), cip105: govIdCip105(hash, 'drep') },
-        ccCold: { cip129: govIdCip129(hash, 'ccCold'), cip105: govIdCip105(hash, 'ccCold') },
-        ccHot: { cip129: govIdCip129(hash, 'ccHot'), cip105: govIdCip105(hash, 'ccHot') },
-      },
+      definite: credentialsFor(definite.scriptHash),
+      cardanoBinary: credentialsFor(cardanoBinary.scriptHash),
     },
     satisfaction: satisfactionCases(script),
     onchain: [],
@@ -223,7 +247,7 @@ function signerLabel(signers: string[], keys: string[]): string {
 /** Digest over ids and script hashes. A corpus that changed shows one differing line. */
 export function corpusDigest(vectors: Vector[]): string {
   const material = vectors
-    .map((v) => `${v.id}\t${v.encoding.scriptHash}`)
+    .map((v) => `${v.id}\t${v.encoding.definite.scriptHash}\t${v.encoding.cardanoBinary.scriptHash}`)
     .sort()
     .join('\n');
   return toHex(blake2b224(new TextEncoder().encode(material)));
@@ -249,13 +273,15 @@ export function buildIndex(vectors: Vector[], generator: string): CorpusIndex {
     vectorCount: vectors.length,
     satisfactionCaseCount: vectors.reduce((n, v) => n + v.satisfaction.length, 0),
     observationCount: vectors.reduce((n, v) => n + v.onchain.length, 0),
+    encodingSensitiveCount: vectors.filter((v) => v.encoding.encodingSensitive).length,
     digest: corpusDigest(vectors),
     vectors: vectors
       .map((v) => ({
         id: v.id,
         family: v.family,
         path: `${v.id}.json`,
-        scriptHash: v.encoding.scriptHash,
+        scriptHash: v.encoding.definite.scriptHash,
+        cardanoBinaryScriptHash: v.encoding.cardanoBinary.scriptHash,
       }))
       .sort((a, b) => a.id.localeCompare(b.id)),
   };

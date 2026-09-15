@@ -62,3 +62,42 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=critical
+
+  # cardano-cli is the Haskell tool that shares cardano-api's serialization path
+  # with the node, which makes it the authoritative oracle for what the chain
+  # computes. It is pinned rather than floating: a change in what it produces is
+  # a finding, and this job should be the thing that reports it.
+  cardano-cli:
+    runs-on: ubuntu-latest
+    env:
+      CARDANO_CLI_VERSION: 11.2.3.1
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install cardano-cli
+        run: |
+          set -euo pipefail
+          base="https://github.com/IntersectMBO/cardano-cli/releases/download/cardano-cli-${CARDANO_CLI_VERSION}"
+          curl -fsSL -o cli.tar.gz "${base}/cardano-cli-${CARDANO_CLI_VERSION}-x86_64-linux.tar.gz"
+          curl -fsSL -o sums.txt "${base}/cardano-cli-${CARDANO_CLI_VERSION}-sha256sums.txt"
+          expected=$(grep "x86_64-linux.tar.gz" sums.txt | awk '{print $1}')
+          echo "${expected}  cli.tar.gz" | sha256sum -c -
+          mkdir -p "$HOME/.local/bin"
+          tar -xzf cli.tar.gz -C "$HOME/.local/bin"
+          # The archive holds a platform-suffixed binary, not a bare name.
+          mv "$HOME/.local/bin/cardano-cli-x86_64-linux" "$HOME/.local/bin/cardano-cli"
+          chmod +x "$HOME/.local/bin/cardano-cli"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Report the version under test
+        run: cardano-cli --version
+
+      - name: Cross-check the corpus against cardano-cli
+        run: npm run test:cli

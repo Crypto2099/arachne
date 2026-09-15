@@ -49,7 +49,8 @@ describe('committed corpus', () => {
     for (const entry of index.vectors) {
       const vector = corpus.find((v) => v.id === entry.id);
       expect(vector, `index lists ${entry.id} but no such vector exists`).toBeDefined();
-      expect(vector?.encoding.scriptHash).toBe(entry.scriptHash);
+      expect(vector?.encoding.definite.scriptHash).toBe(entry.scriptHash);
+      expect(vector?.encoding.cardanoBinary.scriptHash).toBe(entry.cardanoBinaryScriptHash);
     }
   });
 
@@ -58,9 +59,10 @@ describe('committed corpus', () => {
     // which is duplicated coverage rather than a defect. It should be visible.
     const byHash = new Map<string, string[]>();
     for (const vector of corpus) {
-      const ids = byHash.get(vector.encoding.scriptHash) ?? [];
+      const key = `${vector.encoding.definite.scriptHash}/${vector.encoding.cardanoBinary.scriptHash}`;
+      const ids = byHash.get(key) ?? [];
       ids.push(vector.id);
-      byHash.set(vector.encoding.scriptHash, ids);
+      byHash.set(key, ids);
     }
     const collisions = [...byHash.values()].filter((ids) => ids.length > 1);
     expect(collisions, `duplicate scripts: ${JSON.stringify(collisions)}`).toEqual([]);
@@ -107,7 +109,7 @@ describe('coverage', () => {
   it('brackets the transaction size limit', () => {
     // maxTxSize on mainnet and both testnets is 16384 bytes. The corpus is only
     // useful for the size question if it contains scripts on both sides of it.
-    const sizes = corpus.map((v) => v.encoding.cborBytes);
+    const sizes = corpus.map((v) => v.encoding.cardanoBinary.cborBytes);
     expect(Math.min(...sizes)).toBeLessThan(100);
     expect(Math.max(...sizes)).toBeGreaterThan(8_000);
   });

@@ -67,8 +67,11 @@ export const breadth: Family<{ tag: 'all' | 'any'; width: number }> = {
     'How many sub-scripts fit in one container before the transaction exceeds its size limit?',
   // From width 2: a container with one child is not a breadth case, and it is
   // the depth-1 script nest-linear already generates.
+  // 23, 24 and 25 bracket the point where cardano-binary switches a list from
+  // definite to indefinite framing, which is where the two encodings start
+  // producing different script hashes.
   cases: () =>
-    [2, 3, 5, 10, 20, 50, 100, 200, 400].flatMap((width) => [
+    [2, 3, 5, 10, 20, 23, 24, 25, 50, 100, 200, 400].flatMap((width) => [
       { tag: 'all' as const, width },
       { tag: 'any' as const, width },
     ]),
@@ -358,6 +361,48 @@ export const federationOfFederations: Family<{ blocs: number; members: number; c
   }),
 };
 
+/**
+ * The encoding boundary, reached from inside rather than at the root.
+ *
+ * `cardano-binary` frames each list independently, so a script whose root holds
+ * two children can still diverge if one of those children holds 24. A consumer
+ * that checks only the root's child count will conclude a script is safe when it
+ * is not.
+ */
+export const encodingBoundary: Family<{ position: string; width: number }> = {
+  name: 'encoding-boundary',
+  question:
+    'Does the definite-to-indefinite switch depend on each list independently, so a small root can still hide a divergent child?',
+  cases: () =>
+    ['root', 'nested', 'deep'].flatMap((position) =>
+      [23, 24].map((width) => ({ position, width })),
+    ),
+  id: ({ position, width }) => `${position}-w${width}`,
+  build: ({ position, width }) => {
+    const cohort = cosigners(width, `eb${width}k`).map((keyHash) => ({
+      type: 'sig' as const,
+      keyHash,
+    }));
+    const group: NativeScript = { type: 'any', scripts: cohort };
+    switch (position) {
+      case 'root':
+        return group;
+      case 'nested':
+        return {
+          type: 'all',
+          scripts: [{ type: 'sig', keyHash: cosigners(1, 'ebx')[0] as string }, group],
+        };
+      case 'deep':
+        return {
+          type: 'all',
+          scripts: [{ type: 'all', scripts: [{ type: 'atLeast', required: 1, scripts: [group] }] }],
+        };
+      default:
+        throw new Error(`unknown position ${position}`);
+    }
+  },
+};
+
 export const FAMILIES = [
   nestLinear,
   nestAlternating,
@@ -369,5 +414,6 @@ export const FAMILIES = [
   nestedThreshold,
   federation,
   federationOfFederations,
+  encodingBoundary,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Family<any>[];

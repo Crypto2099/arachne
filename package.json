@@ -62,7 +62,8 @@
     "vectors:build": "tsx src/cli.ts vectors build",
     "vectors:verify": "tsx src/cli.ts vectors verify",
     "chain:exercise": "tsx src/cli.ts chain exercise",
-    "verify": "npm run lint && npm run typecheck && npm run test && npm run vectors:verify"
+    "verify": "npm run lint && npm run typecheck && npm run test && npm run vectors:verify",
+    "test:cli": "vitest run --project cli"
   },
   "keywords": [
     "cardano",

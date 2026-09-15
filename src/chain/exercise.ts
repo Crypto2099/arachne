@@ -113,7 +113,7 @@ export const MINIMAL_ENVELOPE = {
  * ADA on a script that is already over the limit by itself.
  */
 export function exceedsSizeFloor(vector: Vector, maxTxSize: number): boolean {
-  return vector.encoding.cborBytes >= maxTxSize;
+  return vector.encoding.cardanoBinary.cborBytes >= maxTxSize;
 }
 
 export class NotImplementedError extends Error {

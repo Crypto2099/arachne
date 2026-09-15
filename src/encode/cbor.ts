@@ -69,9 +69,21 @@ export class CborWriter {
     return this;
   }
 
-  /** Definite-length array header. Indefinite length is never emitted. */
+  /** Definite-length array header. */
   arrayHeader(length: number): this {
     return this.head(MAJOR_ARRAY, BigInt(length));
+  }
+
+  /** Indefinite-length array header, closed by `break`. */
+  arrayHeaderIndefinite(): this {
+    this.chunks.push(MAJOR_ARRAY | 31);
+    return this;
+  }
+
+  /** The `break` byte that terminates an indefinite-length array. */
+  break(): this {
+    this.chunks.push(0xff);
+    return this;
   }
 
   toBytes(): Uint8Array {

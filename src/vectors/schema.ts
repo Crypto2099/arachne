@@ -2,7 +2,7 @@ import type { ScriptRemark, ScriptShape } from '../model/invariants.js';
 import type { Network } from '../encode/credential.js';
 
 /** Bumped whenever the vector file shape changes in a way a consumer must notice. */
-export const VECTOR_FORMAT_VERSION = 1;
+export const VECTOR_FORMAT_VERSION = 2;
 
 export interface SatisfactionCase {
   id: string;
@@ -63,6 +63,18 @@ export interface ChainObservation {
   observedAt: string;
 }
 
+/** One encoding's bytes and the hash taken over them. */
+export interface EncodingRecord {
+  /** CBOR of the script alone. */
+  cborHex: string;
+  /** The exact bytes hashed: language tag 0x00 followed by the CBOR. */
+  preimageHex: string;
+  /** blake2b-224 of the preimage. */
+  scriptHash: string;
+  /** Byte length of the CBOR, the number that governs how much fits in a transaction. */
+  cborBytes: number;
+}
+
 export interface Vector {
   formatVersion: number;
   id: string;
@@ -77,18 +89,30 @@ export interface Vector {
   /** Structural oddities. Present here means intentional, not a defect. */
   remarks: ScriptRemark[];
 
+  /**
+   * Both encodings, because the same logical script has two valid hashes.
+   *
+   * `definite` frames every sub-script list as a definite-length array, which is
+   * what cardano-serialization-lib and most JavaScript tooling produce.
+   * `cardanoBinary` reproduces `wrapCBORArray`, definite up to 23 children and
+   * indefinite from 24 up, which is what cardano-cli and cardano-node produce.
+   *
+   * They are byte-identical unless some container holds 24 or more sub-scripts.
+   * When they differ, `encodingSensitive` is true and the script has two valid
+   * addresses and two valid governance identifiers. See
+   * spec/07-encoding-divergence.md.
+   */
   encoding: {
-    /** CBOR of the script alone. */
-    cborHex: string;
-    /** The exact bytes hashed: language tag 0x00 followed by the CBOR. */
-    preimageHex: string;
-    /** blake2b-224 of the preimage. */
-    scriptHash: string;
-    /** Byte length of the CBOR, the number that governs how much fits in a transaction. */
-    cborBytes: number;
+    definite: EncodingRecord;
+    cardanoBinary: EncodingRecord;
+    encodingSensitive: boolean;
   };
 
-  credentials: VectorCredentials;
+  /** One credential set per encoding, since each hash yields its own addresses. */
+  credentials: {
+    definite: VectorCredentials;
+    cardanoBinary: VectorCredentials;
+  };
   satisfaction: SatisfactionCase[];
   /** Empty until a chain exercise runs. Never fabricated. */
   onchain: ChainObservation[];
@@ -103,7 +127,15 @@ export interface CorpusIndex {
   vectorCount: number;
   satisfactionCaseCount: number;
   observationCount: number;
-  /** Digest over every vector's id and script hash, so drift is one comparison. */
+  /** How many vectors have two different valid hashes. */
+  encodingSensitiveCount: number;
+  /** Digest over every vector's id and both script hashes, so drift is one comparison. */
   digest: string;
-  vectors: { id: string; family: string; path: string; scriptHash: string }[];
+  vectors: {
+    id: string;
+    family: string;
+    path: string;
+    scriptHash: string;
+    cardanoBinaryScriptHash: string;
+  }[];
 }

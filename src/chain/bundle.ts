@@ -91,14 +91,15 @@ export function bundleBudget(
   envelopeBytes = 0,
   costPerByte: bigint = DEFAULT_REF_SCRIPT_COST_PER_BYTE,
 ): BundleBudget {
-  const sizes = vectors.map((v) => v.encoding.cborBytes);
+  // The node-side encoding, since this arithmetic is about what a node accepts.
+  const sizes = vectors.map((v) => v.encoding.cardanoBinary.cborBytes);
   const totalScriptBytes = sizes.reduce((n, s) => n + s, 0);
   const largestScriptBytes = sizes.length > 0 ? Math.max(...sizes) : 0;
 
   // A reference script sits inside a transaction output, so creating one costs
   // its own bytes plus that transaction's envelope.
   const uncreatableScripts = vectors
-    .filter((v) => v.encoding.cborBytes + envelopeBytes > maxTxSize)
+    .filter((v) => v.encoding.cardanoBinary.cborBytes + envelopeBytes > maxTxSize)
     .map((v) => v.id);
 
   const notes: string[] = [];

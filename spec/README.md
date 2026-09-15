@@ -26,6 +26,8 @@ of offline reasoning settles them. The first two questions are settled offline a
   conformance, and what happens when a node disagrees with the reference evaluator.
 - [06-chain-exercises.md](06-chain-exercises.md). What "exercised on-chain" means for
   each credential role, and the evidence an exercise has to produce.
+- [07-encoding-divergence.md](07-encoding-divergence.md). Why a script with 24 or more
+  sub-scripts in one container has two valid hashes, and which one to use when.
 
 ## Implementing a port
 
@@ -34,10 +36,12 @@ any language claims conformance by reading those files and reproducing what they
 record. It needs no network access and no key material to do so.
 
 1. Parse `vectors/index.json` and load every vector it lists.
-2. For each vector, encode `script` and compare against `encoding.cborHex`. This is a
-   byte comparison, not a structural one.
-3. Hash the encoding and compare against `encoding.scriptHash`.
-4. Derive each credential in `credentials` and compare the strings.
+2. For each vector, encode `script` both ways and compare against
+   `encoding.definite.cborHex` and `encoding.cardanoBinary.cborHex`. These are byte
+   comparisons, not structural ones.
+3. Hash each encoding and compare against its `scriptHash`.
+4. Derive each credential in `credentials.definite` and `credentials.cardanoBinary` and
+   compare the strings.
 5. For each entry in `satisfaction`, evaluate the script against the case's signers
    and validity interval, and compare against `expected`.
 
