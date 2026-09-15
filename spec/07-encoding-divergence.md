@@ -1,0 +1,130 @@
+# The encoding divergence
+
+The same logical native script has two valid CBOR encodings that hash differently. A
+script with 24 or more sub-scripts in any one container therefore has two valid script
+hashes, two valid addresses, and two valid governance identifiers. Which one the chain
+holds depends on which tool created it.
+
+This is not a bug in either encoder. Both produce well-formed CBOR, both decode
+correctly, and each toolchain is self-consistent. It only bites when a script crosses
+between toolchains.
+
+## The rule
+
+`cardano-binary`, the serialization library underneath `cardano-ledger`,
+`cardano-api`, `cardano-cli` and `cardano-node`, frames a list like this:
+
+```haskell
+wrapCBORArray :: Word -> Encoding -> Encoding
+wrapCBORArray len contents
+  | len <= 23 = encodeListLen len <> contents
+  | otherwise = encodeListLenIndef <> contents <> encodeBreak
+```
+
+Up to 23 elements it writes a definite-length array. From 24 it writes an
+indefinite-length array (`0x9f`) closed by a break (`0xff`).
+
+cardano-serialization-lib, MeshJS and most of the JavaScript ecosystem write a
+definite-length array at every size.
+
+24 is not an arbitrary threshold. It is where a CBOR array header stops fitting in the
+head byte and needs a following length byte, so it is the point at which a
+streaming encoder that does not know its length in advance starts preferring the
+indefinite form.
+
+## What it looks like
+
+A 24-signature `all`, encoded both ways:
+
+```
+definite       82 01 98 18 8200581c...    array(2), tag 1, array(24), children
+cardanoBinary  82 01 9f    8200581c... ff array(2), tag 1, array(*), children, break
+```
+
+Same script, different bytes, different hash:
+
+| Children | cardano-cli           | cardano-serialization-lib | Agree |
+| -------- | --------------------- | ------------------------- | ----- |
+| 23       | `b168c85f621e7751...` | `b168c85f621e7751...`     | yes   |
+| 24       | `70a5c7c6bfabe9d3...` | `6695681e5d3875e8...`     | no    |
+| 50       | `ac845b3aed05d881...` | `c903bdc63fce124c...`     | no    |
+
+## Why it has gone unnoticed
+
+Almost no real script reaches 24 sub-scripts in one container. A 3-of-5 treasury, a
+2-of-3 DRep and a 7-of-10 committee are all far below the line, and below it the two
+encodings are byte-identical. The divergence is invisible until an organisation grows a
+cohort past 23, at which point it appears all at once.
+
+It is also self-concealing. A team using one toolchain end to end never sees it: the
+address it derives matches the hash it submits, because both came from the same
+encoder, and the ledger hashes whatever bytes it receives. The failure needs two tools.
+
+## When it bites
+
+- An address or governance identifier is derived with one tool and the transaction is
+  built with another. The script hash in the witness will not match the credential
+  being spent or voted with, and the transaction is rejected.
+- A backend verifies a DRep script hash fetched from an indexer against a hash it
+  recomputes from the script JSON. If the two came from different encoders, a correct
+  signature set is refused.
+- A script is decoded from the chain and re-encoded before hashing. Re-encoding in the
+  wrong framing silently changes the hash.
+
+The last one is the easiest to hit and the hardest to see, because nothing about the
+code looks wrong.
+
+## What to do
+
+**Hash the bytes you received.** When a script arrives as CBOR, from an indexer, a
+transaction or a peer, take its hash over those exact bytes. Do not decode and
+re-encode first. `scriptHashFromCbor` does this, and it is what the ledger does, which
+retains the original bytes for hashing rather than recomputing them.
+
+**When you only have JSON, compute both.** `scriptHashes` returns both hashes and a
+flag saying whether they differ. Below 24 children they are equal and the flag is
+false, so the common case costs nothing.
+
+```ts
+const { definite, cardanoBinary, encodingSensitive } = scriptHashes(script);
+if (encodingSensitive) {
+  // Two valid hashes. Accept either, or find out which tool made this one.
+}
+```
+
+**Say which encoding you mean.** `encodeScript(script, 'cardanoBinary')` and
+`scriptHash(script, 'cardanoBinary')` take it explicitly. The default is `definite`,
+matching the JavaScript ecosystem this library sits in, but a caller talking to
+cardano-cli or a node wants the other one.
+
+**Check what the decoder tells you.** `decodeScript` reports which encodings would
+reproduce the bytes it read:
+
+| `framings`                      | Meaning                                                                     |
+| ------------------------------- | --------------------------------------------------------------------------- |
+| `['definite', 'cardanoBinary']` | Every list is under 24, so the two agree                                    |
+| `['definite']`                  | Produced by CSL, MeshJS or similar                                          |
+| `['cardanoBinary']`             | Produced by cardano-cli, a node, or Haskell tooling                         |
+| `[]`                            | Neither standard encoder produces these bytes. Re-encoding changes the hash |
+
+## Which one is right
+
+Neither, and that is the point. The ledger accepts both, and the CDDL constrains
+structure rather than framing, so both are conforming. `cardanoBinary` is what the node
+itself emits, which makes it the one to match when interoperating with cardano-cli.
+`definite` is what most of the ecosystem's tooling emits, which makes it the one
+already recorded on chain for scripts built by wallets.
+
+Arachne records both for every vector and treats neither as canonical. A port claims
+conformance by reproducing both.
+
+## The boundary in the corpus
+
+The `encoding-boundary` family holds the divergence point at 23 and 24 children, in
+three positions: at the root, nested under a small container, and nested two levels
+down. The nested cases matter because `cardano-binary` frames each list independently,
+so a script whose root holds two children still diverges if one of those children holds 24. An implementation that checks only the root's child count will conclude a script is
+safe when it is not.
+
+`breadth` covers 23, 24 and 25 as well as the larger widths, so the boundary is
+bracketed from both sides.

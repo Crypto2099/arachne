@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "threshold-matrix/atleast-3-of-2",
   "family": "threshold-matrix",
   "question": "Does every k in 0..n+1 behave as the reference evaluator says, including the degenerate ends?",
@@ -45,39 +45,81 @@
     }
   ],
   "encoding": {
-    "cborHex": "830303828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d",
-    "preimageHex": "00830303828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d",
-    "scriptHash": "ae47ea93e8022557a481b6cd6f5ece11ce97430f153ac3555d79da76",
-    "cborBytes": 68
+    "definite": {
+      "cborHex": "830303828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d",
+      "preimageHex": "00830303828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d",
+      "scriptHash": "ae47ea93e8022557a481b6cd6f5ece11ce97430f153ac3555d79da76",
+      "cborBytes": 68
+    },
+    "cardanoBinary": {
+      "cborHex": "830303828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d",
+      "preimageHex": "00830303828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad2645707188200581ce07caf4bf751495f75774ace30552441e4df84d141e5d1f5029cb04d",
+      "scriptHash": "ae47ea93e8022557a481b6cd6f5ece11ce97430f153ac3555d79da76",
+      "cborBytes": 68
+    },
+    "encodingSensitive": false
   },
   "credentials": {
-    "enterprise": {
-      "mainnet": "addr1wxhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as2ulqcm",
-      "preview": "addr_test1wzhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as35tuh7",
-      "preprod": "addr_test1wzhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as35tuh7"
-    },
-    "baseScriptStake": {
-      "mainnet": "addr1xxhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5a4wgl4f86qzy4t6fqdke4h4ans3e6t5xrc48tp42htemfmqyah4vu",
-      "preview": "addr_test1xzhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5a4wgl4f86qzy4t6fqdke4h4ans3e6t5xrc48tp42htemfmq8t24qr",
-      "preprod": "addr_test1xzhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5a4wgl4f86qzy4t6fqdke4h4ans3e6t5xrc48tp42htemfmq8t24qr"
-    },
-    "reward": {
-      "mainnet": "stake17xhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5askklxyf",
-      "preview": "stake_test17zhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as3u4yq5",
-      "preprod": "stake_test17zhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as3u4yq5"
-    },
-    "governance": {
-      "drep": {
-        "cip129": "drep1ywhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5ast8na3p",
-        "cip105": "drep_script14er74ylgqgj40fypkmxk7hkwz88fwsc0z5avx42a08d8ve69725"
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1wxhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as2ulqcm",
+        "preview": "addr_test1wzhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as35tuh7",
+        "preprod": "addr_test1wzhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as35tuh7"
       },
-      "ccCold": {
-        "cip129": "cc_cold1zwhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as004tc9",
-        "cip105": "cc_cold_script14er74ylgqgj40fypkmxk7hkwz88fwsc0z5avx42a08d8v8njg6w"
+      "baseScriptStake": {
+        "mainnet": "addr1xxhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5a4wgl4f86qzy4t6fqdke4h4ans3e6t5xrc48tp42htemfmqyah4vu",
+        "preview": "addr_test1xzhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5a4wgl4f86qzy4t6fqdke4h4ans3e6t5xrc48tp42htemfmq8t24qr",
+        "preprod": "addr_test1xzhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5a4wgl4f86qzy4t6fqdke4h4ans3e6t5xrc48tp42htemfmq8t24qr"
       },
-      "ccHot": {
-        "cip129": "cc_hot1qwhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5asenphzv",
-        "cip105": "cc_hot_script14er74ylgqgj40fypkmxk7hkwz88fwsc0z5avx42a08d8vrd0hc9"
+      "reward": {
+        "mainnet": "stake17xhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5askklxyf",
+        "preview": "stake_test17zhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as3u4yq5",
+        "preprod": "stake_test17zhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as3u4yq5"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1ywhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5ast8na3p",
+          "cip105": "drep_script14er74ylgqgj40fypkmxk7hkwz88fwsc0z5avx42a08d8ve69725"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zwhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as004tc9",
+          "cip105": "cc_cold_script14er74ylgqgj40fypkmxk7hkwz88fwsc0z5avx42a08d8v8njg6w"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qwhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5asenphzv",
+          "cip105": "cc_hot_script14er74ylgqgj40fypkmxk7hkwz88fwsc0z5avx42a08d8vrd0hc9"
+        }
+      }
+    },
+    "cardanoBinary": {
+      "enterprise": {
+        "mainnet": "addr1wxhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as2ulqcm",
+        "preview": "addr_test1wzhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as35tuh7",
+        "preprod": "addr_test1wzhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as35tuh7"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1xxhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5a4wgl4f86qzy4t6fqdke4h4ans3e6t5xrc48tp42htemfmqyah4vu",
+        "preview": "addr_test1xzhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5a4wgl4f86qzy4t6fqdke4h4ans3e6t5xrc48tp42htemfmq8t24qr",
+        "preprod": "addr_test1xzhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5a4wgl4f86qzy4t6fqdke4h4ans3e6t5xrc48tp42htemfmq8t24qr"
+      },
+      "reward": {
+        "mainnet": "stake17xhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5askklxyf",
+        "preview": "stake_test17zhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as3u4yq5",
+        "preprod": "stake_test17zhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as3u4yq5"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1ywhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5ast8na3p",
+          "cip105": "drep_script14er74ylgqgj40fypkmxk7hkwz88fwsc0z5avx42a08d8ve69725"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zwhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5as004tc9",
+          "cip105": "cc_cold_script14er74ylgqgj40fypkmxk7hkwz88fwsc0z5avx42a08d8v8njg6w"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qwhy065naqpz24aysxmv6m67ecgua96rpu2n4s64t4ua5asenphzv",
+          "cip105": "cc_hot_script14er74ylgqgj40fypkmxk7hkwz88fwsc0z5avx42a08d8vrd0hc9"
+        }
       }
     }
   },

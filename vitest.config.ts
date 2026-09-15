@@ -24,6 +24,19 @@ export default defineConfig({
       },
       {
         test: {
+          // Cross-checks every vector against cardano-cli, the Haskell tool that
+          // shares cardano-api's serialization path with the node. It needs the
+          // binary on PATH and skips itself cleanly when it is absent, so it is
+          // kept out of the default run rather than failing on a dev machine
+          // without it.
+          name: 'cli',
+          include: ['test/cli/**/*.test.ts'],
+          environment: 'node',
+          testTimeout: 120_000,
+        },
+      },
+      {
+        test: {
           name: 'chain',
           include: ['test/chain/**/*.test.ts'],
           environment: 'node',

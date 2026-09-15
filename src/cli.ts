@@ -4,9 +4,10 @@ import { FAMILIES } from './generate/families.js';
 import { buildIndex, buildVector } from './vectors/build.js';
 import { DEFAULT_CORPUS_DIR, loadAllVectors, writeCorpus } from './vectors/load.js';
 import { verifyCorpus } from './vectors/verify.js';
-import { parseScript, unwrapScript } from './model/json.js';
+import { parseScript, serializeScript, unwrapScript } from './model/json.js';
 import { shapeOf, remarksFor } from './model/invariants.js';
-import { encodeScript, hashPreimage, scriptHash } from './encode/script.js';
+import { encodeScript, hashPreimage, scriptHashes, type ArrayEncoding } from './encode/script.js';
+import { decodeScript, scriptHashFromCbor } from './encode/decode.js';
 import { toHex } from './encode/cbor.js';
 import {
   enterpriseAddress,
@@ -21,7 +22,9 @@ const USAGE = `arachne <command>
 
   vectors build              regenerate the corpus, carrying chain observations forward
   vectors verify             re-derive every vector and report disagreements
-  inspect <file|->           describe one native script: hash, credentials, structure
+  inspect <file|->           describe one native script: hashes, credentials, structure
+  encode <file|-> [--as E]   JSON to CBOR hex. E is definite (default) or cardanoBinary
+  decode <hex|->             CBOR hex to JSON, with the framing it used
   evaluate <file|-> [opts]   evaluate a script against a witness set
                              --signer <keyHash>   repeatable
                              --start <slot>       transaction validity start
@@ -80,11 +83,47 @@ async function main(argv: string[]): Promise<number> {
     return 1;
   }
 
+  if (command === 'encode') {
+    const script = parseScript(unwrapScript(JSON.parse(await readInput(sub))));
+    const as = (rest[0] === '--as' ? rest[1] : 'definite') as ArrayEncoding;
+    if (as !== 'definite' && as !== 'cardanoBinary') {
+      throw new Error(`--as expects definite or cardanoBinary, got ${as}`);
+    }
+    console.log(toHex(encodeScript(script, as)));
+    return 0;
+  }
+
+  if (command === 'decode') {
+    const hex = (await readInput(sub)).trim().replace(/\s+/g, '');
+    const decoded = decodeScript(hex);
+    console.log(JSON.stringify(serializeScript(decoded.script), null, 2));
+    console.error(`script hash        ${scriptHashFromCbor(hex)}`);
+    console.error(
+      `framing            ${decoded.framings.length > 0 ? decoded.framings.join(', ') : 'neither standard encoding reproduces these bytes'}`,
+    );
+    console.error(`encoding sensitive ${decoded.encodingSensitive}`);
+    if (decoded.framings.length === 0) {
+      console.error(
+        'warning            re-encoding this script would change its hash. Hash the bytes as received.',
+      );
+    }
+    return 0;
+  }
+
   if (command === 'inspect') {
     const script = parseScript(unwrapScript(JSON.parse(await readInput(sub))));
-    const hash = scriptHash(script);
+    const hashes = scriptHashes(script);
+    const hash = hashes.definite;
     const shape = shapeOf(script);
-    console.log(`script hash        ${hash}`);
+    if (hashes.encodingSensitive) {
+      console.log(`script hash        ${hashes.definite}   (definite: CSL, MeshJS)`);
+      console.log(
+        `script hash        ${hashes.cardanoBinary}   (cardanoBinary: cardano-cli, node)`,
+      );
+      console.log(`WARNING            this script has two valid hashes. See spec/07.`);
+    } else {
+      console.log(`script hash        ${hash}`);
+    }
     console.log(`cbor               ${toHex(encodeScript(script))}`);
     console.log(`hash preimage      ${toHex(hashPreimage(script))}`);
     console.log(`depth              ${shape.depth}`);

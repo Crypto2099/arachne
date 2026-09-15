@@ -21,6 +21,31 @@ Conflating these produces a pass or fail nobody can act on. Only the third can e
 a limit, because nesting depth and script size are properties of a running ledger rather
 than of a data format.
 
+## The finding that motivates the rest
+
+The same logical native script has two valid CBOR encodings that hash differently.
+
+`cardano-binary`, which sits under cardano-node and cardano-cli, frames a list as a
+definite-length CBOR array up to 23 elements and an indefinite-length array from 24 up.
+cardano-serialization-lib, MeshJS and most of the JavaScript ecosystem use a
+definite-length array at every size.
+
+| Children in one container | cardano-cli           | cardano-serialization-lib | Agree |
+| ------------------------- | --------------------- | ------------------------- | ----- |
+| 23                        | `b168c85f621e7751...` | `b168c85f621e7751...`     | yes   |
+| 24                        | `70a5c7c6bfabe9d3...` | `6695681e5d3875e8...`     | no    |
+
+So a multisig with 24 or more members in one cohort has two valid script hashes, two
+valid addresses and two valid governance identifiers. Neither encoder is wrong: both
+produce conforming CBOR and each toolchain is self-consistent, because the ledger
+hashes whatever bytes it receives. It only bites when a script crosses between
+toolchains, which is why it stays invisible until it does.
+
+Arachne records both encodings for every vector and treats neither as canonical.
+[spec/07-encoding-divergence.md](spec/07-encoding-divergence.md) covers when it bites
+and what to do about it. The short version is to hash the bytes you received rather
+than decoding and re-encoding them.
+
 ## The corpus
 
 `vectors/` holds a generated corpus: one file per script, each carrying the script, its
@@ -82,10 +107,15 @@ only signatures reports this satisfied and then watches the node refuse the tran
 ## Command line
 
 ```
-npx arachne inspect script.json     hash, credentials and structure
+npx arachne inspect script.json     hashes, credentials and structure
+npx arachne encode script.json      JSON to CBOR hex, --as definite | cardanoBinary
+npx arachne decode <hex>            CBOR hex to JSON, with the framing it used
 npx arachne evaluate script.json --signer <keyHash> --start <slot>
 npx arachne families                the generator families and the question each answers
 ```
+
+`decode` reports which encodings would reproduce the bytes it read, which is how you
+find out whether a script from the chain came from a Haskell tool or a JavaScript one.
 
 `evaluate` prints the evaluation tree with a reason at every node, so a failure names
 the condition that was not met rather than only the verdict.
@@ -100,6 +130,9 @@ npx vitest run -t 'name'  one test
 npm run vectors:build     regenerate the corpus
 ```
 
+`npm run test:cli` cross-checks the whole corpus against cardano-cli and skips cleanly
+when the binary is not on PATH.
+
 `npm run test:chain` is where the chain exercises will submit real transactions to a
 public testnet and spend testnet ADA. They are not yet implemented, so the command
 currently has no tests to run. It is never part of the default run and needs the
@@ -109,8 +142,12 @@ configuration in `.env.example`.
 
 The encoding and evaluation rules are read from published sources rather than inferred:
 the Conway ledger CDDL for the grammar, `evalTimelock` in the ledger for satisfaction,
-CIP-19 for addresses, and CIP-129 with CIP-105 for governance identifiers. The encoder
-is cross-checked against cardano-serialization-lib across the whole corpus.
+CIP-19 for addresses, and CIP-129 with CIP-105 for governance identifiers.
+
+The encoder is cross-checked against two independent implementations across the whole
+corpus: cardano-serialization-lib for the `definite` encoding, and cardano-cli for the
+`cardanoBinary` one. cardano-cli is the stronger oracle, since it shares cardano-api's
+serialization path with the node itself rather than reimplementing it.
 
 What is not yet established is the third question. Transaction construction for the
 chain exercises is unimplemented, so the `onchain` array in every vector is empty, and no

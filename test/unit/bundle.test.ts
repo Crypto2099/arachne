@@ -5,7 +5,9 @@ import type { Vector } from '../../src/vectors/schema.js';
 const MAX_TX_SIZE = 16_384;
 
 function stubVector(id: string, cborBytes: number): Vector {
-  return { id, encoding: { cborBytes } } as unknown as Vector;
+  // Only the node-side size is read here, since the budget arithmetic is about
+  // what a node accepts.
+  return { id, encoding: { cardanoBinary: { cborBytes } } } as unknown as Vector;
 }
 
 describe('reference script fee tiering', () => {

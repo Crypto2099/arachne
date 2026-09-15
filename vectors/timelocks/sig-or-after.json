@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "timelocks/sig-or-after",
   "family": "timelocks",
   "question": "Which timelock arrangements can a transaction actually satisfy, given that an absent interval bound fails rather than passes?",
@@ -36,39 +36,81 @@
   },
   "remarks": [],
   "encoding": {
-    "cborHex": "8202828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad26457071882041903e8",
-    "preimageHex": "008202828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad26457071882041903e8",
-    "scriptHash": "843486a38e4def23575130246c7555e2ee7c158990809e3fc2862b24",
-    "cborBytes": 40
+    "definite": {
+      "cborHex": "8202828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad26457071882041903e8",
+      "preimageHex": "008202828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad26457071882041903e8",
+      "scriptHash": "843486a38e4def23575130246c7555e2ee7c158990809e3fc2862b24",
+      "cborBytes": 40
+    },
+    "cardanoBinary": {
+      "cborHex": "8202828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad26457071882041903e8",
+      "preimageHex": "008202828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad26457071882041903e8",
+      "scriptHash": "843486a38e4def23575130246c7555e2ee7c158990809e3fc2862b24",
+      "cborBytes": 40
+    },
+    "encodingSensitive": false
   },
   "credentials": {
-    "enterprise": {
-      "mainnet": "addr1wxzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqhwjquf",
-      "preview": "addr_test1wzzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqvxxunv",
-      "preprod": "addr_test1wzzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqvxxunv"
-    },
-    "baseScriptStake": {
-      "mainnet": "addr1xxzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfyyxjr28rjdau34w5fsy3k8240zae7ptzvssz0rls5x9vjqnvn4n0",
-      "preview": "addr_test1xzzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfyyxjr28rjdau34w5fsy3k8240zae7ptzvssz0rls5x9vjqs6w4ls",
-      "preprod": "addr_test1xzzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfyyxjr28rjdau34w5fsy3k8240zae7ptzvssz0rls5x9vjqs6w4ls"
-    },
-    "reward": {
-      "mainnet": "stake17xzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqtyjxqm",
-      "preview": "stake_test17zzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqvwcyyx",
-      "preprod": "stake_test17zzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqvwcyyx"
-    },
-    "governance": {
-      "drep": {
-        "cip129": "drep1ywzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqk47a4n",
-        "cip105": "drep_script1ss6gdguwfhhjx463xqjxca24uth8c9vfjzqfu07zsc4jg20q08j"
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1wxzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqhwjquf",
+        "preview": "addr_test1wzzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqvxxunv",
+        "preprod": "addr_test1wzzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqvxxunv"
       },
-      "ccCold": {
-        "cip129": "cc_cold1zwzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqjactuh",
-        "cip105": "cc_cold_script1ss6gdguwfhhjx463xqjxca24uth8c9vfjzqfu07zsc4jg5xhehg"
+      "baseScriptStake": {
+        "mainnet": "addr1xxzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfyyxjr28rjdau34w5fsy3k8240zae7ptzvssz0rls5x9vjqnvn4n0",
+        "preview": "addr_test1xzzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfyyxjr28rjdau34w5fsy3k8240zae7ptzvssz0rls5x9vjqs6w4ls",
+        "preprod": "addr_test1xzzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfyyxjr28rjdau34w5fsy3k8240zae7ptzvssz0rls5x9vjqs6w4ls"
       },
-      "ccHot": {
-        "cip129": "cc_hot1qwzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqypvhx7",
-        "cip105": "cc_hot_script1ss6gdguwfhhjx463xqjxca24uth8c9vfjzqfu07zsc4jgsc2x4r"
+      "reward": {
+        "mainnet": "stake17xzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqtyjxqm",
+        "preview": "stake_test17zzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqvwcyyx",
+        "preprod": "stake_test17zzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqvwcyyx"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1ywzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqk47a4n",
+          "cip105": "drep_script1ss6gdguwfhhjx463xqjxca24uth8c9vfjzqfu07zsc4jg20q08j"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zwzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqjactuh",
+          "cip105": "cc_cold_script1ss6gdguwfhhjx463xqjxca24uth8c9vfjzqfu07zsc4jg5xhehg"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qwzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqypvhx7",
+          "cip105": "cc_hot_script1ss6gdguwfhhjx463xqjxca24uth8c9vfjzqfu07zsc4jgsc2x4r"
+        }
+      }
+    },
+    "cardanoBinary": {
+      "enterprise": {
+        "mainnet": "addr1wxzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqhwjquf",
+        "preview": "addr_test1wzzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqvxxunv",
+        "preprod": "addr_test1wzzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqvxxunv"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1xxzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfyyxjr28rjdau34w5fsy3k8240zae7ptzvssz0rls5x9vjqnvn4n0",
+        "preview": "addr_test1xzzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfyyxjr28rjdau34w5fsy3k8240zae7ptzvssz0rls5x9vjqs6w4ls",
+        "preprod": "addr_test1xzzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfyyxjr28rjdau34w5fsy3k8240zae7ptzvssz0rls5x9vjqs6w4ls"
+      },
+      "reward": {
+        "mainnet": "stake17xzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqtyjxqm",
+        "preview": "stake_test17zzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqvwcyyx",
+        "preprod": "stake_test17zzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqvwcyyx"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1ywzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqk47a4n",
+          "cip105": "drep_script1ss6gdguwfhhjx463xqjxca24uth8c9vfjzqfu07zsc4jg20q08j"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zwzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqjactuh",
+          "cip105": "cc_cold_script1ss6gdguwfhhjx463xqjxca24uth8c9vfjzqfu07zsc4jg5xhehg"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qwzrfp4r3ex77g6h2yczgmr42h3wulq43xggp83lc2rzkfqypvhx7",
+          "cip105": "cc_hot_script1ss6gdguwfhhjx463xqjxca24uth8c9vfjzqfu07zsc4jgsc2x4r"
+        }
       }
     }
   },

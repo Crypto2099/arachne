@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "threshold-matrix/atleast-1-of-1",
   "family": "threshold-matrix",
   "question": "Does every k in 0..n+1 behave as the reference evaluator says, including the degenerate ends?",
@@ -34,39 +34,81 @@
   },
   "remarks": [],
   "encoding": {
-    "cborHex": "830301818200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad264570718",
-    "preimageHex": "00830301818200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad264570718",
-    "scriptHash": "fdd0ca082489c51df168ece0b183a6e274a5c7f81dc191efeaf65ad6",
-    "cborBytes": 36
+    "definite": {
+      "cborHex": "830301818200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad264570718",
+      "preimageHex": "00830301818200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad264570718",
+      "scriptHash": "fdd0ca082489c51df168ece0b183a6e274a5c7f81dc191efeaf65ad6",
+      "cborBytes": 36
+    },
+    "cardanoBinary": {
+      "cborHex": "830301818200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad264570718",
+      "preimageHex": "00830301818200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad264570718",
+      "scriptHash": "fdd0ca082489c51df168ece0b183a6e274a5c7f81dc191efeaf65ad6",
+      "cborBytes": 36
+    },
+    "encodingSensitive": false
   },
   "credentials": {
-    "enterprise": {
-      "mainnet": "addr1w87apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s5r2nnw",
-      "preview": "addr_test1wr7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s0t70ut",
-      "preprod": "addr_test1wr7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s0t70ut"
-    },
-    "baseScriptStake": {
-      "mainnet": "addr1x87apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944ha6r9qsfyfc5wlz68vuzcc8fhzwjju07qacxg7l6hktttqahrskh",
-      "preview": "addr_test1xr7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944ha6r9qsfyfc5wlz68vuzcc8fhzwjju07qacxg7l6hktttq7p7s6g",
-      "preprod": "addr_test1xr7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944ha6r9qsfyfc5wlz68vuzcc8fhzwjju07qacxg7l6hktttq7p7s6g"
-    },
-    "reward": {
-      "mainnet": "stake1787apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944sgf240u",
-      "preview": "stake_test17r7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s0rqhtp",
-      "preprod": "stake_test17r7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s0rqhtp"
-    },
-    "governance": {
-      "drep": {
-        "cip129": "drep1y07apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s4cxw65",
-        "cip105": "drep_script1lhgv5zpy38z3mutganstrqaxuf62t3lcrhqerml27eddv49fqcd"
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1w87apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s5r2nnw",
+        "preview": "addr_test1wr7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s0t70ut",
+        "preprod": "addr_test1wr7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s0t70ut"
       },
-      "ccCold": {
-        "cip129": "cc_cold1z07apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s3sqcns",
-        "cip105": "cc_cold_script1lhgv5zpy38z3mutganstrqaxuf62t3lcrhqerml27eddvtv7kgh"
+      "baseScriptStake": {
+        "mainnet": "addr1x87apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944ha6r9qsfyfc5wlz68vuzcc8fhzwjju07qacxg7l6hktttqahrskh",
+        "preview": "addr_test1xr7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944ha6r9qsfyfc5wlz68vuzcc8fhzwjju07qacxg7l6hktttq7p7s6g",
+        "preprod": "addr_test1xr7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944ha6r9qsfyfc5wlz68vuzcc8fhzwjju07qacxg7l6hktttq7p7s6g"
       },
-      "ccHot": {
-        "cip129": "cc_hot1q07apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s8v5yfe",
-        "cip105": "cc_hot_script1lhgv5zpy38z3mutganstrqaxuf62t3lcrhqerml27eddv0jrf2u"
+      "reward": {
+        "mainnet": "stake1787apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944sgf240u",
+        "preview": "stake_test17r7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s0rqhtp",
+        "preprod": "stake_test17r7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s0rqhtp"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1y07apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s4cxw65",
+          "cip105": "drep_script1lhgv5zpy38z3mutganstrqaxuf62t3lcrhqerml27eddv49fqcd"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1z07apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s3sqcns",
+          "cip105": "cc_cold_script1lhgv5zpy38z3mutganstrqaxuf62t3lcrhqerml27eddvtv7kgh"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1q07apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s8v5yfe",
+          "cip105": "cc_hot_script1lhgv5zpy38z3mutganstrqaxuf62t3lcrhqerml27eddv0jrf2u"
+        }
+      }
+    },
+    "cardanoBinary": {
+      "enterprise": {
+        "mainnet": "addr1w87apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s5r2nnw",
+        "preview": "addr_test1wr7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s0t70ut",
+        "preprod": "addr_test1wr7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s0t70ut"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1x87apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944ha6r9qsfyfc5wlz68vuzcc8fhzwjju07qacxg7l6hktttqahrskh",
+        "preview": "addr_test1xr7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944ha6r9qsfyfc5wlz68vuzcc8fhzwjju07qacxg7l6hktttq7p7s6g",
+        "preprod": "addr_test1xr7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944ha6r9qsfyfc5wlz68vuzcc8fhzwjju07qacxg7l6hktttq7p7s6g"
+      },
+      "reward": {
+        "mainnet": "stake1787apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944sgf240u",
+        "preview": "stake_test17r7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s0rqhtp",
+        "preprod": "stake_test17r7apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s0rqhtp"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1y07apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s4cxw65",
+          "cip105": "drep_script1lhgv5zpy38z3mutganstrqaxuf62t3lcrhqerml27eddv49fqcd"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1z07apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s3sqcns",
+          "cip105": "cc_cold_script1lhgv5zpy38z3mutganstrqaxuf62t3lcrhqerml27eddvtv7kgh"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1q07apjsgyjyu2803drkwpvvr5m38ffw8lqwury00atm944s8v5yfe",
+          "cip105": "cc_hot_script1lhgv5zpy38z3mutganstrqaxuf62t3lcrhqerml27eddv0jrf2u"
+        }
       }
     }
   },

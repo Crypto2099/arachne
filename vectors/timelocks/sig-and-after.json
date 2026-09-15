@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "timelocks/sig-and-after",
   "family": "timelocks",
   "question": "Which timelock arrangements can a transaction actually satisfy, given that an absent interval bound fails rather than passes?",
@@ -36,39 +36,81 @@
   },
   "remarks": [],
   "encoding": {
-    "cborHex": "8201828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad26457071882041903e8",
-    "preimageHex": "008201828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad26457071882041903e8",
-    "scriptHash": "e607a3e4c3cc6f3e9445400fa4b62d6b62a6e644b1c97db9928500b3",
-    "cborBytes": 40
+    "definite": {
+      "cborHex": "8201828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad26457071882041903e8",
+      "preimageHex": "008201828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad26457071882041903e8",
+      "scriptHash": "e607a3e4c3cc6f3e9445400fa4b62d6b62a6e644b1c97db9928500b3",
+      "cborBytes": 40
+    },
+    "cardanoBinary": {
+      "cborHex": "8201828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad26457071882041903e8",
+      "preimageHex": "008201828200581c3118644aa21ba172c82732ce80d1c94cdcb5f2e8891e1ad26457071882041903e8",
+      "scriptHash": "e607a3e4c3cc6f3e9445400fa4b62d6b62a6e644b1c97db9928500b3",
+      "cborBytes": 40
+    },
+    "encodingSensitive": false
   },
   "credentials": {
-    "enterprise": {
-      "mainnet": "addr1w8nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvck6yt3r",
-      "preview": "addr_test1wrnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcdjsh7x",
-      "preprod": "addr_test1wrnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcdjsh7x"
-    },
-    "baseScriptStake": {
-      "mainnet": "addr1x8nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvlxq737fs7vdulfg32qp7jtvtttv2nwv393e97mny59qzesd69wjq",
-      "preview": "addr_test1xrnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvlxq737fs7vdulfg32qp7jtvtttv2nwv393e97mny59qzeswvcw7l",
-      "preprod": "addr_test1xrnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvlxq737fs7vdulfg32qp7jtvtttv2nwv393e97mny59qzeswvcw7l"
-    },
-    "reward": {
-      "mainnet": "stake178nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvc2sydd3",
-      "preview": "stake_test17rnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcd6w0fv",
-      "preprod": "stake_test17rnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcd6w0fv"
-    },
-    "governance": {
-      "drep": {
-        "cip129": "drep1y0nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvchpgkce",
-        "cip105": "drep_script1ucr68exre3hna9z9gq86fd3ddd32dejyk8yhmwvjs5qtxyleayu"
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1w8nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvck6yt3r",
+        "preview": "addr_test1wrnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcdjsh7x",
+        "preprod": "addr_test1wrnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcdjsh7x"
       },
-      "ccCold": {
-        "cip129": "cc_cold1z0nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcnfwq3a",
-        "cip105": "cc_cold_script1ucr68exre3hna9z9gq86fd3ddd32dejyk8yhmwvjs5qtx6kwt5x"
+      "baseScriptStake": {
+        "mainnet": "addr1x8nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvlxq737fs7vdulfg32qp7jtvtttv2nwv393e97mny59qzesd69wjq",
+        "preview": "addr_test1xrnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvlxq737fs7vdulfg32qp7jtvtttv2nwv393e97mny59qzeswvcw7l",
+        "preprod": "addr_test1xrnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvlxq737fs7vdulfg32qp7jtvtttv2nwv393e97mny59qzeswvcw7l"
       },
-      "ccHot": {
-        "cip129": "cc_hot1q0nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvc946ut5",
-        "cip105": "cc_hot_script1ucr68exre3hna9z9gq86fd3ddd32dejyk8yhmwvjs5qtx7gn5kd"
+      "reward": {
+        "mainnet": "stake178nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvc2sydd3",
+        "preview": "stake_test17rnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcd6w0fv",
+        "preprod": "stake_test17rnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcd6w0fv"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1y0nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvchpgkce",
+          "cip105": "drep_script1ucr68exre3hna9z9gq86fd3ddd32dejyk8yhmwvjs5qtxyleayu"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1z0nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcnfwq3a",
+          "cip105": "cc_cold_script1ucr68exre3hna9z9gq86fd3ddd32dejyk8yhmwvjs5qtx6kwt5x"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1q0nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvc946ut5",
+          "cip105": "cc_hot_script1ucr68exre3hna9z9gq86fd3ddd32dejyk8yhmwvjs5qtx7gn5kd"
+        }
+      }
+    },
+    "cardanoBinary": {
+      "enterprise": {
+        "mainnet": "addr1w8nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvck6yt3r",
+        "preview": "addr_test1wrnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcdjsh7x",
+        "preprod": "addr_test1wrnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcdjsh7x"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1x8nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvlxq737fs7vdulfg32qp7jtvtttv2nwv393e97mny59qzesd69wjq",
+        "preview": "addr_test1xrnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvlxq737fs7vdulfg32qp7jtvtttv2nwv393e97mny59qzeswvcw7l",
+        "preprod": "addr_test1xrnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvlxq737fs7vdulfg32qp7jtvtttv2nwv393e97mny59qzeswvcw7l"
+      },
+      "reward": {
+        "mainnet": "stake178nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvc2sydd3",
+        "preview": "stake_test17rnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcd6w0fv",
+        "preprod": "stake_test17rnq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcd6w0fv"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1y0nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvchpgkce",
+          "cip105": "drep_script1ucr68exre3hna9z9gq86fd3ddd32dejyk8yhmwvjs5qtxyleayu"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1z0nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvcnfwq3a",
+          "cip105": "cc_cold_script1ucr68exre3hna9z9gq86fd3ddd32dejyk8yhmwvjs5qtx6kwt5x"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1q0nq0glyc0xx7055g4qqlf9k944k9fhxgjcujldej2zspvc946ut5",
+          "cip105": "cc_hot_script1ucr68exre3hna9z9gq86fd3ddd32dejyk8yhmwvjs5qtx7gn5kd"
+        }
       }
     }
   },

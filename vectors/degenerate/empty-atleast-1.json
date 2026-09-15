@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "degenerate/empty-atleast-1",
   "family": "degenerate",
   "question": "What do the empty and out-of-range containers hash to, and does a node accept them?",
@@ -32,39 +32,81 @@
     }
   ],
   "encoding": {
-    "cborHex": "83030180",
-    "preimageHex": "0083030180",
-    "scriptHash": "f6e57a7bfa194dbcd28dfbc32ae427976beed4d63dbf91b6ab82996a",
-    "cborBytes": 4
+    "definite": {
+      "cborHex": "83030180",
+      "preimageHex": "0083030180",
+      "scriptHash": "f6e57a7bfa194dbcd28dfbc32ae427976beed4d63dbf91b6ab82996a",
+      "cborBytes": 4
+    },
+    "cardanoBinary": {
+      "cborHex": "83030180",
+      "preimageHex": "0083030180",
+      "scriptHash": "f6e57a7bfa194dbcd28dfbc32ae427976beed4d63dbf91b6ab82996a",
+      "cborBytes": 4
+    },
+    "encodingSensitive": false
   },
   "credentials": {
-    "enterprise": {
-      "mainnet": "addr1w8mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6se8mxsd",
-      "preview": "addr_test1wrmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6sz006lg",
-      "preprod": "addr_test1wrmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6sz006lg"
-    },
-    "baseScriptStake": {
-      "mainnet": "addr1x8mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6hku4a8h7sefk7d9r0mcv4wgfuhd0hdf43ah7gmd2uzn94q690ks9",
-      "preview": "addr_test1xrmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6hku4a8h7sefk7d9r0mcv4wgfuhd0hdf43ah7gmd2uzn94qenjku6",
-      "preprod": "addr_test1xrmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6hku4a8h7sefk7d9r0mcv4wgfuhd0hdf43ah7gmd2uzn94qenjku6"
-    },
-    "reward": {
-      "mainnet": "stake178mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6s9dmqvl",
-      "preview": "stake_test17rmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6sz83zgz",
-      "preprod": "stake_test17rmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6sz83zgz"
-    },
-    "governance": {
-      "drep": {
-        "cip129": "drep1y0mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6scuhmeh",
-        "cip105": "drep_script17mjh57l6r9xme55dl0pj4ep8ja47a4xk8klerd4ts2vk5eqncc8"
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1w8mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6se8mxsd",
+        "preview": "addr_test1wrmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6sz006lg",
+        "preprod": "addr_test1wrmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6sz006lg"
       },
-      "ccCold": {
-        "cip129": "cc_cold1z0mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6su53dsn",
-        "cip105": "cc_cold_script17mjh57l6r9xme55dl0pj4ep8ja47a4xk8klerd4ts2vk58fywga"
+      "baseScriptStake": {
+        "mainnet": "addr1x8mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6hku4a8h7sefk7d9r0mcv4wgfuhd0hdf43ah7gmd2uzn94q690ks9",
+        "preview": "addr_test1xrmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6hku4a8h7sefk7d9r0mcv4wgfuhd0hdf43ah7gmd2uzn94qenjku6",
+        "preprod": "addr_test1xrmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6hku4a8h7sefk7d9r0mcv4wgfuhd0hdf43ah7gmd2uzn94qenjku6"
       },
-      "ccHot": {
-        "cip129": "cc_hot1q0mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6s2g9326",
-        "cip105": "cc_hot_script17mjh57l6r9xme55dl0pj4ep8ja47a4xk8klerd4ts2vk5rhe32k"
+      "reward": {
+        "mainnet": "stake178mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6s9dmqvl",
+        "preview": "stake_test17rmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6sz83zgz",
+        "preprod": "stake_test17rmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6sz83zgz"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1y0mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6scuhmeh",
+          "cip105": "drep_script17mjh57l6r9xme55dl0pj4ep8ja47a4xk8klerd4ts2vk5eqncc8"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1z0mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6su53dsn",
+          "cip105": "cc_cold_script17mjh57l6r9xme55dl0pj4ep8ja47a4xk8klerd4ts2vk58fywga"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1q0mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6s2g9326",
+          "cip105": "cc_hot_script17mjh57l6r9xme55dl0pj4ep8ja47a4xk8klerd4ts2vk5rhe32k"
+        }
+      }
+    },
+    "cardanoBinary": {
+      "enterprise": {
+        "mainnet": "addr1w8mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6se8mxsd",
+        "preview": "addr_test1wrmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6sz006lg",
+        "preprod": "addr_test1wrmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6sz006lg"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1x8mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6hku4a8h7sefk7d9r0mcv4wgfuhd0hdf43ah7gmd2uzn94q690ks9",
+        "preview": "addr_test1xrmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6hku4a8h7sefk7d9r0mcv4wgfuhd0hdf43ah7gmd2uzn94qenjku6",
+        "preprod": "addr_test1xrmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6hku4a8h7sefk7d9r0mcv4wgfuhd0hdf43ah7gmd2uzn94qenjku6"
+      },
+      "reward": {
+        "mainnet": "stake178mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6s9dmqvl",
+        "preview": "stake_test17rmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6sz83zgz",
+        "preprod": "stake_test17rmw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6sz83zgz"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1y0mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6scuhmeh",
+          "cip105": "drep_script17mjh57l6r9xme55dl0pj4ep8ja47a4xk8klerd4ts2vk5eqncc8"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1z0mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6su53dsn",
+          "cip105": "cc_cold_script17mjh57l6r9xme55dl0pj4ep8ja47a4xk8klerd4ts2vk58fywga"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1q0mw27nmlgv5m0xj3haux2hyy7tkhmk56c7mlydk4wpfj6s2g9326",
+          "cip105": "cc_hot_script17mjh57l6r9xme55dl0pj4ep8ja47a4xk8klerd4ts2vk5rhe32k"
+        }
       }
     }
   },

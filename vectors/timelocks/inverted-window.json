@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "timelocks/inverted-window",
   "family": "timelocks",
   "question": "Which timelock arrangements can a transaction actually satisfy, given that an absent interval bound fails rather than passes?",
@@ -34,39 +34,81 @@
   },
   "remarks": [],
   "encoding": {
-    "cborHex": "82018282041a0089544082051903e8",
-    "preimageHex": "0082018282041a0089544082051903e8",
-    "scriptHash": "473570859a3412edabd6afd26a4cbf2001edb86216cea3d86e3296bb",
-    "cborBytes": 15
+    "definite": {
+      "cborHex": "82018282041a0089544082051903e8",
+      "preimageHex": "0082018282041a0089544082051903e8",
+      "scriptHash": "473570859a3412edabd6afd26a4cbf2001edb86216cea3d86e3296bb",
+      "cborBytes": 15
+    },
+    "cardanoBinary": {
+      "cborHex": "82018282041a0089544082051903e8",
+      "preimageHex": "0082018282041a0089544082051903e8",
+      "scriptHash": "473570859a3412edabd6afd26a4cbf2001edb86216cea3d86e3296bb",
+      "cborBytes": 15
+    },
+    "encodingSensitive": false
   },
   "credentials": {
-    "enterprise": {
-      "mainnet": "addr1w9rn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcjhwlps",
-      "preview": "addr_test1wprn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcfl6rw4",
-      "preprod": "addr_test1wprn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcfl6rw4"
-    },
-    "baseScriptStake": {
-      "mainnet": "addr1x9rn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdw68x4cgtx35ztk6h4406f4ye0eqq8kmscske63asm3jj6asqqm6d7",
-      "preview": "addr_test1xprn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdw68x4cgtx35ztk6h4406f4ye0eqq8kmscske63asm3jj6asrkx6pp",
-      "preprod": "addr_test1xprn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdw68x4cgtx35ztk6h4406f4ye0eqq8kmscske63asm3jj6asrkx6pp"
-    },
-    "reward": {
-      "mainnet": "stake179rn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcwaweaz",
-      "preview": "stake_test17prn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcfhymel",
-      "preprod": "stake_test17prn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcfhymel"
-    },
-    "governance": {
-      "drep": {
-        "cip129": "drep1ydrn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcnvzzg2",
-        "cip105": "drep_script1gu6hppv6xsfwm27k4lfx5n9lyqq7mwrzzm828krwx2ttkedhfnq"
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1w9rn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcjhwlps",
+        "preview": "addr_test1wprn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcfl6rw4",
+        "preprod": "addr_test1wprn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcfl6rw4"
       },
-      "ccCold": {
-        "cip129": "cc_cold1zdrn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwchyy5pw",
-        "cip105": "cc_cold_script1gu6hppv6xsfwm27k4lfx5n9lyqq7mwrzzm828krwx2ttk8yqlr6"
+      "baseScriptStake": {
+        "mainnet": "addr1x9rn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdw68x4cgtx35ztk6h4406f4ye0eqq8kmscske63asm3jj6asqqm6d7",
+        "preview": "addr_test1xprn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdw68x4cgtx35ztk6h4406f4ye0eqq8kmscske63asm3jj6asrkx6pp",
+        "preprod": "addr_test1xprn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdw68x4cgtx35ztk6h4406f4ye0eqq8kmscske63asm3jj6asrkx6pp"
       },
-      "ccHot": {
-        "cip129": "cc_hot1qdrn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcpcsgm8",
-        "cip105": "cc_hot_script1gu6hppv6xsfwm27k4lfx5n9lyqq7mwrzzm828krwx2ttkr6aqp3"
+      "reward": {
+        "mainnet": "stake179rn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcwaweaz",
+        "preview": "stake_test17prn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcfhymel",
+        "preprod": "stake_test17prn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcfhymel"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1ydrn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcnvzzg2",
+          "cip105": "drep_script1gu6hppv6xsfwm27k4lfx5n9lyqq7mwrzzm828krwx2ttkedhfnq"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zdrn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwchyy5pw",
+          "cip105": "cc_cold_script1gu6hppv6xsfwm27k4lfx5n9lyqq7mwrzzm828krwx2ttk8yqlr6"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qdrn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcpcsgm8",
+          "cip105": "cc_hot_script1gu6hppv6xsfwm27k4lfx5n9lyqq7mwrzzm828krwx2ttkr6aqp3"
+        }
+      }
+    },
+    "cardanoBinary": {
+      "enterprise": {
+        "mainnet": "addr1w9rn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcjhwlps",
+        "preview": "addr_test1wprn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcfl6rw4",
+        "preprod": "addr_test1wprn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcfl6rw4"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1x9rn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdw68x4cgtx35ztk6h4406f4ye0eqq8kmscske63asm3jj6asqqm6d7",
+        "preview": "addr_test1xprn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdw68x4cgtx35ztk6h4406f4ye0eqq8kmscske63asm3jj6asrkx6pp",
+        "preprod": "addr_test1xprn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdw68x4cgtx35ztk6h4406f4ye0eqq8kmscske63asm3jj6asrkx6pp"
+      },
+      "reward": {
+        "mainnet": "stake179rn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcwaweaz",
+        "preview": "stake_test17prn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcfhymel",
+        "preprod": "stake_test17prn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcfhymel"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1ydrn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcnvzzg2",
+          "cip105": "drep_script1gu6hppv6xsfwm27k4lfx5n9lyqq7mwrzzm828krwx2ttkedhfnq"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zdrn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwchyy5pw",
+          "cip105": "cc_cold_script1gu6hppv6xsfwm27k4lfx5n9lyqq7mwrzzm828krwx2ttk8yqlr6"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qdrn2uy9ng6p9mdt66hay6jvhusqrmdcvgtvag7cdcefdwcpcsgm8",
+          "cip105": "cc_hot_script1gu6hppv6xsfwm27k4lfx5n9lyqq7mwrzzm828krwx2ttkr6aqp3"
+        }
       }
     }
   },
