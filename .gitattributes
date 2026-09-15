@@ -1,0 +1,7 @@
+* text=auto eol=lf
+
+# The corpus is generated. Collapsing it in diffs and excluding it from language
+# statistics keeps review focused on the generator that produced it, which is
+# where a corpus change is actually reviewable.
+vectors/**/*.json linguist-generated=true
+vectors/index.json linguist-generated=true

@@ -1,0 +1,93 @@
+{
+  "name": "@crypto2099/arachne",
+  "version": "0.1.0",
+  "description": "A harness and conformance corpus for Cardano native scripts",
+  "license": "Apache-2.0",
+  "author": "Adam Dean",
+  "homepage": "https://github.com/crypto2099/arachne",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crypto2099/arachne.git"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./model": {
+      "types": "./dist/model/index.d.ts",
+      "import": "./dist/model/index.js"
+    },
+    "./encode": {
+      "types": "./dist/encode/index.d.ts",
+      "import": "./dist/encode/index.js"
+    },
+    "./evaluate": {
+      "types": "./dist/evaluate/index.d.ts",
+      "import": "./dist/evaluate/index.js"
+    },
+    "./generate": {
+      "types": "./dist/generate/index.d.ts",
+      "import": "./dist/generate/index.js"
+    },
+    "./vectors": {
+      "types": "./dist/vectors/index.d.ts",
+      "import": "./dist/vectors/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "vectors",
+    "spec"
+  ],
+  "bin": {
+    "arachne": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . && prettier --check .",
+    "lint:fix": "eslint --fix . && prettier --write .",
+    "test": "vitest run --project unit --project conformance",
+    "test:unit": "vitest run --project unit",
+    "test:conformance": "vitest run --project conformance",
+    "test:chain": "vitest run --project chain",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --project unit --project conformance --coverage",
+    "vectors:build": "tsx src/cli.ts vectors build",
+    "vectors:verify": "tsx src/cli.ts vectors verify",
+    "chain:exercise": "tsx src/cli.ts chain exercise",
+    "verify": "npm run lint && npm run typecheck && npm run test && npm run vectors:verify"
+  },
+  "keywords": [
+    "cardano",
+    "native-script",
+    "multisig",
+    "timelock",
+    "drep",
+    "conformance"
+  ],
+  "dependencies": {
+    "@noble/hashes": "^1.8.0",
+    "@scure/base": "^1.2.6"
+  },
+  "devDependencies": {
+    "@emurgo/cardano-serialization-lib-nodejs": "^15.0.3",
+    "@eslint/js": "^9.20.0",
+    "@types/node": "^22.13.0",
+    "@vitest/coverage-v8": "^3.0.0",
+    "eslint": "^9.20.0",
+    "eslint-config-prettier": "^10.0.0",
+    "jiti": "^2.7.0",
+    "prettier": "^3.5.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.24.0",
+    "vitest": "^3.0.0"
+  }
+}

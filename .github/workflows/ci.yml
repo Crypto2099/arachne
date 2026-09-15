@@ -1,0 +1,64 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint and format
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      # The offline suites. The chain project is excluded on purpose: it submits
+      # real transactions to a public testnet and spends testnet ADA, so it is
+      # run deliberately rather than on every push.
+      - name: Test
+        run: npm test
+
+      # Regenerates the corpus and fails if the committed files disagree. This
+      # is what stops a vector being edited by hand.
+      - name: Verify corpus
+        run: npm run vectors:verify
+
+      - name: Corpus is current
+        run: |
+          npm run vectors:build
+          if ! git diff --quiet -- vectors/ ':!vectors/index.json'; then
+            echo "The committed corpus does not match the generator."
+            echo "Run 'npm run vectors:build' and commit the result."
+            git diff --stat -- vectors/
+            exit 1
+          fi
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=critical
