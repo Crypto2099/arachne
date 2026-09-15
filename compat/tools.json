@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "tools": [
+    {
+      "id": "cardano-cli",
+      "displayName": "cardano-cli",
+      "homepage": "https://github.com/IntersectMBO/cardano-cli",
+      "adapter": "cardano-cli-binary",
+      "discovery": {
+        "type": "github-releases",
+        "repo": "IntersectMBO/cardano-cli",
+        "tagPrefix": "cardano-cli-"
+      },
+      "channels": ["current", "previous", "beta"]
+    },
+    {
+      "id": "cardano-serialization-lib-nodejs",
+      "displayName": "cardano-serialization-lib (nodejs)",
+      "homepage": "https://github.com/Emurgo/cardano-serialization-lib",
+      "package": "@emurgo/cardano-serialization-lib-nodejs",
+      "adapter": "npm-csl",
+      "discovery": {
+        "type": "npm"
+      },
+      "channels": ["current", "previous", "beta"]
+    },
+    {
+      "id": "meshsdk-core",
+      "displayName": "MeshJS core",
+      "homepage": "https://github.com/MeshJS/mesh",
+      "package": "@meshsdk/core",
+      "adapter": "npm-native-script-json",
+      "adapterOptions": {
+        "exportName": "resolveNativeScriptHash",
+        "slotEncoding": "string"
+      },
+      "discovery": {
+        "type": "npm"
+      },
+      "channels": ["current", "previous", "beta"]
+    }
+  ]
+}
