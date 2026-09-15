@@ -69,30 +69,61 @@ function openList(writer: CborWriter, length: number, encoding: ArrayEncoding): 
   return false;
 }
 
+type WriteAction = { kind: 'node'; script: NativeScript } | { kind: 'close' };
+
+/**
+ * Iterative pre-order. `CborWriter` is a mutable byte sink, so writing a
+ * script never needs a value handed back from a child, only the right order
+ * to visit nodes in, but the array-close byte for an indefinite-length list
+ * has to come after every one of that list's children. That "after the
+ * children" obligation is the only reason this needs a stack at all: each
+ * entry is either a node still to write or a literal closing action, pushed
+ * so that popping them reproduces the same order the recursive version wrote
+ * bytes in.
+ */
 function writeScript(writer: CborWriter, script: NativeScript, encoding: ArrayEncoding): void {
-  switch (script.type) {
-    case 'sig':
-      writer.arrayHeader(2).uint(SCRIPT_TAG.sig).bytes(fromHex(script.keyHash));
-      return;
-    case 'all':
-    case 'any': {
-      writer.arrayHeader(2).uint(SCRIPT_TAG[script.type]);
-      const indefinite = openList(writer, script.scripts.length, encoding);
-      for (const child of script.scripts) writeScript(writer, child, encoding);
-      if (indefinite) writer.break();
-      return;
+  const stack: WriteAction[] = [{ kind: 'node', script }];
+
+  while (stack.length > 0) {
+    const action = stack.pop() as WriteAction;
+    if (action.kind === 'close') {
+      writer.break();
+      continue;
     }
-    case 'atLeast': {
-      writer.arrayHeader(3).uint(SCRIPT_TAG.atLeast).int(script.required);
-      const indefinite = openList(writer, script.scripts.length, encoding);
-      for (const child of script.scripts) writeScript(writer, child, encoding);
-      if (indefinite) writer.break();
-      return;
+
+    const node = action.script;
+    switch (node.type) {
+      case 'sig':
+        writer.arrayHeader(2).uint(SCRIPT_TAG.sig).bytes(fromHex(node.keyHash));
+        break;
+      case 'all':
+      case 'any': {
+        writer.arrayHeader(2).uint(SCRIPT_TAG[node.type]);
+        const indefinite = openList(writer, node.scripts.length, encoding);
+        pushChildren(stack, node.scripts, indefinite);
+        break;
+      }
+      case 'atLeast': {
+        writer.arrayHeader(3).uint(SCRIPT_TAG.atLeast).int(node.required);
+        const indefinite = openList(writer, node.scripts.length, encoding);
+        pushChildren(stack, node.scripts, indefinite);
+        break;
+      }
+      case 'after':
+      case 'before':
+        writer.arrayHeader(2).uint(SCRIPT_TAG[node.type]).uint(node.slot);
+        break;
     }
-    case 'after':
-    case 'before':
-      writer.arrayHeader(2).uint(SCRIPT_TAG[script.type]).uint(script.slot);
-      return;
+  }
+}
+
+function pushChildren(stack: WriteAction[], children: NativeScript[], indefinite: boolean): void {
+  // The closer is pushed first so it pops last, then children in reverse so
+  // popping visits them left to right, exactly as `for (const child of ...)`
+  // did.
+  if (indefinite) stack.push({ kind: 'close' });
+  for (let i = children.length - 1; i >= 0; i -= 1) {
+    stack.push({ kind: 'node', script: children[i] as NativeScript });
   }
 }
 
@@ -147,9 +178,14 @@ export function scriptHashes(script: NativeScript): ScriptHashes {
 
 /** Whether any container in the script holds enough children to diverge. */
 export function isEncodingSensitive(script: NativeScript): boolean {
-  if (script.type === 'all' || script.type === 'any' || script.type === 'atLeast') {
-    if (script.scripts.length >= CARDANO_BINARY_INDEFINITE_THRESHOLD) return true;
-    return script.scripts.some(isEncodingSensitive);
+  // Early-exit search, not a tree build, so a plain stack of nodes still to
+  // visit is enough; visit order does not matter for an existence check.
+  const stack: NativeScript[] = [script];
+  while (stack.length > 0) {
+    const node = stack.pop() as NativeScript;
+    if (node.type !== 'all' && node.type !== 'any' && node.type !== 'atLeast') continue;
+    if (node.scripts.length >= CARDANO_BINARY_INDEFINITE_THRESHOLD) return true;
+    for (const child of node.scripts) stack.push(child);
   }
   return false;
 }

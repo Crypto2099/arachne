@@ -171,19 +171,22 @@ function enumerateSignerSets(script: NativeScript, keys: string[]): string[][] {
 }
 
 function collectThresholds(script: NativeScript): number[] {
+  // A Set accumulator with nothing to combine across children, so a plain
+  // stack of nodes still to visit is enough; collection order is irrelevant.
   const found = new Set<number>();
-  const walk = (node: NativeScript): void => {
+  const stack: NativeScript[] = [script];
+  while (stack.length > 0) {
+    const node = stack.pop() as NativeScript;
     if (node.type === 'atLeast') {
       found.add(node.required);
-      node.scripts.forEach(walk);
+      for (const child of node.scripts) stack.push(child);
     } else if (node.type === 'all' || node.type === 'any') {
       // An "all" is a threshold of n and an "any" a threshold of 1, so both
       // have a boundary worth probing.
       found.add(node.type === 'all' ? node.scripts.length : 1);
-      node.scripts.forEach(walk);
+      for (const child of node.scripts) stack.push(child);
     }
-  };
-  walk(script);
+  }
   return [...found];
 }
 
@@ -230,11 +233,12 @@ function enumerateIntervals(script: NativeScript): Interval[] {
 
 function collectSlots(script: NativeScript): number[] {
   const slots = new Set<number>();
-  const walk = (node: NativeScript): void => {
+  const stack: NativeScript[] = [script];
+  while (stack.length > 0) {
+    const node = stack.pop() as NativeScript;
     if (node.type === 'after' || node.type === 'before') slots.add(node.slot);
-    else if (node.type !== 'sig') node.scripts.forEach(walk);
-  };
-  walk(script);
+    else if (node.type !== 'sig') for (const child of node.scripts) stack.push(child);
+  }
   return [...slots].sort((a, b) => a - b);
 }
 

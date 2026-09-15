@@ -163,7 +163,13 @@ export function decodeScript(input: Uint8Array | string): DecodedScript {
   };
 }
 
-function readScript(reader: CborReader, lists: ListFraming[]): NativeScript {
+/** One script node's own fields, read up to but not into its `scripts` list. */
+type NodeHead =
+  | { leaf: true; script: NativeScript }
+  | { leaf: false; type: 'all' | 'any'; indefinite: boolean; length: number | null }
+  | { leaf: false; type: 'atLeast'; required: number; indefinite: boolean; length: number | null };
+
+function readNodeHead(reader: CborReader): NodeHead {
   const at = reader.offset;
   const { length } = reader.arrayHeader();
   if (length === null) throw new CborDecodeError('a script node is a definite-length array', at);
@@ -178,41 +184,115 @@ function readScript(reader: CborReader, lists: ListFraming[]): NativeScript {
       if (hash.length !== 28) {
         throw new CborDecodeError(`a key hash is 28 bytes, got ${hash.length}`, at);
       }
-      return { type: 'sig', keyHash: toHex(hash) };
+      return { leaf: true, script: { type: 'sig', keyHash: toHex(hash) } };
     }
     case SCRIPT_TAG.all:
     case SCRIPT_TAG.any: {
-      const scripts = readScriptList(reader, lists);
-      return { type: tag === SCRIPT_TAG.all ? 'all' : 'any', scripts };
+      const list = readListHead(reader);
+      return { leaf: false, type: tag === SCRIPT_TAG.all ? 'all' : 'any', ...list };
     }
     case SCRIPT_TAG.atLeast: {
       const required = Number(reader.int());
-      const scripts = readScriptList(reader, lists);
-      return { type: 'atLeast', required, scripts };
+      const list = readListHead(reader);
+      return { leaf: false, type: 'atLeast', required, ...list };
     }
     case SCRIPT_TAG.after:
-      return { type: 'after', slot: Number(reader.uint()) };
+      return { leaf: true, script: { type: 'after', slot: Number(reader.uint()) } };
     case SCRIPT_TAG.before:
-      return { type: 'before', slot: Number(reader.uint()) };
+      return { leaf: true, script: { type: 'before', slot: Number(reader.uint()) } };
     default:
       throw new CborDecodeError(`unknown script tag ${tag}`, at);
   }
 }
 
-function readScriptList(reader: CborReader, lists: ListFraming[]): NativeScript[] {
+function readListHead(reader: CborReader): { length: number | null; indefinite: boolean } {
   const { length } = reader.arrayHeader();
-  const scripts: NativeScript[] = [];
+  return { length, indefinite: length === null };
+}
 
-  if (length === null) {
-    while (!reader.atBreak()) scripts.push(readScript(reader, lists));
-    reader.readBreak();
-    lists.push({ length: scripts.length, indefinite: true });
-    return scripts;
+/** One open container's `scripts` list, read one child at a time. */
+type ReadFrame =
+  | { type: 'all' | 'any'; indefinite: boolean; length: number | null; children: NativeScript[] }
+  | {
+      type: 'atLeast';
+      required: number;
+      indefinite: boolean;
+      length: number | null;
+      children: NativeScript[];
+    };
+
+/**
+ * Iterative post-order over the CBOR bytes themselves, not just the tree they
+ * describe: a container's `NativeScript` cannot be built until every child
+ * has been decoded, but its list framing (definite or indefinite, and how
+ * many children) is read from the byte stream before any child is, so the
+ * work stack here doubles as the parser's position in that stream. Each
+ * frame is one open container; `listDone` both asks and, for an
+ * indefinite-length list, consumes the `break` byte that answers it, exactly
+ * where `while (!reader.atBreak())` used to.
+ */
+function readScript(reader: CborReader, lists: ListFraming[]): NativeScript {
+  const stack: ReadFrame[] = [];
+  let pending: undefined | true = true; // whether the next step reads a fresh node
+  let completed: NativeScript | undefined;
+
+  const listDone = (frame: ReadFrame): boolean => {
+    if (frame.indefinite) {
+      if (!reader.atBreak()) return false;
+      reader.readBreak();
+      return true;
+    }
+    return frame.children.length === frame.length;
+  };
+
+  const finish = (frame: ReadFrame): NativeScript => {
+    lists.push({ length: frame.children.length, indefinite: frame.indefinite });
+    return frame.type === 'atLeast'
+      ? { type: 'atLeast', required: frame.required, scripts: frame.children }
+      : { type: frame.type, scripts: frame.children };
+  };
+
+  while (pending !== undefined || stack.length > 0) {
+    if (pending !== undefined) {
+      pending = undefined;
+      const head = readNodeHead(reader);
+      if (head.leaf) {
+        completed = head.script;
+      } else {
+        const frame: ReadFrame =
+          head.type === 'atLeast'
+            ? {
+                type: 'atLeast',
+                required: head.required,
+                indefinite: head.indefinite,
+                length: head.length,
+                children: [],
+              }
+            : { type: head.type, indefinite: head.indefinite, length: head.length, children: [] };
+        if (listDone(frame)) {
+          completed = finish(frame);
+        } else {
+          stack.push(frame);
+          pending = true; // read the first child next
+        }
+      }
+      continue;
+    }
+
+    const frame = stack[stack.length - 1];
+    if (frame === undefined) break;
+    frame.children.push(completed as NativeScript);
+    completed = undefined;
+
+    if (listDone(frame)) {
+      stack.pop();
+      completed = finish(frame);
+    } else {
+      pending = true; // read the next sibling
+    }
   }
 
-  for (let i = 0; i < length; i += 1) scripts.push(readScript(reader, lists));
-  lists.push({ length, indefinite: false });
-  return scripts;
+  return completed as NativeScript;
 }
 
 /**
