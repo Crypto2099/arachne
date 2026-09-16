@@ -31,6 +31,17 @@ jobs:
           node-version: 22
           cache: npm
 
+      # gouroboros is a Go tool. Its adapter assumes a "go" binary is already
+      # on PATH the same way the npm adapters assume npm is, and records the
+      # version untested with the verbatim error rather than failing the job
+      # when it is not; this step is what keeps that from happening here.
+      # "stable" rather than a pinned number, because the adapter builds
+      # against whatever release of gouroboros is pending and lets Go's own
+      # toolchain-switching resolve whatever that release's go.mod requires.
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
       - run: npm ci
 
       - name: Resolve pending versions and run the watcher

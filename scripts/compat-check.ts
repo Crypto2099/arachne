@@ -20,7 +20,7 @@ async function main(): Promise<number> {
   } else {
     console.error(`${pending.length} pending:`);
     for (const item of pending) {
-      console.error(`  ${item.tool} ${item.version} (${item.channel})`);
+      console.error(`  ${item.tool} ${item.version} (${item.channel}, ${item.path})`);
     }
   }
 
