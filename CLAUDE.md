@@ -88,6 +88,33 @@ cardano-cli is the strongest, so the `cli` vitest project pins the node side and
 cross-check pins the ecosystem side. Agreeing with both is worth more than either. The
 `cli` project skips cleanly when the binary is absent and CI installs a pinned version.
 
+### The compat matrix watches the ecosystem, not the corpus
+
+`vectors/` and the oracles above answer "is this encoding correct". `compat/`, driven by
+`src/compat/`, answers a different question that never stops moving: which currently
+installable version of which real tool agrees with which encoding, right now. It runs
+real tool releases against the committed corpus and records what each one actually did;
+nothing under `compat/results/` is computed by hand.
+
+`compat/tools.json` separates `engines`, the code that actually produces bytes
+(`cardano-binary`, `cardano-serialization-lib`, `cardano-sdk-core`), from `tools`, the
+things people install, each declaring which engine it sits on and by what relation
+(`depends`, `fork`, `vendored`, `reimplements`, `own`). Several tools can share one
+engine, so several of them agreeing is one data point about the engine, not several;
+`isIndependentEvidence` in `src/compat/registry.ts` is that check. `cardano-address` is
+registered as `reimplements` against the `cardano-binary` engine rather than `depends`,
+because it carries its own copy of the array-framing rule instead of linking the
+library, which is what makes its agreement with `cardano-cli` real corroboration.
+
+Each adapter under `src/compat/adapters/` installs or downloads one tool, drives its own
+API to build a native script from the corpus's JSON, and hashes it. Adding a tool that
+shares an existing adapter's API is a `tools.json` entry; a tool with a different API
+needs a new adapter. `.github/workflows/upstream-watch.yml` runs this daily, resolves
+which tracked versions have no result file yet, and opens a pull request with whatever
+it finds; it never pushes to `main`. The same logic runs locally with
+`npx tsx scripts/compat-watch.ts`. Full account, including the per-vector status
+vocabulary and what a result file's `framing` field means, is in `compat/README.md`.
+
 ### The CBOR encoder is hand-rolled on purpose
 
 `src/encode/cbor.ts` does not use a CBOR library. The encoding is the thing under test,
@@ -160,14 +187,6 @@ deliberate decision carried by a human, not a refactor.
   source named in a comment or in `spec/`. This covers CIPs and the ledger equally. If a
   source cannot be reached, mark the claim unverified rather than assuming it.
 
-## Known defects
-
-**Recursion limits in this implementation.** `parseScript` throws a `RangeError` at
-around depth 1800 and `evaluate` at around 2048, while `encodeScript` survives to about 6000. The deepest linear `all` that fits in a 16,384-byte transaction is 5450, and
-cardano-cli handled 4096 without complaint, so scripts the ledger would accept crash
-this library. The tree walks are recursive and need converting to explicit stacks. This
-is exactly the unspecified-implementation-limit risk the spec describes, found here.
-
 ## Known limits, and where they come from
 
 No recursion limit is specified anywhere. The CDDL is directly recursive through
@@ -185,6 +204,22 @@ be created first and the creating transaction carries it in an output. The 200 K
 budget buys many scripts in one transaction, not one larger script. `src/chain/bundle.ts`
 does that arithmetic, including the tiered reference script fee transcribed from
 `tierRefScriptFee`.
+
+Every tree walk in this library, `parseScript`, `shapeOf`, `remarksFor`, `encodeScript`,
+`evaluate`, `decodeScript`, and the CBOR and JSON writers, is an explicit work stack
+rather than native recursion. `test/unit/deep-nesting.test.ts` verifies the whole set at
+depth 10000, well past any depth a real transaction could carry, so nothing in this
+library's own walks is the limiting factor any more.
+
+What still recurses is outside this library's control, because it is built into the JS
+engine rather than written here: `JSON.parse` is iterative in V8 and survives depth
+20000 comfortably, but `JSON.stringify` is recursive there and throws by depth 5450,
+exactly the deepest linear `all` that fits in a 16,384-byte transaction, and
+`structuredClone` throws earlier still, by depth 1800. Handing either of those the plain
+object `serializeScript` builds is therefore a dead end at depths the chain would
+accept, regardless of how that object was built. This is why `serializeScriptToJson`
+exists: it writes the JSON text directly, one array or object boundary at a time, with
+its own explicit stack standing in for the call stack `JSON.stringify` would have used.
 
 The residual risk is the unspecified limits: a stack bound in a wallet, an indexer or a
 serialization library is written down nowhere and will differ between them. That is what

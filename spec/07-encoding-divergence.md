@@ -49,6 +49,38 @@ Same script, different bytes, different hash:
 | 24       | `70a5c7c6bfabe9d3...` | `6695681e5d3875e8...`     | no    |
 | 50       | `ac845b3aed05d881...` | `c903bdc63fce124c...`     | no    |
 
+## Who is on which side
+
+`cardanoBinary`:
+
+- `cardano-node`, `cardano-api` and `cardano-cli`, by linking `cardano-binary` itself.
+- `cardano-address`, independently. `encodeFoldable`'s `wrapArray` in
+  `lib/Cardano/Address/Script.hs` (`IntersectMBO/cardano-addresses`) applies the same
+  `len <= 23` test through its own calls into `cborg`'s `encodeListLen`,
+  `encodeListLenIndef` and `encodeBreak`, rather than calling `cardano-binary`'s
+  `wrapCBORArray`. Two implementations of the same written rule agreeing is real
+  corroboration rather than one dependency counted twice, which is why
+  `compat/tools.json` records this relation as `reimplements` rather than `depends`.
+  See [compat/README.md](../compat/README.md).
+
+`definite`:
+
+- `cardano-serialization-lib`, MeshJS and most of the JavaScript ecosystem, as above.
+- The Ledger hardware wallet's native script hashing, as far as the app's source shows.
+  `nativeScriptHashBuilder_startComplexScript_all`, `_any` and `_n_of_k` in
+  `src/nativeScriptHashBuilder.c` (`vacuumlabs/ledger-app-cardano-shelley`, `develop`
+  branch) each write `APPEND_CBOR(CBOR_TYPE_ARRAY, remainingScripts)`, a definite-length
+  array header sized to the exact child count, for every container regardless of size.
+  There is no indefinite-length branch anywhere in that file. This is a choice, not a
+  missing capability: the CBOR writer it calls into, `cbor_writeToken` in `src/cbor.c`,
+  has an explicit branch for `CBOR_TYPE_ARRAY_INDEF`, and both directions of that byte
+  (`0x9f`) round-trip in the app's own unit tests, `test_cbor_peek_token` and
+  `test_cbor_serialization` in `src/cbor_test.c`. The native script hash builder simply
+  never takes that branch.
+
+  This entry is a source read of the app's `develop` branch, not a device observation.
+  No script from this corpus has been hashed on physical Ledger hardware.
+
 ## Why it has gone unnoticed
 
 Almost no real script reaches 24 sub-scripts in one container. A 3-of-5 treasury, a

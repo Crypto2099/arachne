@@ -46,6 +46,17 @@ Arachne records both encodings for every vector and treats neither as canonical.
 and what to do about it. The short version is to hash the bytes you received rather
 than decoding and re-encoding them.
 
+## Watching it stay true
+
+That finding is a snapshot, and tool releases keep coming. `compat/` runs current,
+previous and beta releases of cardano-cli, cardano-address, cardano-serialization-lib
+and MeshJS against the committed corpus and records which side of the divergence each
+one actually lands on, not which side its documentation claims. A daily workflow opens
+a pull request when a new version has something to report; nothing under
+`compat/results/` is computed by hand. [compat/README.md](compat/README.md) has the
+full account, including why some of these tools sit on the same underlying encoder and
+why that means they only count once as evidence.
+
 ## The corpus
 
 `vectors/` holds a generated corpus: one file per script, each carrying the script, its
@@ -144,10 +155,14 @@ The encoding and evaluation rules are read from published sources rather than in
 the Conway ledger CDDL for the grammar, `evalTimelock` in the ledger for satisfaction,
 CIP-19 for addresses, and CIP-129 with CIP-105 for governance identifiers.
 
-The encoder is cross-checked against two independent implementations across the whole
-corpus: cardano-serialization-lib for the `definite` encoding, and cardano-cli for the
-`cardanoBinary` one. cardano-cli is the stronger oracle, since it shares cardano-api's
-serialization path with the node itself rather than reimplementing it.
+The encoder is cross-checked against three independent implementations across the whole
+corpus: cardano-serialization-lib for the `definite` encoding, and cardano-cli and
+cardano-address for the `cardanoBinary` one. cardano-cli is the strongest of the three
+on its own, since it shares cardano-api's serialization path with the node itself.
+cardano-address matters for a different reason: it reimplements the `cardano-binary`
+array-framing rule in its own code rather than linking the library, so its agreement
+with cardano-cli is a second implementation reaching the same answer, not the same
+dependency counted twice.
 
 What is not yet established is the third question. Transaction construction for the
 chain exercises is unimplemented, so the `onchain` array in every vector is empty, and no
