@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "nest-linear/any-d012",
   "family": "nest-linear",
   "question": "How deeply can one container type nest before a node rejects the script or the transaction stops fitting?",

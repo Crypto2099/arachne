@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "encoding-boundary/root-w23",
   "family": "encoding-boundary",
   "question": "Does the definite-to-indefinite switch depend on each list independently, so a small root can still hide a divergent child?",

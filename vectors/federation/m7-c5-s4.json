@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "federation/m7-c5-s4",
   "family": "federation",
   "question": "Does a threshold over member organizations, each itself a threshold, evaluate seat by seat at the sizes a real federation reaches?",

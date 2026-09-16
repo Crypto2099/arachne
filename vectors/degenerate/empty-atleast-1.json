@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "degenerate/empty-atleast-1",
   "family": "degenerate",
   "question": "What do the empty and out-of-range containers hash to, and does a node accept them?",

@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "timelocks/sig-and-after",
   "family": "timelocks",
   "question": "Which timelock arrangements can a transaction actually satisfy, given that an absent interval bound fails rather than passes?",

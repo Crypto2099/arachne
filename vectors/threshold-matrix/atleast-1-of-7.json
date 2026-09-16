@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "threshold-matrix/atleast-1-of-7",
   "family": "threshold-matrix",
   "question": "Does every k in 0..n+1 behave as the reference evaluator says, including the degenerate ends?",

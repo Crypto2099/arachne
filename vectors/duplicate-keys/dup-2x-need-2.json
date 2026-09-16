@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "duplicate-keys/dup-2x-need-2",
   "family": "duplicate-keys",
   "question": "Does a repeated key hash under one threshold count once or once per occurrence?",

@@ -2,7 +2,7 @@ import type { ScriptRemark, ScriptShape } from '../model/invariants.js';
 import type { Network } from '../encode/credential.js';
 
 /** Bumped whenever the vector file shape changes in a way a consumer must notice. */
-export const VECTOR_FORMAT_VERSION = 2;
+export const VECTOR_FORMAT_VERSION = 3;
 
 export interface SatisfactionCase {
   id: string;
@@ -47,6 +47,30 @@ export interface VectorCredentials {
  * editing the observation is the one thing that destroys the value of the whole
  * corpus. See spec/05-conformance.md.
  */
+/**
+ * The protocol parameters in effect when an observation was made.
+ *
+ * Every size result this project records is a consequence of `maxTxSize`, which
+ * governance can raise or lower. An observation that a 123-member multisig was
+ * refused for size says nothing useful without the limit it was refused
+ * against: read later under a different parameter set it looks like a structural
+ * finding when it was an arithmetic one. A timestamp does not fix this, because
+ * a reader cannot recover a past parameter set from a date.
+ *
+ * So the parameters travel with the observation. A result whose parameters
+ * differ from today's is still true, and is now legibly true of a different
+ * chain configuration.
+ */
+export interface ObservedProtocolParams {
+  /** Epoch the submission landed in, so the value can be checked against history. */
+  epoch: number;
+  maxTxSize: number;
+  minFeeA: number;
+  minFeeB: number;
+  /** Absent on a node predating reference script fee tiering. */
+  minFeeRefScriptCostPerByte?: number;
+}
+
 export interface ChainObservation {
   network: Exclude<Network, 'mainnet'>;
   role: CredentialRole;
@@ -59,8 +83,10 @@ export interface ChainObservation {
   txHash?: string;
   /** The node's or the submit API's verbatim error when it did not. */
   error?: string;
-  /** ISO 8601, so a stale observation against a since-changed protocol is visible. */
+  /** ISO 8601. Says when, not under what: `protocolParams` carries that. */
   observedAt: string;
+  /** The parameter set this result is true of. */
+  protocolParams: ObservedProtocolParams;
 }
 
 /** One encoding's bytes and the hash taken over them. */

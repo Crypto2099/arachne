@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "degenerate/empty-all",
   "family": "degenerate",
   "question": "What do the empty and out-of-range containers hash to, and does a node accept them?",
@@ -125,7 +125,14 @@
       "caseId": "none@unbounded",
       "accepted": true,
       "txHash": "74aa539069a5b4c84a63649c9cf18bc71c0bd813ff1cb28b7226d431ff00a83c",
-      "observedAt": "2026-09-15T18:20:00.000Z"
+      "observedAt": "2026-09-15T18:20:00.000Z",
+      "protocolParams": {
+        "epoch": 313,
+        "maxTxSize": 16384,
+        "minFeeA": 44,
+        "minFeeB": 155381,
+        "minFeeRefScriptCostPerByte": 15
+      }
     }
   ]
 }
