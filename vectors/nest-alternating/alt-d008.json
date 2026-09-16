@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "nest-alternating/alt-d008",
   "family": "nest-alternating",
   "question": "Does alternating container types change the depth at which a script stops working?",

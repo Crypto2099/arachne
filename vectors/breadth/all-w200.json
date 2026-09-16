@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "breadth/all-w200",
   "family": "breadth",
   "question": "How many sub-scripts fit in one container before the transaction exceeds its size limit?",

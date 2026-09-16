@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "id": "nested-threshold/outer3-inner3-k2",
   "family": "nested-threshold",
   "question": "Does a threshold nested inside another evaluate independently, or does it flatten?",

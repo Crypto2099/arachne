@@ -155,6 +155,38 @@ the exercise rather than cleanup. Preview and preprod faucets are rate limited, 
 full sweep is planned rather than run on every change. The chain suite is a separate
 vitest project for this reason and is never part of the default test run.
 
+## Every ceiling here is a protocol parameter away from changing
+
+`maxTxSize` is a protocol parameter. Governance can raise or lower it, and every size
+result in this document is a consequence of its current value, 16,384 bytes. None of the
+numbers below are properties of native scripts. They are properties of native scripts at
+one parameter setting.
+
+That has two consequences for anything built on this.
+
+**Do not hard-code them.** `src/chain/ceilings.ts` exposes `maxLinearNestDepth`,
+`maxUnanimousInline` and `maxUnanimousByReference` as functions of `maxTxSize`, and a
+test pins each to the value a real node actually accepted and refused at 16,384. Read the
+parameter from the chain and pass it in. `ChainProvider.protocolParams` returns it.
+`minFeeRefScriptCostPerByte` is a protocol parameter too, and the constant in
+`src/chain/bundle.ts` is named a fallback for that reason rather than a default to rely
+on.
+
+**Every observation records the parameters it was made under.** A result saying a
+123-member multisig was refused for size is not interpretable without the limit it was
+refused against, and a timestamp does not supply one: a reader cannot recover a past
+parameter set from a date. Each entry in a vector's `onchain` array therefore carries
+`protocolParams`, so a result read under a different configuration is still true and is
+legibly true of a different chain.
+
+The reference script budget is a different case. Conway fixes 204,800 bytes per
+transaction in the era rather than exposing it as an updatable parameter, so it cannot be
+read from a node's parameter set. That makes it constant for as long as Conway is the
+era, and something to recheck against a later era's own definitions rather than to trust.
+
+Everything below was measured on preprod in epoch 313, at `maxTxSize` 16,384, `minFeeA`
+44, `minFeeB` 155,381 and `minFeeRefScriptCostPerByte` 15.
+
 ## How deep a single script can nest
 
 Nesting is far cheaper than breadth. One `all` wrapper is three bytes, `82 01 81`, against

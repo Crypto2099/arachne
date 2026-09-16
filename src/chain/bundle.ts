@@ -6,6 +6,13 @@ import type { Vector } from '../vectors/schema.js';
  * from `ppMaxRefScriptSizePerTxG` and its neighbors in the Conway PParams
  * module of the ledger.
  */
+/**
+ * Conway fixes these in the era rather than exposing them as updatable protocol
+ * parameters, so they cannot be read from a node's parameter set. That makes
+ * them constants only for as long as Conway is the era: a later era can choose
+ * differently, and these values then need rechecking against its own PParams
+ * module rather than being trusted.
+ */
 export const REF_SCRIPT_LIMITS = {
   maxPerTx: 200 * 1024,
   maxPerBlock: 1024 * 1024,
@@ -16,8 +23,15 @@ export const REF_SCRIPT_LIMITS = {
   multiplierDen: 5n,
 } as const;
 
-/** `minFeeRefScriptCostPerByte`, the one part of the calculation that is a protocol parameter. */
-export const DEFAULT_REF_SCRIPT_COST_PER_BYTE = 15n;
+/**
+ * `minFeeRefScriptCostPerByte` as it stood on preprod and mainnet in epoch 313.
+ *
+ * This is a PROTOCOL PARAMETER and governance can change it, so it is a
+ * last-resort fallback rather than a constant to rely on. Anything talking to a
+ * live chain should read the value from that chain and pass it in;
+ * `ChainProvider.protocolParams` returns it.
+ */
+export const FALLBACK_REF_SCRIPT_COST_PER_BYTE = 15n;
 
 /**
  * The reference script fee, in lovelace.
@@ -34,7 +48,7 @@ export const DEFAULT_REF_SCRIPT_COST_PER_BYTE = 15n;
  */
 export function refScriptFee(
   sizeBytes: number,
-  costPerByte: bigint = DEFAULT_REF_SCRIPT_COST_PER_BYTE,
+  costPerByte: bigint = FALLBACK_REF_SCRIPT_COST_PER_BYTE,
 ): bigint {
   const { stride, multiplierNum, multiplierDen } = REF_SCRIPT_LIMITS;
 
@@ -89,7 +103,7 @@ export function bundleBudget(
   vectors: Vector[],
   maxTxSize: number,
   envelopeBytes = 0,
-  costPerByte: bigint = DEFAULT_REF_SCRIPT_COST_PER_BYTE,
+  costPerByte: bigint = FALLBACK_REF_SCRIPT_COST_PER_BYTE,
 ): BundleBudget {
   // The node-side encoding, since this arithmetic is about what a node accepts.
   const sizes = vectors.map((v) => v.encoding.cardanoBinary.cborBytes);
