@@ -5,4 +5,6 @@ export * from './bundle.js';
 export * from './ceilings.js';
 export * from './keys.js';
 export * from './cbor.js';
+export * from './certificates.js';
+export * from './voting.js';
 export * from './transaction.js';

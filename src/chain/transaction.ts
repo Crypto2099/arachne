@@ -1,9 +1,13 @@
 import { blake2b } from '@noble/hashes/blake2b';
 import { fromHex, toHex } from '../encode/cbor.js';
 import { decodeBech32 } from '../encode/credential.js';
+import type { Certificate } from './certificates.js';
+import { writeCertificate } from './certificates.js';
 import { TxCborWriter, writeSet } from './cbor.js';
 import { sign, type SigningKey } from './keys.js';
 import type { Utxo } from './provider.js';
+import type { VoteCast } from './voting.js';
+import { writeVotingProcedures } from './voting.js';
 
 /**
  * A minimal Conway transaction builder with exact byte control.
@@ -54,8 +58,12 @@ export interface TransactionBodyFields {
   fee: bigint;
   /** Field 3, `invalid_hereafter`. Present only when a script in the witness set has a "before". */
   ttl?: bigint;
+  /** Field 4, `certificates`. Present only when the transaction registers, delegates or retires a credential. */
+  certificates?: Certificate[];
   /** Field 8, the validity interval start (`invalid_before`). Present only for an "after". */
   validityStart?: bigint;
+  /** Field 19, `voting_procedures`. Present only when the transaction casts a governance vote. */
+  votingProcedures?: VoteCast[];
 }
 
 export interface WitnessSetFields {
@@ -88,11 +96,15 @@ function writeOutput(writer: TxCborWriter, output: TxOutput): void {
 
 /**
  * Encode a Conway `transaction_body`: field 0 inputs, field 1 outputs, field
- * 2 fee, optional field 3 ttl and field 8 validity interval start.
+ * 2 fee, optional field 3 ttl, optional field 4 certificates, optional field
+ * 8 validity interval start, optional field 19 voting procedures.
  *
  * Map keys are written in ascending order, matching what `cardano-cli`
  * itself emits; a decoder does not require this, but matching it keeps a
- * byte-for-byte comparison against the cardano-cli oracle meaningful.
+ * byte-for-byte comparison against the cardano-cli oracle meaningful. Field 4
+ * sits between 3 and 8, and field 19 comes last, both confirmed against
+ * `cardano-cli conway transaction build-raw --certificate-file
+ * ... --vote-file ...`.
  */
 export function encodeTransactionBody(fields: TransactionBodyFields): Uint8Array {
   if (fields.inputs.length === 0) {
@@ -100,8 +112,15 @@ export function encodeTransactionBody(fields: TransactionBodyFields): Uint8Array
   }
   if (fields.fee < 0n) throw new RangeError('fee cannot be negative');
 
+  const certificates = fields.certificates ?? [];
+  const votingProcedures = fields.votingProcedures ?? [];
+
   const fieldCount =
-    3 + (fields.ttl !== undefined ? 1 : 0) + (fields.validityStart !== undefined ? 1 : 0);
+    3 +
+    (fields.ttl !== undefined ? 1 : 0) +
+    (certificates.length > 0 ? 1 : 0) +
+    (fields.validityStart !== undefined ? 1 : 0) +
+    (votingProcedures.length > 0 ? 1 : 0);
 
   const writer = new TxCborWriter();
   writer.mapHeader(fieldCount);
@@ -115,7 +134,25 @@ export function encodeTransactionBody(fields: TransactionBodyFields): Uint8Array
   writer.uint(2).uint(fields.fee);
 
   if (fields.ttl !== undefined) writer.uint(3).uint(fields.ttl);
+
+  if (certificates.length > 0) {
+    // certificates = nonempty_oset<certificate>
+    // nonempty_oset<a0> = #6.258([+ a0])/ [+ a0]
+    // Same tag-258-optional-array container `set` uses; `writeSet` already
+    // implements it, and `cardano-cli` writes the tag here exactly as it
+    // does for inputs, vkey witnesses and native scripts.
+    writer.uint(4);
+    writeSet(writer, certificates, writeCertificate);
+  }
+
   if (fields.validityStart !== undefined) writer.uint(8).uint(fields.validityStart);
+
+  if (votingProcedures.length > 0) {
+    // voting_procedures = {+ voter => {+ gov_action_id => voting_procedure}}
+    // A plain map, not a `set`; see src/chain/voting.ts.
+    writer.uint(19);
+    writeVotingProcedures(writer, votingProcedures);
+  }
 
   return writer.toBytes();
 }
