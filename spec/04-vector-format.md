@@ -19,15 +19,24 @@ vectors/
 
 ```json
 {
-  "formatVersion": 1,
+  "formatVersion": 3,
   "generatedAt": "2026-09-15T21:09:16.032Z",
   "generator": "arachne@0.1.0",
   "families": [{ "name": "...", "question": "...", "count": 24 }],
-  "vectorCount": 103,
-  "satisfactionCaseCount": 837,
-  "observationCount": 0,
+  "vectorCount": 126,
+  "satisfactionCaseCount": 1067,
+  "observationCount": 3,
+  "encodingSensitiveCount": 15,
   "digest": "b304a292...",
-  "vectors": [{ "id": "...", "family": "...", "path": "...", "scriptHash": "..." }]
+  "vectors": [
+    {
+      "id": "...",
+      "family": "...",
+      "path": "...",
+      "scriptHash": "...",
+      "cardanoBinaryScriptHash": "..."
+    }
+  ]
 }
 ```
 
@@ -43,44 +52,56 @@ difference.
 
 ```json
 {
-  "formatVersion": 1,
+  "formatVersion": 3,
   "id": "nested-threshold/outer3-inner2-k2",
   "family": "nested-threshold",
   "question": "Does a threshold nested inside another evaluate independently, or does it flatten?",
   "params": { "outer": 3, "inner": 2, "k": 2 },
 
   "script": { "type": "atLeast", "required": 2, "scripts": [] },
-  "shape": {
-    "depth": 3,
-    "nodeCount": 6,
-    "sigCount": 4,
-    "keyHashes": ["..."],
-    "timelockCount": 0,
-    "maxBreadth": 3,
-    "containerCounts": { "all": 0, "any": 0, "atLeast": 2 }
-  },
+  "shape": { "depth": 3, "nodeCount": 6, "sigCount": 4, "keyHashes": ["..."] },
   "remarks": [],
 
   "encoding": {
-    "cborHex": "830302838200581c5eb8ee18...",
-    "preimageHex": "00830302838200581c5eb8ee18...",
-    "scriptHash": "e1dbbc8c8cb6e8504c679769a945d9287b93a1c8a4fe19b06cf10dd4",
-    "cborBytes": 136
+    "definite": {
+      "cborHex": "830302838200581c5eb8ee18...",
+      "preimageHex": "00830302838200581c5eb8ee18...",
+      "scriptHash": "e1dbbc8c8cb6e8504c679769a945d9287b93a1c8a4fe19b06cf10dd4",
+      "cborBytes": 136
+    },
+    "cardanoBinary": {
+      "cborHex": "830302838200581c5eb8ee18...",
+      "preimageHex": "00830302838200581c5eb8ee18...",
+      "scriptHash": "e1dbbc8c8cb6e8504c679769a945d9287b93a1c8a4fe19b06cf10dd4",
+      "cborBytes": 136
+    },
+    "encodingSensitive": false
   },
 
   "credentials": {
-    "enterprise": { "mainnet": "addr1...", "preview": "addr_test1...", "preprod": "addr_test1..." },
-    "baseScriptStake": {
-      "mainnet": "addr1...",
-      "preview": "addr_test1...",
-      "preprod": "addr_test1..."
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1...",
+        "preview": "addr_test1...",
+        "preprod": "addr_test1..."
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1...",
+        "preview": "addr_test1...",
+        "preprod": "addr_test1..."
+      },
+      "reward": {
+        "mainnet": "stake1...",
+        "preview": "stake_test1...",
+        "preprod": "stake_test1..."
+      },
+      "governance": {
+        "drep": { "cip129": "drep1...", "cip105": "drep_script1..." },
+        "ccCold": { "cip129": "cc_cold1...", "cip105": "cc_cold_script1..." },
+        "ccHot": { "cip129": "cc_hot1...", "cip105": "cc_hot_script1..." }
+      }
     },
-    "reward": { "mainnet": "stake1...", "preview": "stake_test1...", "preprod": "stake_test1..." },
-    "governance": {
-      "drep": { "cip129": "drep1y0sah0yv...", "cip105": "drep_script1u8dmeryvkm..." },
-      "ccCold": { "cip129": "cc_cold1...", "cip105": "cc_cold_script1..." },
-      "ccHot": { "cip129": "cc_hot1...", "cip105": "cc_hot_script1..." }
-    }
+    "cardanoBinary": { "...": "the same shape, derived from the other hash" }
   },
 
   "satisfaction": [
@@ -96,6 +117,24 @@ difference.
 }
 ```
 
+## Why a vector carries two of everything
+
+A sub-script list has two valid CBOR framings, and they hash differently once a container
+holds 24 or more entries. Neither is canonical: `definite` is what
+cardano-serialization-lib and most JavaScript tooling emit, `cardanoBinary` is what
+cardano-cli and cardano-node emit. See
+[07-encoding-divergence.md](07-encoding-divergence.md).
+
+So a vector records both, and `encodingSensitive` says whether they differ for this
+script. Below 24 entries they are byte-identical and the flag is false, which is the
+common case and costs a consumer nothing. Above it, the script has two valid hashes, two
+valid addresses and two valid governance identifiers, and `credentials` carries a full
+set derived from each.
+
+The index mirrors this: each entry lists `scriptHash` for the definite encoding and
+`cardanoBinaryScriptHash` for the other, and `encodingSensitiveCount` says how many
+vectors in the corpus diverge.
+
 ## Field notes
 
 `script` is in canonical JSON form: keys in a fixed order, so two implementations that
@@ -108,7 +147,7 @@ difference is the whole content of the `duplicate-keys` family.
 `remarks` records structural oddities, each with a code and a path. A remark means the
 oddity is deliberate, not that the vector is broken. An empty array is the common case.
 
-`encoding.preimageHex` is redundant with `cborHex`, deliberately. When a port's hash
+Each encoding's `preimageHex` is redundant with its `cborHex`, deliberately. When a port's hash
 disagrees, comparing the preimage separates a wrong language-tag prefix from wrong CBOR
 in one step instead of two.
 
@@ -150,6 +189,11 @@ mentions: one below, one on and one above each, plus the unbounded case, which i
 always present.
 
 ## The `onchain` array
+
+Each observation carries the protocol parameters it was made under, in
+`protocolParams`. A size result is only interpretable against the `maxTxSize` it was
+measured against, and a timestamp cannot supply one, because a reader cannot recover a
+past parameter set from a date.
 
 Observations are evidence and are covered in [05-conformance.md](05-conformance.md) and
 [06-chain-exercises.md](06-chain-exercises.md). The rule that governs this file format

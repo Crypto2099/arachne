@@ -6,8 +6,16 @@ implementation either produces these bytes or it does not.
 ## CBOR
 
 Native scripts use a tiny corner of CBOR: unsigned integers, one negative integer,
-byte strings, and arrays. Every value is definite length and shortest form. Indefinite
-length is never emitted.
+byte strings, and arrays. Every integer and byte string is shortest form.
+
+Array framing is the exception, and it is the whole of
+[07-encoding-divergence.md](07-encoding-divergence.md). A sub-script list is written
+definite-length by cardano-serialization-lib and most JavaScript tooling at every size,
+and by `cardano-binary`, and so by cardano-cli and cardano-node, only up to 23 entries,
+switching to indefinite length from 24. Both produce valid CBOR and the two hash
+differently, so neither is canonical and an implementation has to choose knowingly. The
+worked examples below are small enough that the two coincide; read 07 before relying on
+any of it for a container holding 24 or more.
 
 The head byte carries a major type in its top three bits and an argument in the low
 five. Arguments below 24 are written into the head byte; larger ones follow it in 1, 2,
@@ -63,7 +71,7 @@ scriptHash = blake2b224( 0x00 || cbor(script) )
 
 The prefix is the step most often missed. Hashing the CBOR alone produces a
 well-formed 28-byte value that corresponds to nothing. When a port's hash disagrees,
-compare the preimage before anything else: every vector records `encoding.preimageHex`
+compare the preimage before anything else: every vector records a `preimageHex` under each encoding
 for exactly this reason, and it localizes the fault to the prefix or the CBOR in one
 step.
 

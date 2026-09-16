@@ -5,20 +5,38 @@ reference implementation turns out to be wrong.
 
 ## Claiming conformance
 
-An implementation is conformant at a format version when, for every vector in a corpus
-at that version, it reproduces:
+A vector carries TWO encodings of the same script, `definite` and `cardanoBinary`, which
+hash differently whenever a container holds 24 or more entries. Conformance is claimed
+against both, or explicitly against one.
 
-1. `encoding.cborHex` from `script`, as a byte comparison.
-2. `encoding.preimageHex`, which is the language tag followed by the CBOR.
-3. `encoding.scriptHash`, as blake2b-224 of the preimage.
-4. Every string in `credentials`, for every network and role listed.
-5. `expected` for every entry in `satisfaction`, given that entry's signers and
-   validity interval.
+An implementation is conformant at a format version when, for every vector in a corpus
+at that version, and for EACH of `encoding.definite` and `encoding.cardanoBinary`, it
+reproduces:
+
+1. That encoding's `cborHex` from `script`, as a byte comparison.
+2. That encoding's `preimageHex`, which is the language tag followed by the CBOR.
+3. That encoding's `scriptHash`, as blake2b-224 of the preimage.
+4. Every string in the matching `credentials.definite` or `credentials.cardanoBinary`,
+   for every network and role listed.
+
+And once per vector, independent of encoding:
+
+5. `encoding.encodingSensitive`, which is true exactly when the two hashes differ.
+6. `expected` for every entry in `satisfaction`, given that entry's signers and validity
+   interval. Satisfaction does not depend on framing, so this is asked once.
 
 None of this requires a network, key material, or the ability to build a transaction.
-A port that passes all five is conformant, and that claim is about encoding and
-satisfaction only. It says nothing about transaction construction, which this
-specification does not cover.
+
+**Checking one encoding is not conformance, and an implementation that does so must say
+which.** Every field named in steps 1 to 4 exists under both encodings, so a port that
+reads only `definite` finds everything it looks for, passes, and reports a green result
+while never touching half of what the corpus records. A partial claim is legitimate,
+because an implementation that only ever talks to JavaScript tooling may have no use for
+the node's framing, but it has to be stated as partial rather than arrived at by not
+looking. Report it as "conformant, definite encoding only".
+
+Steps 5 and 6 are the ones that catch a port which skipped an encoding without meaning
+to: `encodingSensitive` cannot be derived from one encoding alone.
 
 ## Three independent claims
 
@@ -75,6 +93,11 @@ every other observation in the corpus, because a reader can no longer tell which
 came from a node.
 
 ## Versioning
+
+The corpus currently ships `formatVersion` 3. Version 1 carried a single flat
+`encoding`; version 2 split it into the two above; version 3 added the protocol
+parameters an on-chain observation was recorded under. A port refusing an unrecognized
+version is behaving correctly.
 
 [04-vector-format.md](04-vector-format.md) defines `formatVersion` and `digest`. What
 matters for conformance is what an implementation does with them: refuse a

@@ -67,7 +67,11 @@ do not satisfy it.
 {
   "id": "federation/m20-c20-s11",
   "question": "Does a threshold over member organizations, each itself a threshold, evaluate seat by seat at the sizes a real federation reaches?",
-  "encoding": { "scriptHash": "...", "cborBytes": 12884 },
+  "encoding": {
+    "definite": { "scriptHash": "...", "cborBytes": 12884 },
+    "cardanoBinary": { "scriptHash": "...", "cborBytes": 12884 },
+    "encodingSensitive": false
+  },
   "credentials": {
     "governance": { "drep": { "cip129": "drep1...", "cip105": "drep_script1..." } }
   },
