@@ -28,6 +28,10 @@ of offline reasoning settles them. The first two questions are settled offline a
   each credential role, and the evidence an exercise has to produce.
 - [07-encoding-divergence.md](07-encoding-divergence.md). Why a script with 24 or more
   sub-scripts in one container has two valid hashes, and which one to use when.
+- [08-governance-families.md](08-governance-families.md). The generator families
+  modeled on published decision rules from real deliberative bodies, and the two
+  modeling choices, a vote as a signature and weight as a repeated key hash, that
+  recur across them.
 
 ## Implementing a port
 
@@ -66,3 +70,6 @@ prefix, it cites the standard that defines it.
 - CIP-105 for the superseded governance forms that are still in circulation.
 - CIP-1854 for the derivation path a multi-signature wallet's cosigner keys come from.
 - The Conway-era ledger CDDL for the native script grammar itself.
+- CIP-1694, mainnet's own Conway genesis configuration, the Charter of the United
+  Nations and the Delaware General Corporation Law for the governance families in
+  [08-governance-families.md](08-governance-families.md).

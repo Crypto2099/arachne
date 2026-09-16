@@ -1,0 +1,239 @@
+{
+  "formatVersion": 3,
+  "id": "weighted-voting/6-5-majority",
+  "family": "weighted-voting",
+  "question": "When a holder with several votes is modeled as several copies of one key hash, does the reference evaluator sum weight across holders correctly, and does a statutory quorum floor evaluate differently from the default majority-to-pass threshold over the same cohort?",
+  "params": {
+    "distribution": [
+      6,
+      5
+    ],
+    "rule": "majority"
+  },
+  "script": {
+    "type": "atLeast",
+    "required": 6,
+    "scripts": [
+      {
+        "type": "sig",
+        "keyHash": "8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da"
+      },
+      {
+        "type": "sig",
+        "keyHash": "8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da"
+      },
+      {
+        "type": "sig",
+        "keyHash": "8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da"
+      },
+      {
+        "type": "sig",
+        "keyHash": "8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da"
+      },
+      {
+        "type": "sig",
+        "keyHash": "8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da"
+      },
+      {
+        "type": "sig",
+        "keyHash": "8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da"
+      },
+      {
+        "type": "sig",
+        "keyHash": "38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb"
+      },
+      {
+        "type": "sig",
+        "keyHash": "38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb"
+      },
+      {
+        "type": "sig",
+        "keyHash": "38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb"
+      },
+      {
+        "type": "sig",
+        "keyHash": "38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb"
+      },
+      {
+        "type": "sig",
+        "keyHash": "38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb"
+      }
+    ]
+  },
+  "shape": {
+    "depth": 2,
+    "nodeCount": 12,
+    "sigCount": 11,
+    "keyHashes": [
+      "38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb",
+      "8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da"
+    ],
+    "timelockCount": 0,
+    "maxBreadth": 11,
+    "containerCounts": {
+      "all": 0,
+      "any": 0,
+      "atLeast": 1
+    }
+  },
+  "remarks": [
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 8eb892d0 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 8eb892d0 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 8eb892d0 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 8eb892d0 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 8eb892d0 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 38bc9ee3 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 38bc9ee3 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 38bc9ee3 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 38bc9ee3 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    }
+  ],
+  "encoding": {
+    "definite": {
+      "cborHex": "8303068b8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb",
+      "preimageHex": "008303068b8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb",
+      "scriptHash": "e9ad8ee99e64832509ff653f5931ab96b104840cb44f357c94df4c73",
+      "cborBytes": 356
+    },
+    "cardanoBinary": {
+      "cborHex": "8303068b8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb",
+      "preimageHex": "008303068b8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb8200581c38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb",
+      "scriptHash": "e9ad8ee99e64832509ff653f5931ab96b104840cb44f357c94df4c73",
+      "cborBytes": 356
+    },
+    "encodingSensitive": false
+  },
+  "credentials": {
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1w856mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cuct2xuuc",
+        "preview": "addr_test1wr56mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cucszjqna",
+        "preprod": "addr_test1wr56mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cucszjqna"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1x856mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05culf4k8wn8nysvjsnlm98avnr2ukkyzggr95fu6he9xlf3esgz4wwu",
+        "preview": "addr_test1xr56mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05culf4k8wn8nysvjsnlm98avnr2ukkyzggr95fu6he9xlf3est5gwzr",
+        "preprod": "addr_test1xr56mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05culf4k8wn8nysvjsnlm98avnr2ukkyzggr95fu6he9xlf3est5gwzr"
+      },
+      "reward": {
+        "mainnet": "stake17856mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cuchqx6q2",
+        "preview": "stake_test17r56mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cucs2vcyh",
+        "preprod": "stake_test17r56mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cucs2vcyh"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1y056mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cuc232p4z",
+          "cip105": "drep_script1axkca6v7vjpj2z0lv5l4jvdtj6csfpqvk38n2ly5max8x3rknj8"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1z056mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cucwevhux",
+          "cip105": "cc_cold_script1axkca6v7vjpj2z0lv5l4jvdtj6csfpqvk38n2ly5max8x02p9za"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1q056mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cucc9ctx0",
+          "cip105": "cc_hot_script1axkca6v7vjpj2z0lv5l4jvdtj6csfpqvk38n2ly5max8xt5u6qk"
+        }
+      }
+    },
+    "cardanoBinary": {
+      "enterprise": {
+        "mainnet": "addr1w856mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cuct2xuuc",
+        "preview": "addr_test1wr56mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cucszjqna",
+        "preprod": "addr_test1wr56mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cucszjqna"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1x856mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05culf4k8wn8nysvjsnlm98avnr2ukkyzggr95fu6he9xlf3esgz4wwu",
+        "preview": "addr_test1xr56mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05culf4k8wn8nysvjsnlm98avnr2ukkyzggr95fu6he9xlf3est5gwzr",
+        "preprod": "addr_test1xr56mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05culf4k8wn8nysvjsnlm98avnr2ukkyzggr95fu6he9xlf3est5gwzr"
+      },
+      "reward": {
+        "mainnet": "stake17856mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cuchqx6q2",
+        "preview": "stake_test17r56mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cucs2vcyh",
+        "preprod": "stake_test17r56mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cucs2vcyh"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1y056mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cuc232p4z",
+          "cip105": "drep_script1axkca6v7vjpj2z0lv5l4jvdtj6csfpqvk38n2ly5max8x3rknj8"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1z056mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cucwevhux",
+          "cip105": "cc_cold_script1axkca6v7vjpj2z0lv5l4jvdtj6csfpqvk38n2ly5max8x02p9za"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1q056mrhfnejgxfgflajn7kf34wttzpyypj6y7dtujn05cucc9ctx0",
+          "cip105": "cc_hot_script1axkca6v7vjpj2z0lv5l4jvdtj6csfpqvk38n2ly5max8xt5u6qk"
+        }
+      }
+    }
+  },
+  "satisfaction": [
+    {
+      "id": "none@unbounded",
+      "signers": [],
+      "expected": false,
+      "expectedReason": "0 of 11 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "0@unbounded",
+      "signers": [
+        "38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb"
+      ],
+      "expected": false,
+      "expectedReason": "5 of 11 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "1@unbounded",
+      "signers": [
+        "8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da"
+      ],
+      "expected": true,
+      "expectedReason": "6 of 11 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "all@unbounded",
+      "signers": [
+        "38bc9ee370c561a56c2bac16bb1324ba4118e5e047fe9f2c21fc90bb",
+        "8eb892d0713a4e2093f84e3f07e69e49bcf32d777c37a74428d212da"
+      ],
+      "expected": true,
+      "expectedReason": "11 of 11 sub-scripts satisfied, 6 required"
+    }
+  ],
+  "onchain": []
+}

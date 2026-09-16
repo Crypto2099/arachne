@@ -403,6 +403,322 @@ export const encodingBoundary: Family<{ position: string; width: number }> = {
   },
 };
 
+/**
+ * Cardano's own constitutional committee, at the sizes and thresholds CIP-1694
+ * itself uses.
+ *
+ * A committee member's `Yes` vote is a signature, so the committee's own
+ * ratification rule is exactly an n-of-m native script: no weighting, no
+ * stake, one member one vote. That makes it the one governance body in this
+ * file that translates without any approximation.
+ *
+ * `cip1694-worked-example` is CIP-1694's own illustration of expiry, quoted
+ * from the "Requirements" section of CIP-1694
+ * (github.com/cardano-foundation/CIPs, CIP-1694/README.md): "a committee of
+ * size five with a threshold of 60% a minimum size of three and two expired
+ * members can still pass governance actions if two non-expired members vote
+ * Yes". Expired members cast no vote, so the script carries only the three
+ * live seats; 60% of three is 1.8, and the CIP's own arithmetic rounds that up
+ * to two.
+ *
+ * `mainnet-genesis` is the committee actually seated at the Conway (Chang)
+ * hard fork: seven members and a 2/3 threshold, read from the `committee`
+ * field of mainnet's own genesis configuration
+ * (book.world.dev.cardano.org/environments/mainnet/conway-genesis.json,
+ * mirrored from IntersectMBO/cardano-configurations). 2/3 of seven is
+ * 4.667, rounded up to five. CIP-1694 states the threshold is itself a
+ * governance parameter and can be changed by a later "update committee and/or
+ * threshold" action, so this is the value at genesis, not a promise it stays
+ * that way.
+ */
+export const constitutionalCommittee: Family<{ label: string; n: number; k: number }> = {
+  name: 'constitutional-committee',
+  question:
+    "Does Cardano's own constitutional committee threshold translate into a plain n-of-m script at the committee size actually seated, including the case where expired members are excluded from the count?",
+  cases: () => [
+    { label: 'cip1694-worked-example', n: 3, k: 2 },
+    { label: 'mainnet-genesis', n: 7, k: 5 },
+  ],
+  id: ({ label }) => label,
+  build: ({ label, n, k }) => ({
+    type: 'atLeast',
+    required: k,
+    scripts: cosigners(n, `cc-${label}`).map((keyHash) => ({ type: 'sig' as const, keyHash })),
+  }),
+};
+
+/**
+ * Governance action ratification, as CIP-1694 actually structures it: a fixed
+ * combination of governance bodies, each meeting its own published threshold,
+ * conjoined rather than chosen between.
+ *
+ * CIP-1694's "Ratification" section states the shape directly: "always
+ * involve two of the three governance bodies, with the exception of a
+ * hard-fork initiation and security-relevant protocol parameters, which
+ * requires ratification by all governance bodies", and "an action will thus
+ * be ratified when a combination of the following occurs" - a conjunction,
+ * not a choice. Which two or three bodies apply, per action, is CIP-1694's
+ * own table in the "Requirements" section.
+ *
+ * The threshold ratios are read from mainnet's own genesis configuration
+ * (book.world.dev.cardano.org/environments/mainnet/conway-genesis.json,
+ * `dRepVotingThresholds`, `poolVotingThresholds` and `committee.threshold`),
+ * the values actually in force after the Conway (Chang) hard fork. Every
+ * threshold here is a governance parameter in its own right and can be
+ * changed by a later protocol-parameter-change action; this family records
+ * the values at genesis, not an assumption that they hold indefinitely.
+ *
+ * The committee cohort is Cardano's real size: seven members
+ * (`committeeMinSize`, matching the seven entries in `committee.members`).
+ * DReps and SPOs are not size-bounded in reality and their thresholds are
+ * shares of stake, not of headcount; representing either faithfully would
+ * need real stake weights this corpus does not have and cannot fabricate. So
+ * the DRep and SPO cohorts here are a fixed, illustrative headcount (15 and
+ * 10), and the published percentage is applied to that headcount by rounding
+ * up to the next whole member, the same "at least this fraction" reading
+ * CIP-1694 itself uses for stake. What is real is the ratio and which bodies
+ * a given action requires; the cohort size standing in for "every DRep" or
+ * "every stake pool" is not.
+ */
+export const conwayRatification: Family<{
+  action: string;
+  cc?: { n: number; k: number };
+  drep: { n: number; k: number };
+  spo?: { n: number; k: number };
+}> = {
+  name: 'conway-ratification',
+  question:
+    "Does a governance action's real ratification rule, conjoining a small fixed committee with one or two much larger bodies at Cardano's own published threshold ratios, evaluate seat by seat and body by body rather than collapsing into one count?",
+  cases: () => [
+    // DReps 0.67 of 15 = 10.05, up to 11. SPOs 0.51 of 10 = 5.1, up to 6. No
+    // committee vote on a motion against the committee itself.
+    { action: 'motion-of-no-confidence', drep: { n: 15, k: 11 }, spo: { n: 10, k: 6 } },
+    // Committee 2/3 of 7 = 4.667, up to 5. DReps `updateToConstitution`
+    // 0.75 of 15 = 11.25, up to 12. SPOs do not vote on the constitution.
+    { action: 'update-constitution', cc: { n: 7, k: 5 }, drep: { n: 15, k: 12 } },
+    // Committee 5 of 7, as above. DReps `treasuryWithdrawal` 0.67 of 15,
+    // same 11 as the no-confidence case above by coincidence of the ratio.
+    { action: 'treasury-withdrawal', cc: { n: 7, k: 5 }, drep: { n: 15, k: 11 } },
+    // The one action type all three bodies vote on. Committee 5 of 7. DReps
+    // `hardForkInitiation` 0.6 of 15 = 9 exactly. SPOs 0.51 of 10, up to 6.
+    {
+      action: 'hard-fork-initiation',
+      cc: { n: 7, k: 5 },
+      drep: { n: 15, k: 9 },
+      spo: { n: 10, k: 6 },
+    },
+    // CIP-1694 sets every threshold for the Info action to 100%, "since
+    // setting it any lower would result in not being able to poll above the
+    // threshold". Unanimous across all three bodies.
+    {
+      action: 'info',
+      cc: { n: 7, k: 7 },
+      drep: { n: 15, k: 15 },
+      spo: { n: 10, k: 10 },
+    },
+  ],
+  id: ({ action }) => action,
+  build: ({ action, cc, drep, spo }) => {
+    const cohort = (label: string, n: number, k: number): NativeScript => ({
+      type: 'atLeast',
+      required: k,
+      scripts: cosigners(n, `${label}-${action}`).map((keyHash) => ({
+        type: 'sig' as const,
+        keyHash,
+      })),
+    });
+    const bodies: NativeScript[] = [];
+    if (cc) bodies.push(cohort('gcc', cc.n, cc.k));
+    bodies.push(cohort('gdrep', drep.n, drep.k));
+    if (spo) bodies.push(cohort('gspo', spo.n, spo.k));
+    return { type: 'all', scripts: bodies };
+  },
+};
+
+/**
+ * The UN Security Council's veto, which is the clearest published example of
+ * a member whose vote counts for more than one: a permanent member's
+ * concurrence is required independently of, and in addition to, the ordinary
+ * count it also contributes to.
+ *
+ * Article 23 of the UN Charter fixes the Council at fifteen members, five of
+ * them permanent. Article 27 gives two different rules over that same
+ * fifteen: "Decisions of the Security Council on procedural matters shall be
+ * made by an affirmative vote of nine members", while "Decisions ... on all
+ * other matters shall be made by an affirmative vote of nine members
+ * including the concurring votes of the permanent members" (text read from
+ * the UN's own published Charter, un.org/en/about-us/un-charter/chapter-5;
+ * the article was amended in 1965 to raise Council membership from eleven to
+ * fifteen and the vote from seven to nine, and this is the text currently in
+ * force).
+ *
+ * `substantive` requires the permanent members' key hashes to appear twice:
+ * once inside the pooled nine-of-fifteen count, and again in a separate
+ * all-of-five branch. One permanent member's signature satisfies both at
+ * once, which is exactly the sub-script-counting rule in
+ * spec/03-satisfaction.md, applied to a real veto rather than an abstract
+ * one.
+ */
+export const unSecurityCouncil: Family<{ shape: 'procedural' | 'substantive' }> = {
+  name: 'un-security-council',
+  question:
+    "Does the Security Council's veto evaluate correctly when the same five permanent members' signatures are required both individually and as part of the pooled nine-of-fifteen count?",
+  cases: () => [{ shape: 'procedural' }, { shape: 'substantive' }],
+  id: ({ shape }) => shape,
+  build: ({ shape }) => {
+    const permanent = cosigners(5, 'unsc-permanent');
+    const elected = cosigners(10, 'unsc-elected');
+    const pool: NativeScript[] = [...permanent, ...elected].map((keyHash) => ({
+      type: 'sig' as const,
+      keyHash,
+    }));
+    const nineOfFifteen: NativeScript = { type: 'atLeast', required: 9, scripts: pool };
+    if (shape === 'procedural') return nineOfFifteen;
+    return {
+      type: 'all',
+      scripts: [
+        nineOfFifteen,
+        {
+          type: 'all',
+          scripts: permanent.map((keyHash) => ({ type: 'sig' as const, keyHash })),
+        },
+      ],
+    };
+  },
+};
+
+/**
+ * Weighted voting, modeled the only way a native script can express it: a
+ * holder with several votes signs once, and that one signature has to satisfy
+ * several sub-scripts at once. This is the same rule `duplicate-keys` proves
+ * with one key duplicated under one threshold; this family applies it to
+ * several different holders with different weights at once, which is the
+ * shape that actually arises when voting power is proportional to holdings.
+ *
+ * The mechanism is real and general rather than tied to one organization:
+ * 8 Del. C. section 212(a), read from delcode.delaware.gov/title8/c001/sc07,
+ * states the default for a stock corporation directly: "Unless otherwise
+ * provided in the certificate of incorporation ... each stockholder shall be
+ * entitled to 1 vote for each share of capital stock held by such
+ * stockholder." The holdings below are this corpus's own small illustrative
+ * numbers, chosen only to keep the sub-script count reviewable while
+ * preserving the qualitative relationship each case is named for (a
+ * plurality short of a majority, a majority by the narrowest possible
+ * margin, three near-equal holders); they are not any named company's
+ * capitalization table.
+ *
+ * `quorum-floor` and `majority` apply two different real rules to the same
+ * three-way, near-equal cohort. 8 Del. C. section 216 fixes the statutory
+ * minimum quorum at one third of the shares entitled to vote, and separately
+ * sets the default vote required to act, absent a charter provision
+ * otherwise, at a majority of the shares represented. A native script has no
+ * "present but not voting" state, so the two thresholds are evaluated over
+ * the same yes-signers here rather than reproducing the statute's two-step
+ * present-then-vote procedure; what the pair of cases demonstrates is that
+ * the quorum floor and the default approval bar are different numbers over
+ * one cohort, which is the shape a corpus for "quorum differs from
+ * supermajority" needs, at cited figures rather than invented ones.
+ */
+export const weightedVoting: Family<{ distribution: number[]; rule: 'majority' | 'quorum-floor' }> =
+  {
+    name: 'weighted-voting',
+    question:
+      'When a holder with several votes is modeled as several copies of one key hash, does the reference evaluator sum weight across holders correctly, and does a statutory quorum floor evaluate differently from the default majority-to-pass threshold over the same cohort?',
+    cases: () => [
+      // A plurality holder (4 of 10) short of a majority: no two of the
+      // smaller holders are needed if the largest one finds one ally.
+      { distribution: [4, 2, 2, 2], rule: 'majority' },
+      // A majority by the smallest possible margin: the 6-share holder can
+      // act alone, the 5-share holder never can.
+      { distribution: [6, 5], rule: 'majority' },
+      // Three near-equal holders, no single majority.
+      { distribution: [4, 3, 3], rule: 'majority' },
+      // Same three holders, the statutory quorum floor instead of the
+      // majority: the 4-share holder alone already clears one third of 10.
+      { distribution: [4, 3, 3], rule: 'quorum-floor' },
+    ],
+    id: ({ distribution, rule }) => `${distribution.join('-')}-${rule}`,
+    build: ({ distribution, rule }) => {
+      const total = distribution.reduce((sum, shares) => sum + shares, 0);
+      const holders = cosigners(distribution.length, `sh${distribution.join('-')}`);
+      const scripts: NativeScript[] = [];
+      distribution.forEach((shares, i) => {
+        const keyHash = holders[i] as string;
+        for (let s = 0; s < shares; s += 1) scripts.push({ type: 'sig', keyHash });
+      });
+      // Majority: strictly more than half the shares, the default under 8 Del.
+      // C. section 216(2) absent a charter provision otherwise. Quorum floor:
+      // one third, the statutory minimum under section 216 that no
+      // certificate or bylaw may set lower.
+      const required = rule === 'majority' ? Math.floor(total / 2) + 1 : Math.ceil(total / 3);
+      return { type: 'atLeast', required, scripts };
+    },
+  };
+
+const EMERGENCY_DELAY_SLOT = 5_000_000;
+
+/**
+ * A generic multisig treasury pattern, not a published rule of any named
+ * organization: ordinary spending needs a threshold of the full board, and a
+ * smaller emergency cohort can act alone if the board cannot be assembled,
+ * but only once a delay has passed. The delay is what turns "a smaller group
+ * can also authorize this" into an emergency path rather than a second,
+ * quieter way to spend at any time: it forces the wait to be visible on-chain
+ * before the emergency branch becomes usable at all, which is the same
+ * absent-bound-fails rule spec/03-satisfaction.md documents, applied to a
+ * board-plus-recovery shape instead of a single key.
+ *
+ * This is explicitly a generic structure per the project's own rule against
+ * attributing an invented number to a real organization: no specific
+ * board size, emergency cohort size or delay below is any published treasury's
+ * actual configuration. What the family demonstrates is the shape combining
+ * a body threshold, a smaller body threshold and a timelock, which
+ * `timelocks` does not: every case there gates a single signature, not a
+ * multi-member board.
+ */
+export const treasuryEmergencyPath: Family<{
+  boardSize: number;
+  boardK: number;
+  emergencySize: number;
+  emergencyK: number;
+}> = {
+  name: 'treasury-emergency-path',
+  question:
+    'Does a normal board threshold and a smaller emergency cohort gated by a time delay evaluate independently, the way a board-plus-recovery treasury script needs both branches to?',
+  cases: () => [
+    { boardSize: 5, boardK: 3, emergencySize: 3, emergencyK: 2 },
+    { boardSize: 7, boardK: 4, emergencySize: 2, emergencyK: 1 },
+    { boardSize: 3, boardK: 2, emergencySize: 5, emergencyK: 3 },
+  ],
+  id: ({ boardSize, boardK, emergencySize, emergencyK }) =>
+    `board${boardSize}-of-${boardK}-emergency${emergencySize}-of-${emergencyK}`,
+  build: ({ boardSize, boardK, emergencySize, emergencyK }) => {
+    const board = cosigners(boardSize, `board${boardSize}-${boardK}`);
+    const emergency = cosigners(emergencySize, `emerg${emergencySize}-${emergencyK}`);
+    return {
+      type: 'any',
+      scripts: [
+        {
+          type: 'atLeast',
+          required: boardK,
+          scripts: board.map((keyHash) => ({ type: 'sig' as const, keyHash })),
+        },
+        {
+          type: 'all',
+          scripts: [
+            {
+              type: 'atLeast',
+              required: emergencyK,
+              scripts: emergency.map((keyHash) => ({ type: 'sig' as const, keyHash })),
+            },
+            { type: 'after', slot: EMERGENCY_DELAY_SLOT },
+          ],
+        },
+      ],
+    };
+  },
+};
+
 export const FAMILIES = [
   nestLinear,
   nestAlternating,
@@ -415,5 +731,10 @@ export const FAMILIES = [
   federation,
   federationOfFederations,
   encodingBoundary,
+  constitutionalCommittee,
+  conwayRatification,
+  unSecurityCouncil,
+  weightedVoting,
+  treasuryEmergencyPath,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Family<any>[];

@@ -1,6 +1,6 @@
 {
   "formatVersion": 3,
-  "generatedAt": "2026-09-16T19:04:48.113Z",
+  "generatedAt": "2026-09-17T04:05:21.451Z",
   "generator": "arachne@0.1.0",
   "families": [
     {
@@ -57,13 +57,38 @@
       "name": "encoding-boundary",
       "question": "Does the definite-to-indefinite switch depend on each list independently, so a small root can still hide a divergent child?",
       "count": 6
+    },
+    {
+      "name": "constitutional-committee",
+      "question": "Does Cardano's own constitutional committee threshold translate into a plain n-of-m script at the committee size actually seated, including the case where expired members are excluded from the count?",
+      "count": 2
+    },
+    {
+      "name": "conway-ratification",
+      "question": "Does a governance action's real ratification rule, conjoining a small fixed committee with one or two much larger bodies at Cardano's own published threshold ratios, evaluate seat by seat and body by body rather than collapsing into one count?",
+      "count": 5
+    },
+    {
+      "name": "un-security-council",
+      "question": "Does the Security Council's veto evaluate correctly when the same five permanent members' signatures are required both individually and as part of the pooled nine-of-fifteen count?",
+      "count": 2
+    },
+    {
+      "name": "weighted-voting",
+      "question": "When a holder with several votes is modeled as several copies of one key hash, does the reference evaluator sum weight across holders correctly, and does a statutory quorum floor evaluate differently from the default majority-to-pass threshold over the same cohort?",
+      "count": 4
+    },
+    {
+      "name": "treasury-emergency-path",
+      "question": "Does a normal board threshold and a smaller emergency cohort gated by a time delay evaluate independently, the way a board-plus-recovery treasury script needs both branches to?",
+      "count": 3
     }
   ],
-  "vectorCount": 126,
-  "satisfactionCaseCount": 1067,
+  "vectorCount": 142,
+  "satisfactionCaseCount": 1655,
   "observationCount": 6,
   "encodingSensitiveCount": 15,
-  "digest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+  "digest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
   "vectors": [
     {
       "id": "breadth/all-w002",
@@ -232,6 +257,55 @@
       "path": "breadth/any-w400.json",
       "scriptHash": "1151df8299aad2fe52a93f42ae37f174766d6de0b2833d812b62189c",
       "cardanoBinaryScriptHash": "aca2842cdd42a33a0bd63315fdd52ba968e578177b8f67ac75e6f43c"
+    },
+    {
+      "id": "constitutional-committee/cip1694-worked-example",
+      "family": "constitutional-committee",
+      "path": "constitutional-committee/cip1694-worked-example.json",
+      "scriptHash": "966acd8235b267d2b04c3a1c67b08668cd726a0cacee45c5a3fa2928",
+      "cardanoBinaryScriptHash": "966acd8235b267d2b04c3a1c67b08668cd726a0cacee45c5a3fa2928"
+    },
+    {
+      "id": "constitutional-committee/mainnet-genesis",
+      "family": "constitutional-committee",
+      "path": "constitutional-committee/mainnet-genesis.json",
+      "scriptHash": "296666b11344a0214dba96cf68065a81d34e9040f84073c4a413e5d4",
+      "cardanoBinaryScriptHash": "296666b11344a0214dba96cf68065a81d34e9040f84073c4a413e5d4"
+    },
+    {
+      "id": "conway-ratification/hard-fork-initiation",
+      "family": "conway-ratification",
+      "path": "conway-ratification/hard-fork-initiation.json",
+      "scriptHash": "24b5af2948b7ab50a56bff1c1314e37aeacd02246df48f193fcc45fe",
+      "cardanoBinaryScriptHash": "24b5af2948b7ab50a56bff1c1314e37aeacd02246df48f193fcc45fe"
+    },
+    {
+      "id": "conway-ratification/info",
+      "family": "conway-ratification",
+      "path": "conway-ratification/info.json",
+      "scriptHash": "91f23563ee0b3fab115e63b1116823a7213fa3fdf61a3fb2fcbf62ec",
+      "cardanoBinaryScriptHash": "91f23563ee0b3fab115e63b1116823a7213fa3fdf61a3fb2fcbf62ec"
+    },
+    {
+      "id": "conway-ratification/motion-of-no-confidence",
+      "family": "conway-ratification",
+      "path": "conway-ratification/motion-of-no-confidence.json",
+      "scriptHash": "b4f7d7f3e21ce8c3bdcfde5671eaee1868827f4d532eb29bbebc1c29",
+      "cardanoBinaryScriptHash": "b4f7d7f3e21ce8c3bdcfde5671eaee1868827f4d532eb29bbebc1c29"
+    },
+    {
+      "id": "conway-ratification/treasury-withdrawal",
+      "family": "conway-ratification",
+      "path": "conway-ratification/treasury-withdrawal.json",
+      "scriptHash": "057f56e505af8bb6ba4371142ca60bee7aec2f48bac99333fbf92977",
+      "cardanoBinaryScriptHash": "057f56e505af8bb6ba4371142ca60bee7aec2f48bac99333fbf92977"
+    },
+    {
+      "id": "conway-ratification/update-constitution",
+      "family": "conway-ratification",
+      "path": "conway-ratification/update-constitution.json",
+      "scriptHash": "0307e16f86c662fb367a743660b791cd15bcc63cfb3ea56e8e225169",
+      "cardanoBinaryScriptHash": "0307e16f86c662fb367a743660b791cd15bcc63cfb3ea56e8e225169"
     },
     {
       "id": "degenerate/atleast-negative",
@@ -946,6 +1020,69 @@
       "path": "timelocks/window.json",
       "scriptHash": "01d07a84cc65c3c36bcb74684cc3d4132a637c91603bbb86a81828c5",
       "cardanoBinaryScriptHash": "01d07a84cc65c3c36bcb74684cc3d4132a637c91603bbb86a81828c5"
+    },
+    {
+      "id": "treasury-emergency-path/board3-of-2-emergency5-of-3",
+      "family": "treasury-emergency-path",
+      "path": "treasury-emergency-path/board3-of-2-emergency5-of-3.json",
+      "scriptHash": "386e107709b4d70bff77410bff965619e44a6196d3419ba5b1935871",
+      "cardanoBinaryScriptHash": "386e107709b4d70bff77410bff965619e44a6196d3419ba5b1935871"
+    },
+    {
+      "id": "treasury-emergency-path/board5-of-3-emergency3-of-2",
+      "family": "treasury-emergency-path",
+      "path": "treasury-emergency-path/board5-of-3-emergency3-of-2.json",
+      "scriptHash": "937dd088d2b715e84caa6722988bd0e16eb37b6da28ca07abcaeab56",
+      "cardanoBinaryScriptHash": "937dd088d2b715e84caa6722988bd0e16eb37b6da28ca07abcaeab56"
+    },
+    {
+      "id": "treasury-emergency-path/board7-of-4-emergency2-of-1",
+      "family": "treasury-emergency-path",
+      "path": "treasury-emergency-path/board7-of-4-emergency2-of-1.json",
+      "scriptHash": "3d3f964d675b0bfab65eaa19cb13d8ddd6ea9708cc3474bf8c426ab0",
+      "cardanoBinaryScriptHash": "3d3f964d675b0bfab65eaa19cb13d8ddd6ea9708cc3474bf8c426ab0"
+    },
+    {
+      "id": "un-security-council/procedural",
+      "family": "un-security-council",
+      "path": "un-security-council/procedural.json",
+      "scriptHash": "37e4e2b0cdf1551ec7aec6fbec60824fdae02a158d7b35d72bd57718",
+      "cardanoBinaryScriptHash": "37e4e2b0cdf1551ec7aec6fbec60824fdae02a158d7b35d72bd57718"
+    },
+    {
+      "id": "un-security-council/substantive",
+      "family": "un-security-council",
+      "path": "un-security-council/substantive.json",
+      "scriptHash": "740e06e21efcee7525f3252e9b717e843ddca88b2c2b1e78adf0943b",
+      "cardanoBinaryScriptHash": "740e06e21efcee7525f3252e9b717e843ddca88b2c2b1e78adf0943b"
+    },
+    {
+      "id": "weighted-voting/4-2-2-2-majority",
+      "family": "weighted-voting",
+      "path": "weighted-voting/4-2-2-2-majority.json",
+      "scriptHash": "4ac873a77fb17af18ba28faf50e1b4c15d1d2753a4f46400274a10a2",
+      "cardanoBinaryScriptHash": "4ac873a77fb17af18ba28faf50e1b4c15d1d2753a4f46400274a10a2"
+    },
+    {
+      "id": "weighted-voting/4-3-3-majority",
+      "family": "weighted-voting",
+      "path": "weighted-voting/4-3-3-majority.json",
+      "scriptHash": "1a92c7645d6125b5cfa63201f9164aafbbfb7b71803921ac4746c893",
+      "cardanoBinaryScriptHash": "1a92c7645d6125b5cfa63201f9164aafbbfb7b71803921ac4746c893"
+    },
+    {
+      "id": "weighted-voting/4-3-3-quorum-floor",
+      "family": "weighted-voting",
+      "path": "weighted-voting/4-3-3-quorum-floor.json",
+      "scriptHash": "5a84c7802279c40b79e5255191e45b6430c2342818081307a6c49a21",
+      "cardanoBinaryScriptHash": "5a84c7802279c40b79e5255191e45b6430c2342818081307a6c49a21"
+    },
+    {
+      "id": "weighted-voting/6-5-majority",
+      "family": "weighted-voting",
+      "path": "weighted-voting/6-5-majority.json",
+      "scriptHash": "e9ad8ee99e64832509ff653f5931ab96b104840cb44f357c94df4c73",
+      "cardanoBinaryScriptHash": "e9ad8ee99e64832509ff653f5931ab96b104840cb44f357c94df4c73"
     }
   ]
 }
