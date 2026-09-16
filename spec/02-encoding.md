@@ -6,16 +6,17 @@ implementation either produces these bytes or it does not.
 ## CBOR
 
 Native scripts use a tiny corner of CBOR: unsigned integers, one negative integer,
-byte strings, and arrays. Every integer and byte string is shortest form.
+byte strings, and arrays. Every integer and byte string is in shortest form.
 
 Array framing is the exception, and it is the whole of
 [07-encoding-divergence.md](07-encoding-divergence.md). A sub-script list is written
 definite-length by cardano-serialization-lib and most JavaScript tooling at every size,
 and by `cardano-binary`, and so by cardano-cli and cardano-node, only up to 23 entries,
 switching to indefinite length from 24. Both produce valid CBOR and the two hash
-differently, so neither is canonical and an implementation has to choose knowingly. The
-worked examples below are small enough that the two coincide; read 07 before relying on
-any of it for a container holding 24 or more.
+differently, so neither is canonical, and an implementation has to choose knowingly. The
+worked examples below are small enough that the two coincide; read
+[07-encoding-divergence.md](07-encoding-divergence.md) before relying on any of it for a
+container holding 24 or more.
 
 The head byte carries a major type in its top three bits and an argument in the low
 five. Arguments below 24 are written into the head byte; larger ones follow it in 1, 2,
@@ -97,8 +98,7 @@ high four bits are the address type and the low four are the network tag.
 ```
 
 Network tag 0 is every testnet and 1 is mainnet. Preview and preprod share tag 0, so a
-given script has one address that is valid on both. That is a property of the format,
-not an oversight in the corpus.
+given script has one address that is valid on both.
 
 Odd address types carry a script payment credential. The types a script hash can
 occupy:
