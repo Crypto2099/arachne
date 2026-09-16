@@ -170,10 +170,11 @@ settles three cases that look like they need special handling and do not:
 | `required` is negative           | Satisfied, with no witnesses | Same. The CDDL types `n` as `int64`, so this is representable |
 | `required` above the child count | Never satisfied              | The list runs out with `n` still above 0                      |
 
-The negative case is reachable only through a hand-built encoder. The CDDL carries the
-note "Allegra switched to int64 for script_n_of_k thresholds", and
-cardano-serialization-lib's constructor takes an unsigned count, so most tooling cannot
-produce one. The corpus contains one anyway.
+The negative case is not exotic. The CDDL carries the note "Allegra switched to int64 for
+script_n_of_k thresholds", and cardano-cli builds one from an ordinary JSON script file
+without complaint, so it is reachable through the standard tooling path rather than only
+through a deliberate encoder. cardano-serialization-lib is the one that cannot express
+it, because its constructor takes an unsigned count.
 
 ## Evaluation status
 

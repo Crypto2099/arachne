@@ -186,10 +186,17 @@ vector records the oddity as a remark so that its presence reads as deliberate.
 The CDDL types `n` as `int64` rather than
 `uint`, with `min_int64 = -9223372036854775808`, and carries the comment "Allegra
 switched to int64 for script_n_of_k thresholds". A negative value is therefore
-representable on the wire. Most libraries cannot construct one, including
-cardano-serialization-lib, whose constructor takes an unsigned count. Arachne generates
-it anyway, because a shape that a library cannot build but the wire format can carry is
-exactly the kind of gap a harness exists to find.
+representable on the wire, and it is not exotic. cardano-cli builds one straight from an
+ordinary JSON script file and prints its hash without complaint, so any tool driving the
+CLI can produce one by accident. cardano-serialization-lib is the outlier here rather
+than the rule: its constructor takes an unsigned count, so a negative threshold reaches
+it only as a wrapped unsigned value, which is a separate defect recorded in the
+compatibility results.
+
+The validation is one-sided, which is worth knowing because the two directions look
+symmetrical and are not. cardano-cli refuses a threshold ABOVE the child count, with
+"Required number of script signatures exceeds the number of scripts", and accepts every
+value at or below zero.
 
 ## Depth and breadth
 
