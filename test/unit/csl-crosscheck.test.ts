@@ -66,11 +66,16 @@ const allScripts = FAMILIES.flatMap((family) =>
 const expressible = allScripts.filter(({ script }) => !hasNegativeThreshold(script));
 
 function hasNegativeThreshold(script: NativeScript): boolean {
-  if (script.type === 'atLeast') {
-    return script.required < 0 || script.scripts.some(hasNegativeThreshold);
+  // Iterative early-exit search rather than recursion, so this also survives
+  // the deep fixtures in test/unit/deep-nesting.test.ts.
+  const stack: NativeScript[] = [script];
+  while (stack.length > 0) {
+    const node = stack.pop() as NativeScript;
+    if (node.type === 'atLeast' && node.required < 0) return true;
+    if (node.type === 'all' || node.type === 'any' || node.type === 'atLeast') {
+      for (const child of node.scripts) stack.push(child);
+    }
   }
-  if (script.type === 'all' || script.type === 'any')
-    return script.scripts.some(hasNegativeThreshold);
   return false;
 }
 

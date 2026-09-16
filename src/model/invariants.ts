@@ -1,4 +1,4 @@
-import { isContainer, type NativeScript } from './types.js';
+import { isContainer, type NativeScript, type ScriptContainer } from './types.js';
 
 /**
  * Structural facts about a script, computed in one pass.
@@ -28,31 +28,67 @@ export function shapeOf(script: NativeScript): ScriptShape {
   let timelockCount = 0;
   let maxBreadth = 0;
 
-  const walk = (node: NativeScript): number => {
-    nodeCount += 1;
-    switch (node.type) {
-      case 'sig':
-        sigCount += 1;
-        keyHashes.add(node.keyHash.toLowerCase());
-        return 1;
-      case 'after':
-      case 'before':
-        timelockCount += 1;
-        return 1;
-      default: {
-        containerCounts[node.type] += 1;
-        maxBreadth = Math.max(maxBreadth, node.scripts.length);
-        let deepest = 0;
-        for (const child of node.scripts) deepest = Math.max(deepest, walk(child));
-        // An empty container still occupies a level of its own.
-        return deepest + 1;
-      }
-    }
-  };
+  // `depth` is the one value that has to come back up from the leaves, so
+  // this is a post-order walk: a container's depth is one more than its
+  // deepest child, and that is not known until every child has been visited.
+  // The work stack below holds one frame per container still open, tracking
+  // which child comes next and the deepest one seen so far, in place of the
+  // native stack frame recursion would have used per nesting level.
+  interface Frame {
+    node: ScriptContainer;
+    index: number;
+    deepest: number;
+  }
+  const stack: Frame[] = [];
+  let node: NativeScript | undefined = script;
+  let result = 0;
 
-  const depth = walk(script);
+  while (node !== undefined || stack.length > 0) {
+    if (node !== undefined) {
+      nodeCount += 1;
+      const current: NativeScript = node;
+      node = undefined;
+      switch (current.type) {
+        case 'sig':
+          sigCount += 1;
+          keyHashes.add(current.keyHash.toLowerCase());
+          result = 1;
+          break;
+        case 'after':
+        case 'before':
+          timelockCount += 1;
+          result = 1;
+          break;
+        default: {
+          containerCounts[current.type] += 1;
+          maxBreadth = Math.max(maxBreadth, current.scripts.length);
+          if (current.scripts.length === 0) {
+            // An empty container still occupies a level of its own.
+            result = 1;
+          } else {
+            stack.push({ node: current, index: 0, deepest: 0 });
+            node = current.scripts[0];
+          }
+        }
+      }
+      continue;
+    }
+
+    // Ascend: `result` is the depth of the child just finished.
+    const frame = stack[stack.length - 1];
+    if (frame === undefined) break;
+    frame.deepest = Math.max(frame.deepest, result);
+    frame.index += 1;
+    if (frame.index < frame.node.scripts.length) {
+      node = frame.node.scripts[frame.index];
+    } else {
+      stack.pop();
+      result = frame.deepest + 1;
+    }
+  }
+
   return {
-    depth,
+    depth: result,
     nodeCount,
     sigCount,
     keyHashes: [...keyHashes].sort(),
@@ -83,8 +119,18 @@ export interface ScriptRemark {
 export function remarksFor(script: NativeScript): ScriptRemark[] {
   const remarks: ScriptRemark[] = [];
 
-  const walk = (node: NativeScript, path: string): void => {
-    if (!isContainer(node)) return;
+  // Pre-order: a remark's own detection never depends on a child's, so unlike
+  // `shapeOf` this needs no result to carry back up and an explicit stack of
+  // nodes still to visit is enough. Children are pushed in reverse so that
+  // popping them visits left to right, reproducing the order `forEach` gave
+  // the recursive version.
+  const stack: Array<{ node: NativeScript; path: string }> = [{ node: script, path: '' }];
+
+  while (stack.length > 0) {
+    const frame = stack.pop();
+    if (frame === undefined) break;
+    const { node, path } = frame;
+    if (!isContainer(node)) continue;
 
     if (node.type === 'all' && node.scripts.length === 0) {
       remarks.push({
@@ -130,9 +176,10 @@ export function remarksFor(script: NativeScript): ScriptRemark[] {
       }
     }
 
-    node.scripts.forEach((child, i) => walk(child, `${path}/${node.type}[${i}]`));
-  };
+    for (let i = node.scripts.length - 1; i >= 0; i -= 1) {
+      stack.push({ node: node.scripts[i] as NativeScript, path: `${path}/${node.type}[${i}]` });
+    }
+  }
 
-  walk(script, '');
   return remarks;
 }

@@ -1,4 +1,9 @@
-import type { NativeScript, NativeScriptType } from '../model/types.js';
+import {
+  isContainer,
+  type NativeScript,
+  type NativeScriptType,
+  type ScriptContainer,
+} from '../model/types.js';
 import { witnessFrom, type WitnessContext } from './witness.js';
 
 export interface EvalNode {
@@ -19,6 +24,17 @@ export interface EvalResult {
    * satisfy it, which are very different situations. Check `satisfied` first.
    */
   missingSigners: string[];
+}
+
+/** A node with no `scripts` of its own: what `evalLeaf` below handles directly. */
+type LeafScript = Exclude<NativeScript, ScriptContainer>;
+
+/** One open container, gathering its children's verdicts before its own can be computed. */
+interface EvalFrame {
+  node: ScriptContainer;
+  path: string;
+  index: number;
+  children: EvalNode[];
 }
 
 /**
@@ -44,7 +60,7 @@ export function evaluate(script: NativeScript, context: WitnessContext): EvalRes
   const witness = witnessFrom(context);
   const missing = new Set<string>();
 
-  const walk = (node: NativeScript, path: string): EvalNode => {
+  function evalLeaf(node: LeafScript, path: string): EvalNode {
     switch (node.type) {
       case 'sig': {
         const satisfied = witness.signers.has(node.keyHash.toLowerCase());
@@ -107,9 +123,13 @@ export function evaluate(script: NativeScript, context: WitnessContext): EvalRes
           children: [],
         };
       }
+    }
+  }
 
+  function finishContainer(frame: EvalFrame): EvalNode {
+    const { node, path, children } = frame;
+    switch (node.type) {
       case 'all': {
-        const children = node.scripts.map((child, i) => walk(child, `${path}/all[${i}]`));
         const failed = children.filter((c) => !c.satisfied).length;
         return {
           path,
@@ -128,7 +148,6 @@ export function evaluate(script: NativeScript, context: WitnessContext): EvalRes
       }
 
       case 'any': {
-        const children = node.scripts.map((child, i) => walk(child, `${path}/any[${i}]`));
         const met = children.filter((c) => c.satisfied).length;
         return {
           path,
@@ -145,7 +164,6 @@ export function evaluate(script: NativeScript, context: WitnessContext): EvalRes
       }
 
       case 'atLeast': {
-        const children = node.scripts.map((child, i) => walk(child, `${path}/atLeast[${i}]`));
         // Count satisfied sub-scripts, not distinct keys. A duplicated sig that
         // has signed contributes once per occurrence.
         const met = children.filter((c) => c.satisfied).length;
@@ -163,9 +181,50 @@ export function evaluate(script: NativeScript, context: WitnessContext): EvalRes
         };
       }
     }
-  };
+  }
 
-  const trace = walk(script, '');
+  // Post-order: a container's verdict needs every child's verdict first, so
+  // this keeps a work stack of open containers (one frame per nesting level,
+  // tracking the next child index and the verdicts gathered so far) instead
+  // of a native stack frame per level. `pending` is the node queued to
+  // descend into next; when it is empty the loop is ascending with
+  // `completed` holding the child verdict just finished.
+  const stack: EvalFrame[] = [];
+  let pending: { node: NativeScript; path: string } | undefined = { node: script, path: '' };
+  let completed: EvalNode | undefined;
+
+  while (pending !== undefined || stack.length > 0) {
+    if (pending !== undefined) {
+      const { node, path }: { node: NativeScript; path: string } = pending;
+      pending = undefined;
+      if (!isContainer(node)) {
+        completed = evalLeaf(node, path);
+      } else if (node.scripts.length === 0) {
+        completed = finishContainer({ node, path, index: 0, children: [] });
+      } else {
+        stack.push({ node, path, index: 0, children: [] });
+        pending = { node: node.scripts[0] as NativeScript, path: `${path}/${node.type}[0]` };
+      }
+      continue;
+    }
+
+    const frame = stack[stack.length - 1];
+    if (frame === undefined) break;
+    frame.children.push(completed as EvalNode);
+    completed = undefined;
+    frame.index += 1;
+    if (frame.index < frame.node.scripts.length) {
+      pending = {
+        node: frame.node.scripts[frame.index] as NativeScript,
+        path: `${frame.path}/${frame.node.type}[${frame.index}]`,
+      };
+    } else {
+      stack.pop();
+      completed = finishContainer(frame);
+    }
+  }
+
+  const trace = completed as EvalNode;
   return {
     satisfied: trace.satisfied,
     trace,
@@ -175,15 +234,39 @@ export function evaluate(script: NativeScript, context: WitnessContext): EvalRes
 
 /** Flatten a trace to the unsatisfied leaves, which is what a caller reports to a user. */
 export function failingLeaves(trace: EvalNode): EvalNode[] {
-  if (trace.satisfied) return [];
-  if (trace.children.length === 0) return [trace];
-  return trace.children.flatMap(failingLeaves);
+  // Iterative pre-order: children are pushed in reverse so popping visits
+  // them left to right, matching the order `flatMap` produced.
+  const out: EvalNode[] = [];
+  const stack: EvalNode[] = [trace];
+  while (stack.length > 0) {
+    const node = stack.pop() as EvalNode;
+    if (node.satisfied) continue;
+    if (node.children.length === 0) {
+      out.push(node);
+      continue;
+    }
+    for (let i = node.children.length - 1; i >= 0; i -= 1) {
+      stack.push(node.children[i] as EvalNode);
+    }
+  }
+  return out;
 }
 
 /** Render a trace as an indented tree for a test failure message or a CLI. */
 export function formatTrace(node: EvalNode, indent = 0): string {
-  const mark = node.satisfied ? 'PASS' : 'FAIL';
-  const pad = '  '.repeat(indent);
-  const head = `${pad}${mark} ${node.type}: ${node.reason}`;
-  return [head, ...node.children.map((c) => formatTrace(c, indent + 1))].join('\n');
+  // Iterative pre-order text emission: each stack entry carries the indent it
+  // should print at, pushed in reverse so popping reproduces the same
+  // top-to-bottom order the recursive version joined lines in.
+  const lines: string[] = [];
+  const stack: Array<{ node: EvalNode; indent: number }> = [{ node, indent }];
+  while (stack.length > 0) {
+    const frame = stack.pop() as { node: EvalNode; indent: number };
+    const mark = frame.node.satisfied ? 'PASS' : 'FAIL';
+    const pad = '  '.repeat(frame.indent);
+    lines.push(`${pad}${mark} ${frame.node.type}: ${frame.node.reason}`);
+    for (let i = frame.node.children.length - 1; i >= 0; i -= 1) {
+      stack.push({ node: frame.node.children[i] as EvalNode, indent: frame.indent + 1 });
+    }
+  }
+  return lines.join('\n');
 }
