@@ -138,19 +138,38 @@ produce one. The corpus contains one anyway.
 
 ## Evaluation status
 
-| Rule                                                    | Status                                                            |
-| ------------------------------------------------------- | ----------------------------------------------------------------- |
-| Signature membership                                    | Confirmed against the ledger source and cardano-serialization-lib |
-| Threshold counts sub-scripts, not keys                  | Confirmed against the ledger source                               |
-| Nesting does not flatten                                | Confirmed against the ledger source                               |
-| An absent interval bound fails a timelock               | Confirmed against the ledger source                               |
-| Empty `all` is satisfied, empty `any` is not            | Confirmed against the ledger source                               |
-| `required` at or below zero is satisfied                | Confirmed against the ledger source                               |
-| A node accepts a transaction carrying each of the above | Not yet observed                                                  |
+| Rule                                                | Status                                                            |
+| --------------------------------------------------- | ----------------------------------------------------------------- |
+| Signature membership                                | Confirmed against the ledger source and cardano-serialization-lib |
+| Threshold counts sub-scripts, not keys              | Confirmed against the ledger source                               |
+| Nesting does not flatten                            | Confirmed against the ledger source                               |
+| An absent interval bound fails a timelock           | Confirmed against the ledger source                               |
+| Empty `all` is satisfied, empty `any` is not        | Confirmed against the ledger source                               |
+| `required` at or below zero is satisfied            | Confirmed against the ledger source                               |
+| An absent interval bound fails a timelock, on chain | Confirmed on preprod                                              |
+| Empty `all` satisfied and empty `any` not, on chain | Confirmed on preprod                                              |
+| A node accepts a transaction carrying the others    | Not yet observed                                                  |
 
-The last row is the one the chain exercises exist for, and it is genuinely open. Source
-agreement establishes what the ledger computes, not that a transaction carrying an
-unusual script survives everything else between a wallet and a block.
+Three of those rows have since been confirmed against a real node on preprod rather than
+only against the ledger source.
+
+The timelock rule was tested with two transactions identical apart from their validity
+interval, spending `all [ sig(k), after(133000000) ]`. Without an interval the node
+refused with
+`ConwayUtxowFailure (ScriptWitnessNotValidatingUTXOW ... ScriptHash "036b3fb6...")`.
+With `validityStart` set to the locked slot the same signature was accepted, as
+transaction `6ce721421b4b0994b7cf268cb0be84165dbaf0c2da1f8a112b36afb808f05346`. A correct
+signature is not sufficient, which is the whole point of the rule.
+
+The empty containers were tested as themselves. An `all []` address was spent with NO
+vkey witness at all, accepted as
+`74aa539069a5b4c84a63649c9cf18bc71c0bd813ff1cb28b7226d431ff00a83c`: anyone holding the
+script can spend such an address. An `any []` address refused every attempt and its funds
+are locked permanently, which is recorded in the corpus rather than described.
+
+The remaining row stays open. Source agreement establishes what the ledger computes, not
+that a transaction carrying an unusual script survives everything else between a wallet
+and a block.
 
 ## When a node disagrees
 

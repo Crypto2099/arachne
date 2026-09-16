@@ -117,5 +117,15 @@
       "expectedReason": "empty \"any\" can never be satisfied"
     }
   ],
-  "onchain": []
+  "onchain": [
+    {
+      "network": "preprod",
+      "role": "paymentEnterprise",
+      "action": "spend",
+      "caseId": "none@unbounded",
+      "accepted": false,
+      "error": "ConwayUtxowFailure (ScriptWitnessNotValidatingUTXOW (fromList [ScriptHash \"52dc3d43b6d2465e96109ce75ab61abe5e9c1d8a3c9ce6ff8a3af528\"]))",
+      "observedAt": "2026-09-15T18:20:00.000Z"
+    }
+  ]
 }

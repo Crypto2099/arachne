@@ -155,6 +155,65 @@ the exercise rather than cleanup. Preview and preprod faucets are rate limited, 
 full sweep is planned rather than run on every change. The chain suite is a separate
 vitest project for this reason and is never part of the default test run.
 
+## How large a single multisig can be
+
+The script is rarely the constraint. The signatures are.
+
+A `sig` entry inside a script costs 32 bytes. The vkey witness that satisfies it costs
+101: an array header, a 32-byte verification key with its header, and a 64-byte signature
+with its header. Every _required_ signer therefore costs about 133 bytes of the
+transaction, and every merely eligible one costs 32.
+
+Computed against a 16,384-byte `maxTxSize`, with one input and one output returning the
+funds, and the script carried inline:
+
+| Threshold rule                | Largest n | Signatures needed | Script bytes | Transaction bytes |
+| ----------------------------- | --------- | ----------------- | ------------ | ----------------- |
+| n-of-n, unanimous             | 122       | 122               | 3,910        | 16,325            |
+| Three quarters                | 150       | 113               | 4,806        | 16,312            |
+| Two thirds                    | 163       | 109               | 5,222        | 16,324            |
+| Simple majority, floor(n/2)+1 | 196       | 99                | 6,278        | 16,370            |
+| 1-of-n                        | 505       | 1                 | 16,165       | 16,358            |
+
+At the unanimous ceiling the script is 3,910 bytes, under a quarter of the limit. The
+signatures are 12,322 and the remaining 93 are the transaction envelope. Lowering the
+threshold buys members quickly, and a 1-of-n reaches 505 because the script is then free
+to fill the transaction on its own.
+
+Dropping the output to the minimal envelope frees 37 bytes, which matters only where a
+member costs 32 rather than 133. The unanimous, three-quarters and two-thirds rows are
+unchanged, simple majority moves from 196 to 197, and 1-of-n from 505 to 506.
+
+### Moving the script out of the transaction
+
+A reference script lifts the ceiling, because the script bytes move into a prior output
+and the spending transaction carries a reference input instead.
+
+| Unanimous n | Inline                  | As a reference script   |
+| ----------- | ----------------------- | ----------------------- |
+| 122         | 16,325 bytes, fits      | 12,451 bytes, fits      |
+| 140         | 18,719 bytes, too large | 14,269 bytes, fits      |
+| 160         | 21,379 bytes, too large | 16,289 bytes, fits      |
+| 161         | 23,512 bytes, too large | 16,390 bytes, too large |
+
+By this arithmetic a unanimous multisig reaches 122 members inline and 160 as a reference
+script. The script at 160 members is 5,126 bytes, inside both `maxTxSize` for the
+transaction that creates it and the 204,800-byte per-transaction reference budget.
+
+### Where it stops
+
+161 required signatures are 16,261 bytes of witness before a single byte of script,
+input, output or fee. No encoding choice, reference script or envelope trimming reaches
+past that, because the signatures travel with the transaction that spends.
+
+**By this arithmetic, a unanimous native multisig cannot exceed 160 members** at the
+current `maxTxSize`, and cannot exceed 122 with the script carried inline.
+
+Every figure in this section is arithmetic over the CDDL. None of it has been observed.
+The four transactions that would settle it are a 122-of-122 inline, a 123-of-123 inline,
+a 160-of-160 by reference and a 161-of-161 by reference, where the first and third should
+be accepted and the second and fourth refused for size.
+
 ## Many scripts in one transaction
 
 A single script is bounded by `maxTxSize` whichever route it takes, so the interesting
