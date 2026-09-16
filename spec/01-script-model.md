@@ -98,11 +98,11 @@ produces a hash that matches nothing on chain.
 A script can fail in three distinct ways, and conflating them is how an
 implementation ends up producing something nobody can spend.
 
-| Tier          | Encodes | Hashes | Has an address | A node can decode it | Can ever be satisfied |
-| ------------- | ------- | ------ | -------------- | -------------------- | --------------------- |
-| Ordinary      | yes     | yes    | yes            | yes                  | yes                   |
-| Unsatisfiable | yes     | yes    | yes            | yes                  | **no**                |
-| Undecodable   | yes     | yes    | yes            | **no**               | not reachable         |
+| Tier          | Encodes | Hashes | Has an address | A node can decode it | Can ever be satisfied | Can appear on chain        |
+| ------------- | ------- | ------ | -------------- | -------------------- | --------------------- | -------------------------- |
+| Ordinary      | yes     | yes    | yes            | yes                  | yes                   | yes                        |
+| Unsatisfiable | yes     | yes    | yes            | yes                  | **no**                | yes, as a reference script |
+| Undecodable   | yes     | yes    | yes            | **no**               | not reachable         | **never**                  |
 
 The third tier is the dangerous one, because nothing about it looks wrong until
 the funds are already in. A script with a slot outside `uint` still serializes to
@@ -112,6 +112,36 @@ deserialization rather than at script validation, so the failure does not even
 name the script.
 
 An implementation MUST NOT produce a tier three script.
+
+### What it takes for a script to reach the chain
+
+An address carries only a hash, so funding one reveals nothing about the script. The bytes
+themselves reach the chain by exactly two routes, with different requirements.
+
+**In a witness set**, when something is spent. Native scripts are phase one, so a
+transaction whose script is not satisfied is rejected outright and never enters a block.
+There is no equivalent of a Plutus phase two failure that lands with collateral taken. By
+this route a script becomes visible only in a transaction that succeeded, which means it
+was both decodable and satisfied.
+
+**In a transaction output, as a reference script.** Nothing executes it, so satisfiability
+is irrelevant. This is how an unsatisfiable script reaches the chain: `any []` was stored
+this way on preprod in
+`cf05ba2db6ca337655f94e3b081a4ca4c6682c6c5e9e5f9f6b8b0d39a2eb1989`, and an indexer now
+reports it as `{"type": "any", "scripts": []}` against script hash
+`52dc3d43b6d2465e96109ce75ab61abe5e9c1d8a3c9ce6ff8a3af528`. It can never be satisfied and
+it is permanently visible.
+
+The node does validate what it stores. `script_ref = #6.24(bytes .cbor script)` wraps the
+script in a BYTE STRING, so the surrounding transaction stays well-formed whatever is
+inside and the decoder has to look deliberately to notice. It looks. A reference script
+carrying `after(-1)` was refused, and so was one carrying bytes that are not CBOR at all,
+both with `DecoderErrorDeserialiseFailure` rather than a script error.
+
+So the line that matters is decodability, not executability. A script that cannot be
+decoded cannot reach the chain by either route, which is what makes building one worse
+than building a merely useless one: the address is real and fundable, and the script
+behind it can never be published, executed, or shown to anyone.
 
 Concretely, an encoder MUST refuse a `slot` that is not an integer in `0` to
 `2^64-1`. `slot` is `uint`, so a negative value is CBOR major type 1 where the
