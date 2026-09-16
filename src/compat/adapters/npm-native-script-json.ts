@@ -2,12 +2,14 @@ import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type {
   HashOutcome,
+  InstallContext,
   InstallOutcome,
   ScriptItem,
   ToolAdapter,
   ToolDefinition,
 } from '../types.js';
-import { installNpmPackage, runDriverBatch } from './npm-install.js';
+import { isScriptHash, tidyToolMessage } from './hash-shape.js';
+import { installNpmPackage, resolveInstalledVersion, runDriverBatch } from './npm-install.js';
 
 /**
  * Adapter kind for a library that exposes a single function taking the
@@ -27,6 +29,7 @@ export const NPM_NATIVE_SCRIPT_JSON_ADAPTER: ToolAdapter = {
     tool: ToolDefinition,
     version: string,
     scratchDir: string,
+    context?: InstallContext,
   ): Promise<InstallOutcome> {
     const pkg = requirePackage(tool);
     const exportName = requireString(tool, 'exportName');
@@ -42,6 +45,12 @@ export const NPM_NATIVE_SCRIPT_JSON_ADAPTER: ToolAdapter = {
       status: 'ok',
       session: {
         hashScripts: async (items: ScriptItem[]) => runBatch(driverPath, scratchDir, items),
+        // The engine sits below this package, often at a version the tool pins
+        // rather than the newest published, so it is read off the install.
+        resolveEngineVersion: async () =>
+          context?.enginePackage
+            ? resolveInstalledVersion(context.enginePackage, scratchDir)
+            : { version: null, note: 'no engine package declared for this tool' },
         dispose: () => {},
       },
     };
@@ -88,7 +97,14 @@ async function runBatch(
     outcomes.set(
       entry.id,
       entry.status === 'ok'
-        ? { status: 'ok', hash: entry.hash }
+        ? isScriptHash(entry.hash)
+          ? { status: 'ok', hash: entry.hash }
+          : {
+              status: 'refused',
+              error: tidyToolMessage(
+                `returned ${JSON.stringify(entry.hash)}, which is not a 28-byte hash`,
+              ),
+            }
         : { status: 'refused', error: entry.error },
     );
   }

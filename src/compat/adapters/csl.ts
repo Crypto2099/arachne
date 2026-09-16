@@ -2,13 +2,15 @@ import { copyFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type {
+  InstallContext,
   HashOutcome,
   InstallOutcome,
   ScriptItem,
   ToolAdapter,
   ToolDefinition,
 } from '../types.js';
-import { installNpmPackage, runDriverBatch } from './npm-install.js';
+import { isScriptHash, tidyToolMessage } from './hash-shape.js';
+import { installNpmPackage, resolveInstalledVersion, runDriverBatch } from './npm-install.js';
 
 const DRIVER_SOURCE = join(dirname(fileURLToPath(import.meta.url)), 'csl-driver.mjs');
 
@@ -25,6 +27,7 @@ export const NPM_CSL_ADAPTER: ToolAdapter = {
     tool: ToolDefinition,
     version: string,
     scratchDir: string,
+    context?: InstallContext,
   ): Promise<InstallOutcome> {
     if (!tool.package) throw new Error(`tool "${tool.id}" has no "package"`);
 
@@ -38,6 +41,11 @@ export const NPM_CSL_ADAPTER: ToolAdapter = {
       status: 'ok',
       session: {
         hashScripts: async (items: ScriptItem[]) => runBatch(driverPath, scratchDir, items),
+        // This tool IS its engine, so the resolved version is the installed
+        // package. Read from disk anyway rather than echoing the requested
+        // version back, since npm is what decides what landed.
+        resolveEngineVersion: async () =>
+          resolveInstalledVersion(context?.enginePackage ?? tool.package!, scratchDir),
         dispose: () => {},
       },
     };
@@ -62,7 +70,14 @@ async function runBatch(
     outcomes.set(
       entry.id,
       entry.status === 'ok'
-        ? { status: 'ok', hash: entry.hash }
+        ? isScriptHash(entry.hash)
+          ? { status: 'ok', hash: entry.hash }
+          : {
+              status: 'refused',
+              error: tidyToolMessage(
+                `returned ${JSON.stringify(entry.hash)}, which is not a 28-byte hash`,
+              ),
+            }
         : { status: 'refused', error: entry.error },
     );
   }

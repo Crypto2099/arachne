@@ -1,8 +1,8 @@
-import type { Channel } from './types.js';
+import type { Channel, ConstructionPath, EngineRelation } from './types.js';
 import type { Framing, VectorResult } from './classify.js';
 
 /** Bumped whenever the result file shape changes in a way a renderer must notice. */
-export const RESULT_FORMAT_VERSION = 1;
+export const RESULT_FORMAT_VERSION = 2;
 
 export interface CompatSummary {
   total: number;
@@ -22,11 +22,31 @@ export interface CompatSummary {
  * as a chain observation: absence of a result is recorded as absence, never
  * as a plausible-looking pass.
  */
+/**
+ * The encoder that actually produced this run's bytes, and the version of it
+ * that was on disk at the time.
+ *
+ * `resolvedVersion` is read from the install rather than from the registry,
+ * because a declared range moves. It is what lets a reader see that a library
+ * shipped an engine several releases behind upstream, which is the difference
+ * between "fixed" and "fixed and delivered".
+ */
+export interface ResultEngine {
+  id: string;
+  relation: EngineRelation;
+  resolvedVersion: string | null;
+  /** Why `resolvedVersion` is null, when it is. */
+  note?: string;
+}
+
 export interface CompatResult {
   formatVersion: number;
   tool: string;
   version: string;
   channel: Channel;
+  /** Which construction path this run exercised. */
+  path: ConstructionPath;
+  engine: ResultEngine;
   testedAt: string;
   corpusDigest: string;
   arachneVersion: string;

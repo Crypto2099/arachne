@@ -12,6 +12,7 @@ import type {
   ToolAdapter,
   ToolDefinition,
 } from '../types.js';
+import { isScriptHash, tidyToolMessage } from './hash-shape.js';
 
 /**
  * Downloads and verifies exactly one cardano-cli release, the same tarball
@@ -115,13 +116,20 @@ function hashOne(binaryPath: string, scratchDir: string, item: ScriptItem): Hash
       stdio: ['ignore', 'pipe', 'pipe'],
       timeout: 120_000,
     }).trim();
+    // Guarded even though this tool exits non-zero on failure: an adapter that
+    // trusts stdout records nonsense as a hash the day that changes.
+    if (!isScriptHash(value)) {
+      return {
+        status: 'refused',
+        error: tidyToolMessage(value || 'exited zero with no hash on stdout'),
+      };
+    }
     return { status: 'ok', hash: value };
   } catch (error) {
     const e = error as { stderr?: string; stdout?: string; message?: string };
-    const text = (e.stderr || e.stdout || e.message || 'unknown failure').toString().trim();
-    // The message is the finding, so it is passed through rather than tidied,
-    // same rule as src/vectors/cardano-cli.ts.
-    return { status: 'refused', error: text.replace(/\s+/g, ' ').slice(0, 300) };
+    const text = (e.stderr || e.stdout || e.message || 'unknown failure').toString();
+    // The message is the finding, so it is passed through rather than reworded.
+    return { status: 'refused', error: tidyToolMessage(text) };
   }
 }
 

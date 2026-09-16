@@ -1,9 +1,15 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "tool": "cardano-serialization-lib-nodejs",
   "version": "16.0.0",
   "channel": "previous",
-  "testedAt": "2026-09-15T23:23:57.547Z",
+  "path": "construct",
+  "engine": {
+    "id": "cardano-serialization-lib",
+    "relation": "own",
+    "resolvedVersion": "16.0.0"
+  },
+  "testedAt": "2026-09-16T00:28:09.212Z",
   "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
   "arachneVersion": "arachne@0.1.0",
   "status": "tested",

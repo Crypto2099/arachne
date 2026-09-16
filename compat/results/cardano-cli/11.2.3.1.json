@@ -1,9 +1,16 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "tool": "cardano-cli",
   "version": "11.2.3.1",
   "channel": "current",
-  "testedAt": "2026-09-15T23:24:20.689Z",
+  "path": "construct",
+  "engine": {
+    "id": "cardano-binary",
+    "relation": "depends",
+    "resolvedVersion": null,
+    "note": "Not separately versioned in a way a tool install exposes. It ships inside each Haskell binary, so the tool version is the only version there is."
+  },
+  "testedAt": "2026-09-16T00:27:53.780Z",
   "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
   "arachneVersion": "arachne@0.1.0",
   "status": "tested",

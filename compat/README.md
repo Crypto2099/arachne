@@ -31,6 +31,52 @@ is used, the right fix is to register it twice, once per path, each independentl
 and each with its own `id`, rather than picking one path and calling it "the" result for
 that tool.
 
+## Engines, and why a tool is not an implementation
+
+Several of these libraries are not independent implementations. They are consumers of a
+shared encoder, often pinned to different versions of it. `tools.json` therefore has two
+lists: `engines`, the encoders that actually produce bytes, and `tools`, the things
+people install, each declaring which engine it sits on and how.
+
+| Relation       | Meaning                                                   | Does an upstream fix reach it?     |
+| -------------- | --------------------------------------------------------- | ---------------------------------- |
+| `depends`      | Resolves the engine as an ordinary dependency             | Yes, when the tool bumps its range |
+| `fork`         | Ships a forked build under its own package name           | Maybe never                        |
+| `vendored`     | Carries a copy inside its own package, no dependency edge | No                                 |
+| `reimplements` | Independent implementation of the same written rule       | Not applicable, it has no upstream |
+| `own`          | Its own encoder, no shared ancestry                       | Not applicable                     |
+
+This distinction decides two different questions, and a flat table conflates them.
+
+**Is an encoding correct?** Count engines. Several libraries wrapping one engine and
+agreeing is ONE observation, however many package names it wears. `isIndependentEvidence`
+in `src/compat/registry.ts` is the check: two tools corroborate each other only when they
+sit on different engines, or when one reimplements the rule rather than inheriting it.
+
+**Who is affected?** Count tools. One engine's behavior reaches everything downstream of
+it, and each consumer receives a fix on its own schedule or not at all.
+
+`reimplements` is the relation that earns the most. cardano-cli and cardano-address both
+follow the `cardano-binary` framing rule, but cardano-address carries its own copy of it
+rather than linking the library, so the two agreeing is real corroboration. They also
+refuse different things, which is visible in their result files and would be invisible if
+they were treated as one entry.
+
+### The resolved engine version
+
+Each result records the engine version that was actually on disk, not the range the
+registry declares. A declared `^0.46.15` resolves at install time and moves; what npm
+actually put there is a fact about that run.
+
+This is the number that separates "fixed" from "fixed and delivered". At the time of
+writing, MeshJS 1.9.0 and 1.9.1 both ship `@cardano-sdk/core` 0.46.12 while upstream is
+0.47.0, so two tool releases carry the same engine and anything fixed in 0.47.0 has
+reached neither.
+
+`resolvedVersion` is null when the engine is not separately versioned, with `note` saying
+why. `cardano-binary` is the standing case: it is compiled into each Haskell binary, so
+the tool version is the only version there is.
+
 ## `tools.json`
 
 The registry of tools to watch. Each entry:
@@ -148,6 +194,18 @@ result file for a version simply means that version has not been resolved yet.
 upstream adapter already truncates (see `src/vectors/cardano-cli.ts`'s 300-character
 cap, mirrored here). Never normalized, reworded or summarized: a prettified error
 destroys the finding it is reporting.
+
+## Construction paths
+
+`path` records which question a run asked. Every adapter here uses `construct`: build a
+script from its JSON or the tool's own builder API, then hash the result.
+
+`decode` is a different question, and a tool can legitimately answer it differently:
+given existing CBOR, does it hash the bytes it received, or does it re-encode and impose
+its own framing? A tool that preserves the input framing reproduces whichever encoding it
+was handed, which is the behavior `spec/07-encoding-divergence.md` recommends and which no
+adapter here currently exercises. A classification is only meaningful with its path
+attached, so the field is recorded even while only one value is in use.
 
 ## Rendering a page from this
 

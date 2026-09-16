@@ -1,5 +1,25 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
+  "engines": [
+    {
+      "id": "cardano-binary",
+      "displayName": "cardano-binary (Haskell)",
+      "homepage": "https://github.com/IntersectMBO/cardano-base",
+      "note": "Not separately versioned in a way a tool install exposes. It ships inside each Haskell binary, so the tool version is the only version there is."
+    },
+    {
+      "id": "cardano-serialization-lib",
+      "displayName": "cardano-serialization-lib",
+      "homepage": "https://github.com/Emurgo/cardano-serialization-lib",
+      "package": "@emurgo/cardano-serialization-lib-nodejs"
+    },
+    {
+      "id": "cardano-sdk-core",
+      "displayName": "cardano-js-sdk core",
+      "homepage": "https://github.com/input-output-hk/cardano-js-sdk",
+      "package": "@cardano-sdk/core"
+    }
+  ],
   "tools": [
     {
       "id": "cardano-cli",
@@ -11,7 +31,27 @@
         "repo": "IntersectMBO/cardano-cli",
         "tagPrefix": "cardano-cli-"
       },
-      "channels": ["current", "previous", "beta"]
+      "channels": ["current", "previous", "beta"],
+      "engine": {
+        "id": "cardano-binary",
+        "relation": "depends"
+      }
+    },
+    {
+      "id": "cardano-address",
+      "displayName": "cardano-address",
+      "homepage": "https://github.com/IntersectMBO/cardano-addresses",
+      "adapter": "cardano-address-binary",
+      "discovery": {
+        "type": "github-releases",
+        "repo": "IntersectMBO/cardano-addresses",
+        "tagPrefix": ""
+      },
+      "channels": ["current", "previous"],
+      "engine": {
+        "id": "cardano-binary",
+        "relation": "reimplements"
+      }
     },
     {
       "id": "cardano-serialization-lib-nodejs",
@@ -22,7 +62,11 @@
       "discovery": {
         "type": "npm"
       },
-      "channels": ["current", "previous", "beta"]
+      "channels": ["current", "previous", "beta"],
+      "engine": {
+        "id": "cardano-serialization-lib",
+        "relation": "own"
+      }
     },
     {
       "id": "meshsdk-core",
@@ -37,7 +81,12 @@
       "discovery": {
         "type": "npm"
       },
-      "channels": ["current", "previous", "beta"]
+      "channels": ["current", "previous", "beta"],
+      "engine": {
+        "id": "cardano-sdk-core",
+        "relation": "depends",
+        "via": ["@meshsdk/core-cst"]
+      }
     }
   ]
 }

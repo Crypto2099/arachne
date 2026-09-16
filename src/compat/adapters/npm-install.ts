@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 export type NpmInstallOutcome = { status: 'ok' } | { status: 'failed'; error: string };
 
@@ -83,5 +84,38 @@ export function runDriverBatch(
       .toString()
       .trim();
     return { status: 'failed', error: text };
+  }
+}
+
+/**
+ * The version of `pkg` actually resolved inside `dir`, read from the installed
+ * package.json rather than from any declared range.
+ *
+ * This is how a result records the engine a library shipped on the day it was
+ * tested. A registry entry can only say `^0.46.15`; what npm resolved that to
+ * is a fact about the install, and it is the number that decides whether an
+ * upstream fix has reached anyone.
+ *
+ * Returns null with a note rather than throwing when the package is not
+ * present, since a missing engine is a finding about the tool's dependency
+ * tree, not a failure of the run.
+ */
+export async function resolveInstalledVersion(
+  pkg: string,
+  dir: string,
+): Promise<{ version: string | null; note?: string }> {
+  const manifest = join(dir, 'node_modules', ...pkg.split('/'), 'package.json');
+  try {
+    const raw = await readFile(manifest, 'utf8');
+    const version = (JSON.parse(raw) as { version?: string }).version;
+    if (typeof version !== 'string') {
+      return { version: null, note: `${pkg} package.json has no version field` };
+    }
+    return { version };
+  } catch (error) {
+    return {
+      version: null,
+      note: `${pkg} not found under ${dir}/node_modules: ${(error as Error).message}`,
+    };
   }
 }

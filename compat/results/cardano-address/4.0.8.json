@@ -1,19 +1,20 @@
 {
   "formatVersion": 2,
-  "tool": "cardano-serialization-lib-nodejs",
-  "version": "17.0.0",
+  "tool": "cardano-address",
+  "version": "4.0.8",
   "channel": "current",
   "path": "construct",
   "engine": {
-    "id": "cardano-serialization-lib",
-    "relation": "own",
-    "resolvedVersion": "17.0.0"
+    "id": "cardano-binary",
+    "relation": "reimplements",
+    "resolvedVersion": null,
+    "note": "cardano-binary ships inside the binary and is not separately versioned"
   },
-  "testedAt": "2026-09-16T00:28:08.086Z",
+  "testedAt": "2026-09-16T00:27:31.693Z",
   "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
   "arachneVersion": "arachne@0.1.0",
   "status": "tested",
-  "framing": "definite",
+  "framing": "cardanoBinary",
   "vectors": [
     {
       "id": "breadth/all-w002",
@@ -54,38 +55,38 @@
     {
       "id": "breadth/all-w024",
       "status": "agreed",
-      "hash": "6695681e5d3875e8195cecc23717a9ea36030506289a9d46c3bbc4da",
-      "matchedFraming": "definite"
+      "hash": "70a5c7c6bfabe9d3f988a9523ccdcf2502760441eae2c1ebcba89a49",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "breadth/all-w025",
       "status": "agreed",
-      "hash": "48ebd1c37a7e19bfa9c7ffb1963149c199fb88f7784a43dc055cac74",
-      "matchedFraming": "definite"
+      "hash": "f6e388cbaae54a63ad12767ba3f06f2016b20448171ff0bb3e3bde40",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "breadth/all-w050",
       "status": "agreed",
-      "hash": "c903bdc63fce124cf77a0141f1de482464c41708ca4875b97026e940",
-      "matchedFraming": "definite"
+      "hash": "ac845b3aed05d8812acde95cc2352a5a54e8e7a807ad5d890313a3cd",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "breadth/all-w100",
       "status": "agreed",
-      "hash": "4cd1c30cfedb8b0da7c17565a90ab043f192ae0bf97998b50885012f",
-      "matchedFraming": "definite"
+      "hash": "01d369987cf85db417377093faa1dbd8e0dd64ca82432f5fb425097e",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "breadth/all-w200",
       "status": "agreed",
-      "hash": "75f7fb5ab9bc7bbae21ced19459a532c98ca361c2d64656a6e6a08ff",
-      "matchedFraming": "definite"
+      "hash": "7e910f81aa96021d2397fe998d462c97a6bb12d0a8d5ff84f46aea4b",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "breadth/all-w400",
       "status": "agreed",
-      "hash": "9046b328063e8db6fbe3f2f75d0c049b497a3b7ad329141962f562e9",
-      "matchedFraming": "definite"
+      "hash": "c604f11a3c347c4b2d335f6e37b5f8a8032375afe7e235102372dff3",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "breadth/any-w002",
@@ -126,74 +127,68 @@
     {
       "id": "breadth/any-w024",
       "status": "agreed",
-      "hash": "33b1827d19b7a55b4c13d49ebd53935b19bccfa1f8e4607c07f083c4",
-      "matchedFraming": "definite"
+      "hash": "881781ab932c048677b063626c869596af2b9357e3e555468c008a00",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "breadth/any-w025",
       "status": "agreed",
-      "hash": "04dbfb74d6fc159ccb803cc55f43f488b25a21c10a21c103342435ab",
-      "matchedFraming": "definite"
+      "hash": "c318254eec805d994d4a4197f2c795ec839f459cee869952fa626071",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "breadth/any-w050",
       "status": "agreed",
-      "hash": "169540164436f989123077ef8d9854ca7ccd79cbe8f82c5f5ab3d939",
-      "matchedFraming": "definite"
+      "hash": "97d6cdfbfd8328b85e67fc643b3cc5bd32770185879d8353447eb766",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "breadth/any-w100",
       "status": "agreed",
-      "hash": "a1169a15150bdca53f0b0168ca9b14ce52297286f46023e59d31331d",
-      "matchedFraming": "definite"
+      "hash": "aa042876253d4d93165f439144a3e76c23b9ea365a01596cfca0b4a4",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "breadth/any-w200",
       "status": "agreed",
-      "hash": "6dcea1d1e01ea28a3775923007d2c88ccd5b58a921c26e48ad798f24",
-      "matchedFraming": "definite"
+      "hash": "a7d6ecad2c7261630220c2f9a68c4d5d899da11ce7e1b52c8c6a13ec",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "breadth/any-w400",
       "status": "agreed",
-      "hash": "1151df8299aad2fe52a93f42ae37f174766d6de0b2833d812b62189c",
-      "matchedFraming": "definite"
+      "hash": "aca2842cdd42a33a0bd63315fdd52ba968e578177b8f67ac75e6f43c",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "degenerate/atleast-negative",
-      "status": "diverged",
-      "hash": "f02598683d383d0d7ae14adcde73f1e7671e8d1c82c8350b14d656ef",
-      "matchedFraming": "neither"
+      "status": "refused",
+      "error": "Parsing of the script failed. The script should be composed of nested lists, the verification keys should be bech32-encoded with prefix 'X_vkh', 'X_vk', 'X_xvk' where X is 'addr_shared', 'stake_shared', 'policy', 'drep', 'cc_cold' or 'cc_hot' and timelocks must use non-negative numbers not exceeding"
     },
     {
       "id": "degenerate/empty-all",
-      "status": "agreed",
-      "hash": "d441227553a0f1a965fee7d60a0f724b368dd1bddbc208730fccebcf",
-      "matchedFraming": "both"
+      "status": "refused",
+      "error": "All keys of a script must have the same role: payment, delegation, policy, representative, committee cold or committee hot."
     },
     {
       "id": "degenerate/empty-any",
-      "status": "agreed",
-      "hash": "52dc3d43b6d2465e96109ce75ab61abe5e9c1d8a3c9ce6ff8a3af528",
-      "matchedFraming": "both"
+      "status": "refused",
+      "error": "All keys of a script must have the same role: payment, delegation, policy, representative, committee cold or committee hot."
     },
     {
       "id": "degenerate/empty-atleast-0",
-      "status": "agreed",
-      "hash": "3530cc9ae7f2895111a99b7a02184dd7c0cea7424f1632d73951b1d7",
-      "matchedFraming": "both"
+      "status": "refused",
+      "error": "All keys of a script must have the same role: payment, delegation, policy, representative, committee cold or committee hot."
     },
     {
       "id": "degenerate/empty-atleast-1",
-      "status": "agreed",
-      "hash": "f6e57a7bfa194dbcd28dfbc32ae427976beed4d63dbf91b6ab82996a",
-      "matchedFraming": "both"
+      "status": "refused",
+      "error": "All keys of a script must have the same role: payment, delegation, policy, representative, committee cold or committee hot."
     },
     {
       "id": "degenerate/nested-empty-all",
-      "status": "agreed",
-      "hash": "60be8259acde0a72b76f36977223cac39432713a42bcfdf76a55dd7f",
-      "matchedFraming": "both"
+      "status": "refused",
+      "error": "All keys of a script must have the same role: payment, delegation, policy, representative, committee cold or committee hot."
     },
     {
       "id": "duplicate-keys/dup-2x-need-2",
@@ -228,8 +223,8 @@
     {
       "id": "encoding-boundary/deep-w24",
       "status": "agreed",
-      "hash": "466305b79518a7c47cb14f6fae8fa2f25ae68f3f52782c2aeffec657",
-      "matchedFraming": "definite"
+      "hash": "1ad4ec1605ce0c4d1b6cfa11ed6ecac6194a12ccdcbb85ac5f4fd423",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "encoding-boundary/nested-w23",
@@ -240,8 +235,8 @@
     {
       "id": "encoding-boundary/nested-w24",
       "status": "agreed",
-      "hash": "cca52ea0be2fe85e0d5e1d5084b37ca4c326213cac12018331f3725c",
-      "matchedFraming": "definite"
+      "hash": "5c06c2b512364b0cea71a1ba39550e297439980239f2f4a420247097",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "encoding-boundary/root-w23",
@@ -252,8 +247,8 @@
     {
       "id": "encoding-boundary/root-w24",
       "status": "agreed",
-      "hash": "7de744f701763586dfb129a2691327f76acb2f69f723f6bd7935569d",
-      "matchedFraming": "definite"
+      "hash": "36db16a605b3ad5e48a02477079eede21c8a394da0cf7e6b8b4c462a",
+      "matchedFraming": "cardanoBinary"
     },
     {
       "id": "federation-of-federations/b2-m2-c2",
@@ -731,9 +726,8 @@
     },
     {
       "id": "timelocks/after-only",
-      "status": "agreed",
-      "hash": "592fb0f9d8ed15c06858118d134d5c4b7c77320507810fee9ac2ddf9",
-      "matchedFraming": "both"
+      "status": "refused",
+      "error": "All keys of a script must have the same role: payment, delegation, policy, representative, committee cold or committee hot."
     },
     {
       "id": "timelocks/any-timelock-nested",
@@ -743,15 +737,13 @@
     },
     {
       "id": "timelocks/before-only",
-      "status": "agreed",
-      "hash": "db10ec9b102875ad32661f3e168be007795152c68c811a0b82baecc1",
-      "matchedFraming": "both"
+      "status": "refused",
+      "error": "All keys of a script must have the same role: payment, delegation, policy, representative, committee cold or committee hot."
     },
     {
       "id": "timelocks/inverted-window",
-      "status": "agreed",
-      "hash": "473570859a3412edabd6afd26a4cbf2001edb86216cea3d86e3296bb",
-      "matchedFraming": "both"
+      "status": "refused",
+      "error": "All keys of a script must have the same role: payment, delegation, policy, representative, committee cold or committee hot."
     },
     {
       "id": "timelocks/sig-and-after",
@@ -767,16 +759,15 @@
     },
     {
       "id": "timelocks/window",
-      "status": "agreed",
-      "hash": "01d07a84cc65c3c36bcb74684cc3d4132a637c91603bbb86a81828c5",
-      "matchedFraming": "both"
+      "status": "refused",
+      "error": "All keys of a script must have the same role: payment, delegation, policy, representative, committee cold or committee hot."
     }
   ],
   "summary": {
     "total": 126,
-    "agreed": 125,
-    "diverged": 1,
-    "refused": 0,
+    "agreed": 116,
+    "diverged": 0,
+    "refused": 10,
     "unsupported": 0
   }
 }

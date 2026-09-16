@@ -1,9 +1,15 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "tool": "meshsdk-core",
   "version": "1.9.1",
   "channel": "current",
-  "testedAt": "2026-09-15T23:24:32.351Z",
+  "path": "construct",
+  "engine": {
+    "id": "cardano-sdk-core",
+    "relation": "depends",
+    "resolvedVersion": "0.46.12"
+  },
+  "testedAt": "2026-09-16T00:28:09.997Z",
   "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
   "arachneVersion": "arachne@0.1.0",
   "status": "tested",

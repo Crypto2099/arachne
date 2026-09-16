@@ -1,4 +1,5 @@
 import type { ToolAdapter } from '../types.js';
+import { CARDANO_ADDRESS_ADAPTER } from './cardano-address.js';
 import { CARDANO_CLI_ADAPTER } from './cardano-cli.js';
 import { NPM_CSL_ADAPTER } from './csl.js';
 import { NPM_NATIVE_SCRIPT_JSON_ADAPTER } from './npm-native-script-json.js';
@@ -10,6 +11,7 @@ import { NPM_NATIVE_SCRIPT_JSON_ADAPTER } from './npm-native-script-json.js';
  */
 const ADAPTERS: Record<string, ToolAdapter> = {
   'cardano-cli-binary': CARDANO_CLI_ADAPTER,
+  'cardano-address-binary': CARDANO_ADDRESS_ADAPTER,
   'npm-csl': NPM_CSL_ADAPTER,
   'npm-native-script-json': NPM_NATIVE_SCRIPT_JSON_ADAPTER,
 };

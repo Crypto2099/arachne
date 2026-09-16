@@ -8,10 +8,12 @@ function tested(
   vectors: CompatResult['vectors'],
 ): CompatResult {
   return {
-    formatVersion: 1,
+    formatVersion: 2,
     tool: 'cardano-cli',
     version,
     channel: 'current',
+    path: 'construct',
+    engine: { id: 'cardano-binary', relation: 'depends', resolvedVersion: null },
     testedAt: '2026-01-01T00:00:00.000Z',
     corpusDigest: 'digest',
     arachneVersion: 'arachne@0.1.0',
@@ -30,10 +32,12 @@ function tested(
 
 function untested(version: string, reason: string): CompatResult {
   return {
-    formatVersion: 1,
+    formatVersion: 2,
     tool: 'cardano-cli',
     version,
     channel: 'current',
+    path: 'construct',
+    engine: { id: 'cardano-binary', relation: 'depends', resolvedVersion: null },
     testedAt: '2026-01-01T00:00:00.000Z',
     corpusDigest: 'digest',
     arachneVersion: 'arachne@0.1.0',
