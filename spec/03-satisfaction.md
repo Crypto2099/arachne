@@ -170,6 +170,24 @@ settles three cases that look like they need special handling and do not:
 | `required` is negative           | Satisfied, with no witnesses | Same. The CDDL types `n` as `int64`, so this is representable |
 | `required` above the child count | Never satisfied              | The list runs out with `n` still above 0                      |
 
+Three of these were confirmed on preprod by spending each script with NO vkey witness at
+all, supplying only the script:
+
+| Script                        | Transaction                                                        |
+| ----------------------------- | ------------------------------------------------------------------ |
+| `atLeast(-1, [sig, sig])`     | `b1db2a411cb651a413840d3c8b112895a5bda2519a8ba6a372b8dd1ffc7746c2` |
+| `atLeast(0, [])`              | `5bf18ed8f19463ae102b24bf920f74a1e7665d4cec343bf93ebf132454f99840` |
+| `atLeast(0, [sig, sig, sig])` | `c45881950029d5545bec2550068050be388db0a464172895134a449df0d4215b` |
+
+The empty one is unsurprising. The two that name signers are worth sitting with: a script
+that lists signers and requires a non-positive number of them is spendable by anyone
+holding the script, and the listed signers are decoration. `isValidMOf` returns on
+`n <= 0` before looking at a single child, so the list is never consulted.
+
+An address funded under such a script is not a multisig that happens to be
+misconfigured. It is an open address with a list of names attached, and the script
+becomes public the first time anyone spends through it.
+
 The negative case is not exotic. The CDDL carries the note "Allegra switched to int64 for
 script_n_of_k thresholds", and cardano-cli builds one from an ordinary JSON script file
 without complaint, so it is reachable through the standard tooling path rather than only
@@ -188,6 +206,7 @@ it, because its constructor takes an unsigned count.
 | `required` at or below zero is satisfied            | Confirmed against the ledger source                               |
 | An absent interval bound fails a timelock, on chain | Confirmed on preprod                                              |
 | Empty `all` satisfied and empty `any` not, on chain | Confirmed on preprod                                              |
+| A non-positive `required` is satisfied, on chain    | Confirmed on preprod                                              |
 | A node accepts a transaction carrying the others    | Not yet observed                                                  |
 
 Three of those rows have since been confirmed against a real node on preprod rather than
