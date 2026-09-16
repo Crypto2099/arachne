@@ -17,16 +17,16 @@ import type { NativeScript } from '../../src/model/types.js';
 const [KEY] = cosigners(1) as [string];
 
 /**
- * 5450 is the depth that matters, not a round stress number: it is the
+ * 5383 is the depth that matters, not a round stress number: it is the
  * deepest linear "all" whose CBOR still fits inside `maxTxSize`, 16,384
  * bytes (spec/06-chain-exercises.md), the ceiling a script delivered inline
  * in a witness set is bound by no matter which tool produced it, and
  * cardano-cli has hashed a script this deep without complaint. Anything this
- * library cannot handle at 5450 is a script the ledger would accept and this
+ * library cannot handle at 5383 is a script the ledger would accept and this
  * would crash on. 10000 is comfortably past that ceiling, standing in for
  * "no depth the chain could ever present still breaks this".
  */
-const ON_CHAIN_DEPTH = 5450;
+const ON_CHAIN_DEPTH = 5383;
 const PAST_CEILING_DEPTH = 10000;
 
 /**
