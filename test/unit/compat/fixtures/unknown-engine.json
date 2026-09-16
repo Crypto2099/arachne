@@ -1,0 +1,15 @@
+{
+  "formatVersion": 2,
+  "engines": [{ "id": "known-engine", "displayName": "Known" }],
+  "tools": [
+    {
+      "id": "broken",
+      "displayName": "Broken",
+      "homepage": "https://example.invalid",
+      "adapter": "npm-csl",
+      "discovery": { "type": "npm" },
+      "channels": ["current"],
+      "engine": { "id": "missing-engine", "relation": "own" }
+    }
+  ]
+}

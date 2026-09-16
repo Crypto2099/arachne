@@ -63,7 +63,10 @@
     "vectors:verify": "tsx src/cli.ts vectors verify",
     "chain:exercise": "tsx src/cli.ts chain exercise",
     "verify": "npm run lint && npm run typecheck && npm run test && npm run vectors:verify",
-    "test:cli": "vitest run --project cli"
+    "test:cli": "vitest run --project cli",
+    "compat:check": "tsx scripts/compat-check.ts",
+    "compat:run": "tsx scripts/compat-run.ts",
+    "compat:watch": "tsx scripts/compat-watch.ts"
   },
   "keywords": [
     "cardano",

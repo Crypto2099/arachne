@@ -1,0 +1,61 @@
+name: upstream-watch
+
+on:
+  schedule:
+    # 06:00 UTC daily, offset from the hour so it does not line up with every
+    # other project's cron and compete for shared runner capacity.
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Resolve pending versions and report them without installing anything or opening a pull request
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    permissions:
+      # Needed only to open the pull request below; this job never pushes to
+      # main directly, and the checkout step itself only reads.
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Resolve pending versions and run the watcher
+        id: watch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            npx tsx scripts/compat-watch.ts --dry-run
+          else
+            npx tsx scripts/compat-watch.ts
+          fi
+          echo "title=$(cat compat-watch-title.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Report
+        run: cat compat-watch-body.md
+
+      - name: Open pull request
+        if: ${{ inputs.dry_run != true }}
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: ${{ steps.watch.outputs.title }}
+          title: ${{ steps.watch.outputs.title }}
+          body-path: compat-watch-body.md
+          branch: upstream-watch/results
+          add-paths: compat/results/**
+          delete-branch: true
