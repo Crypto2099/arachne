@@ -209,10 +209,41 @@ past that, because the signatures travel with the transaction that spends.
 **By this arithmetic, a unanimous native multisig cannot exceed 160 members** at the
 current `maxTxSize`, and cannot exceed 122 with the script carried inline.
 
-Every figure in this section is arithmetic over the CDDL. None of it has been observed.
-The four transactions that would settle it are a 122-of-122 inline, a 123-of-123 inline,
-a 160-of-160 by reference and a 161-of-161 by reference, where the first and third should
-be accepted and the second and fourth refused for size.
+### Confirmed on preprod
+
+All four boundary transactions were submitted. Every cosigner is a real ed25519 key and
+every signature is real, derived deterministically as blake2b-256 of
+`arachne/multisig/<i>` so the cohort reproduces from nothing but its index.
+
+| Transaction                     | Size   | Result                                                                       |
+| ------------------------------- | ------ | ---------------------------------------------------------------------------- |
+| 122-of-122, script inline       | 16,334 | Accepted, `1d40d02c1b63a5eac942ff18c9731b457b502ca732820279a87c1a6f3f2bb140` |
+| 123-of-123, script inline       | 16,467 | Refused, `MaxTxSizeUTxO` supplied 16466 expected 16384                       |
+| 160-of-160, script by reference | 16,298 | Accepted, `ebccf64ce29571dde8bfaf2e7f741582254a937cf862082188ffa697d00cffd3` |
+| 161-of-161, script by reference | 16,399 | Refused, `MaxTxSizeUTxO` supplied 16398 expected 16384                       |
+
+**A unanimous native multisig tops out at 122 members with the script carried inline, and
+160 with it delivered by reference input.** Both ceilings are exact: one more member is
+refused in each case, and refused for size rather than for anything about the script.
+
+Two details the arithmetic in this section did not predict.
+
+The envelope is 9 bytes larger than assumed. Conway sets carry CBOR tag 258, and the
+inputs, vkey witnesses and native scripts lists each pay 2 bytes for it. The tables above
+are therefore about 9 bytes optimistic, which moves no ceiling: 122 fits at 16,334 rather
+than 16,325, and 123 misses by 83 bytes either way.
+
+A transaction spending through a reference script pays a tiered surcharge on top of the
+size fee, and omitting it gets the transaction refused for `FeeTooSmallUTxO` rather than
+accepted. The node's own expectation confirmed this project's implementation of
+`tierRefScriptFee` exactly: for a 5,126-byte reference script the surcharge is 76,890
+lovelace, and `base(16297) + 76890` equals the fee the node demanded to the lovelace.
+
+That arithmetic also exposed a one-byte disagreement. The node measured the transaction
+at 16,297 bytes where this builder measured 16,298, the same offset seen in the 123-of-123
+refusal, which reported 16,466 against a build of 16,467. The direction is consistent and
+it has no effect on any ceiling here, but it means a transaction built to land exactly on
+`maxTxSize` should not be trusted to fit on this measurement alone.
 
 ## Many scripts in one transaction
 
