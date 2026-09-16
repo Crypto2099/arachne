@@ -134,7 +134,7 @@ it is permanently visible.
 
 The node does validate what it stores. `script_ref = #6.24(bytes .cbor script)` wraps the
 script in a BYTE STRING, so the surrounding transaction stays well-formed whatever is
-inside and the decoder has to look deliberately to notice. It looks. A reference script
+inside, and the decoder has to look deliberately to notice. It looks. A reference script
 carrying `after(-1)` was refused, and so was one carrying bytes that are not CBOR at all,
 both with `DecoderErrorDeserialiseFailure` rather than a script error.
 
@@ -168,7 +168,7 @@ allowed, and a byte string that is not a script at all, which is not.
 ## Shapes that are well-formed and useless
 
 The grammar admits several scripts that no tool intends to produce and that no
-validation rejects. They have real hashes and real addresses, and nothing in the grammar rejects them.
+validation rejects. They have real hashes and real addresses.
 
 | Shape                                           | Behavior                                               |
 | ----------------------------------------------- | ------------------------------------------------------ |
@@ -193,8 +193,7 @@ than the rule: its constructor takes an unsigned count, so a negative threshold 
 it only as a wrapped unsigned value, which is a separate defect recorded in the
 compatibility results.
 
-The validation is one-sided, which is worth knowing because the two directions look
-symmetrical and are not. cardano-cli refuses a threshold ABOVE the child count, with
+The validation is one-sided: cardano-cli refuses a threshold ABOVE the child count, with
 "Required number of script signatures exceeds the number of scripts", and accepts every
 value at or below zero.
 
