@@ -46,6 +46,20 @@ describe('committed corpus', () => {
     expect(index.formatVersion).toBe(VECTOR_FORMAT_VERSION);
     expect(index.vectorCount).toBe(corpus.length);
     expect(index.digest).toBe(corpusDigest(corpus));
+
+    // Every summary field in the index is checked against the vectors it
+    // summarizes. CI's corpus-currency step deliberately excludes index.json,
+    // because `generatedAt` changes on every rebuild, so nothing else would
+    // notice a stale count. `observationCount` did go stale exactly this way:
+    // a `git checkout vectors/index.json` meant to drop a timestamp change also
+    // dropped the count, and three recorded chain observations were reported as
+    // zero for as long as it took someone to read both files.
+    expect(index.observationCount).toBe(corpus.reduce((n, v) => n + (v.onchain?.length ?? 0), 0));
+    expect(index.encodingSensitiveCount).toBe(
+      corpus.filter((v) => v.encoding.encodingSensitive).length,
+    );
+    expect(index.satisfactionCaseCount).toBe(corpus.reduce((n, v) => n + v.satisfaction.length, 0));
+    expect(index.vectors).toHaveLength(corpus.length);
     for (const entry of index.vectors) {
       const vector = corpus.find((v) => v.id === entry.id);
       expect(vector, `index lists ${entry.id} but no such vector exists`).toBeDefined();
