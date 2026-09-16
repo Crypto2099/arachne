@@ -1,4 +1,15 @@
 import type { CompatResult } from './result-schema.js';
+import type { VectorResult } from './classify.js';
+
+/**
+ * A vector's id alone is only unique on the construct path. Decode asks two
+ * questions per vector, one per encoding, and both share the vector's id;
+ * `inputFraming` is what tells them apart, so it has to be part of the key or
+ * one of the two silently overwrites the other in the lookup below.
+ */
+function vectorKey(v: VectorResult): string {
+  return v.inputFraming === undefined ? v.id : `${v.id}#${v.inputFraming}`;
+}
 
 export interface ChangeReport {
   /** True when this version behaves differently from the one compared against. */
@@ -72,11 +83,11 @@ export function compareResults(
     );
   }
 
-  const previousById = new Map(previous.vectors.map((v) => [v.id, v.status]));
+  const previousById = new Map(previous.vectors.map((v) => [vectorKey(v), v.status]));
   const transitions = new Map<string, number>();
   let vectorsChanged = 0;
   for (const vector of current.vectors) {
-    const before = previousById.get(vector.id);
+    const before = previousById.get(vectorKey(vector));
     if (before === undefined || before === vector.status) continue;
     vectorsChanged += 1;
     const key = `${before} -> ${vector.status}`;

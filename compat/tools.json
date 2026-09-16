@@ -18,6 +18,11 @@
       "displayName": "cardano-js-sdk core",
       "homepage": "https://github.com/input-output-hk/cardano-js-sdk",
       "package": "@cardano-sdk/core"
+    },
+    {
+      "id": "gouroboros",
+      "displayName": "gouroboros",
+      "homepage": "https://github.com/blinklabs-io/gouroboros"
     }
   ],
   "tools": [
@@ -86,6 +91,23 @@
         "id": "cardano-sdk-core",
         "relation": "depends",
         "via": ["@meshsdk/core-cst"]
+      }
+    },
+    {
+      "id": "gouroboros",
+      "displayName": "gouroboros",
+      "homepage": "https://github.com/blinklabs-io/gouroboros",
+      "adapter": "gouroboros",
+      "discovery": {
+        "type": "github-releases",
+        "repo": "blinklabs-io/gouroboros",
+        "tagPrefix": "v"
+      },
+      "channels": ["current", "previous"],
+      "paths": ["construct", "decode"],
+      "engine": {
+        "id": "gouroboros",
+        "relation": "own"
       }
     }
   ]

@@ -19,17 +19,25 @@ keeps shipping new versions.
 
 ## What this measures, and what it does not
 
-Every result here comes from handing a tool the same JSON shape this project's own
-model uses (`{ type: 'sig', keyHash }`, `{ type: 'all', scripts }`, and so on) and asking
-it to build a native script and hash it. That is the "construct from JSON" path.
+Most results here come from handing a tool the same JSON shape this project's own model
+uses (`{ type: 'sig', keyHash }`, `{ type: 'all', scripts }`, and so on) and asking it to
+build a native script and hash it. That is the "construct from JSON" path, recorded as
+`path: "construct"`.
 
 A tool that instead decodes an existing CBOR script and re-hashes those exact bytes can
 follow a different rule (this project's own `scriptHashFromCbor` does exactly that, on
-purpose: see `spec/07-encoding-divergence.md`). This directory does not measure that
-path for any tool yet. If a tool's behavior turns out to depend on which of its own APIs
-is used, the right fix is to register it twice, once per path, each independently run
-and each with its own `id`, rather than picking one path and calling it "the" result for
-that tool.
+purpose: see `spec/07-encoding-divergence.md`). That is `path: "decode"`, and gouroboros
+(`src/compat/adapters/gouroboros.ts`) is the first tool run against it: fed the corpus's
+own `definite` bytes it returns the `definite` hash, and fed the same script's
+`cardanoBinary` bytes it returns the `cardanoBinary` hash, which is exactly the behavior
+`spec/07-encoding-divergence.md` recommends and is not observable on `construct` at all,
+where gouroboros always produces `definite` regardless of which bytes the corpus recorded.
+One library, two framing categories, depending only on which of its own APIs is used. See
+"Construction paths" below for how a decode run is represented.
+
+If a tool's behavior turns out to depend on which of its own APIs is used, the right fix
+is to register it against both paths, each independently run and each its own committed
+result file, rather than picking one path and calling it "the" result for that tool.
 
 ## Engines, and why a tool is not an implementation
 
@@ -91,6 +99,7 @@ The registry of tools to watch. Each entry:
 | `adapterOptions` | Small adapter-specific configuration, e.g. which function to call.                                      |
 | `discovery`      | How to find new versions: `{ "type": "npm" }`, or `{ "type": "github-releases", "repo", "tagPrefix" }`. |
 | `channels`       | Which of `current`, `previous`, `beta` to track for this tool.                                          |
+| `paths`          | Which construction paths to run this tool against. Defaults to `["construct"]` when absent.             |
 
 Adding a tool that shares an existing adapter's API (another cardano-serialization-lib
 fork, another library exposing the same `resolveNativeScriptHash(script) -> string`
@@ -108,6 +117,14 @@ a new adapter under `src/compat/adapters/`.
 - **`npm-native-script-json`**: installs the npm package and calls the function named in
   `adapterOptions.exportName` with the script's plain-JSON shape, converting timelock
   slots to a string first when `adapterOptions.slotEncoding` is `"string"`.
+- **`gouroboros`**: assumes a Go toolchain is already on `PATH` the way the npm adapters
+  assume npm is, and installs exactly `gouroboros@version` into an isolated module cache
+  under a scratch directory (`go mod tidy` resolves the rest of its dependency graph and
+  whatever toolchain that release's own `go.mod` requires). Registered against
+  `paths: ["construct", "decode"]`: `construct` builds gouroboros's own Go structs from
+  the script's JSON, marshals them to CBOR and hashes the result; `decode` feeds the
+  corpus's own CBOR straight to `cbor.Decode` and hashes whatever
+  `common.NativeScript.Hash()` returns, once per encoding.
 
 ## Channels
 
@@ -118,16 +135,21 @@ no `beta` result for that run; a missing channel is not an error.
 
 ## `results/<tool>/<version>.json`
 
-One file per tested version, keyed by exactly the version string that was installed.
-Never hand-edited: a version is retested by running the watcher again, which produces a
-new file if the version changed, or leaves the old one alone if it did not.
+One file per tested version per construction path, keyed by exactly the version string
+that was installed. A tool that only runs `construct` (every tool but gouroboros, today)
+keeps the bare `<version>.json` name; a tool also registered against `decode` gets a
+second file, `<version>-decode.json`, for the same version. Never hand-edited: a version
+is retested by running the watcher again, which produces a new file if the version
+changed, or leaves the old one alone if it did not.
 
 ```json
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "tool": "cardano-cli",
   "version": "11.2.3.1",
   "channel": "current",
+  "path": "construct",
+  "engine": { "id": "cardano-binary", "relation": "depends", "resolvedVersion": null },
   "testedAt": "2026-09-15T23:20:35.203Z",
   "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
   "arachneVersion": "arachne@0.1.0",
@@ -140,23 +162,28 @@ new file if the version changed, or leaves the old one alone if it did not.
 }
 ```
 
-| Field                      | Meaning                                                                                                                                                                                          |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `corpusDigest`             | `vectors/index.json`'s own digest at the time this ran. Two results are only directly comparable if this matches.                                                                                |
-| `arachneVersion`           | This project's version that generated the corpus being tested against.                                                                                                                           |
-| `status`                   | `"tested"` or `"untested"`. See below.                                                                                                                                                           |
-| `framing`                  | `"definite"`, `"cardanoBinary"`, `"mixed"`, or `"undetermined"`, derived from the vectors below where the two encodings actually differ. Never asserted independently of the per-vector results. |
-| `vectors[].status`         | `"agreed"`, `"diverged"`, `"refused"`, or `"unsupported"`. See below.                                                                                                                            |
-| `vectors[].matchedFraming` | Which of the corpus's two recorded hashes the tool's answer matched: `"definite"`, `"cardanoBinary"`, `"both"` (the two coincide for this script), or `"neither"`.                               |
+| Field                      | Meaning                                                                                                                                                                                                                                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `path`                     | Which construction path this run exercised. See "Construction paths" below.                                                                                                                                                                                                                       |
+| `engine`                   | The encoder that produced these bytes and the version actually installed. See "Engines" above.                                                                                                                                                                                                    |
+| `corpusDigest`             | `vectors/index.json`'s own digest at the time this ran. Two results are only directly comparable if this matches.                                                                                                                                                                                 |
+| `arachneVersion`           | This project's version that generated the corpus being tested against.                                                                                                                                                                                                                            |
+| `status`                   | `"tested"` or `"untested"`. See below.                                                                                                                                                                                                                                                            |
+| `framing`                  | `"definite"`, `"cardanoBinary"`, `"mixed"`, `"framing-preserving"`, or `"undetermined"`, derived from the vectors below where the two encodings actually differ. Never asserted independently of the per-vector results. `"framing-preserving"` is only reachable on `path: "decode"`; see below. |
+| `vectors[].status`         | `"agreed"`, `"diverged"`, `"refused"`, or `"unsupported"`. See below.                                                                                                                                                                                                                             |
+| `vectors[].matchedFraming` | Which of the corpus's two recorded hashes the tool's answer matched: `"definite"`, `"cardanoBinary"`, `"both"` (the two coincide for this script), or `"neither"`.                                                                                                                                |
+| `vectors[].inputFraming`   | Present only on `path: "decode"`: which of the vector's two CBOR encodings this particular answer is about. See "Construction paths" below.                                                                                                                                                       |
 
 ### When a tool could not be installed
 
 ```json
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "tool": "cardano-cli",
   "version": "99.0.0.0",
   "channel": "beta",
+  "path": "construct",
+  "engine": { "id": "cardano-binary", "relation": "depends", "resolvedVersion": null },
   "testedAt": "2026-09-15T23:20:35.203Z",
   "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
   "arachneVersion": "arachne@0.1.0",
@@ -171,7 +198,10 @@ new file if the version changed, or leaves the old one alone if it did not.
 `untested` is a first-class result, not a missing file: a version that cannot be
 installed still gets a record, with `reason` carrying whatever error the install step
 produced, verbatim. There is no status that means "we did not check"; the absence of a
-result file for a version simply means that version has not been resolved yet.
+result file for a version simply means that version has not been resolved yet. This
+covers "the tool has no toolchain to run at all" the same way as any other install
+failure: gouroboros's adapter assumes `go` is already on `PATH`, and records `untested`
+with the verbatim error rather than guessing when it is not.
 
 ### Per-vector status
 
@@ -186,7 +216,11 @@ result file for a version simply means that version has not been resolved yet.
   hidden.
 - **`unsupported`**: reserved for a construct an adapter recognizes ahead of time as
   unrepresentable in a tool's API at all, as opposed to an attempt the tool itself
-  rejected. No result committed so far uses it.
+  rejected. gouroboros's `construct` path is the first to use it: its
+  `NativeScriptNofK.N` field is a Go `uint`, which cannot hold the corpus's one
+  negative-threshold vector without wrapping to a nonsense value, so the adapter reports
+  `unsupported` instead of attempting a conversion that would silently misrepresent the
+  tool.
 
 ### Errors are verbatim
 
@@ -197,15 +231,43 @@ destroys the finding it is reporting.
 
 ## Construction paths
 
-`path` records which question a run asked. Every adapter here uses `construct`: build a
-script from its JSON or the tool's own builder API, then hash the result.
+`path` records which question a run asked. Most adapters here use `construct`: build a
+script from its JSON or the tool's own builder API, then hash the result. `decode` is a
+different question: given existing CBOR, does a tool hash the bytes it received, or does
+it re-encode and impose its own framing? A tool that preserves the input framing
+reproduces whichever encoding it was handed, which is the behavior
+`spec/07-encoding-divergence.md` recommends. A classification is only meaningful with its
+path attached, which is why the field is recorded on every result rather than only once a
+second value was in use.
 
-`decode` is a different question, and a tool can legitimately answer it differently:
-given existing CBOR, does it hash the bytes it received, or does it re-encode and impose
-its own framing? A tool that preserves the input framing reproduces whichever encoding it
-was handed, which is the behavior `spec/07-encoding-divergence.md` recommends and which no
-adapter here currently exercises. A classification is only meaningful with its path
-attached, so the field is recorded even while only one value is in use.
+A vector is one question on `construct` (build this script, hash it) but two on `decode`:
+the corpus records two CBOR encodings per vector (`encoding.definite.cborHex` and
+`encoding.cardanoBinary.cborHex`), and a decode run feeds each independently rather than
+picking one. `vectors` on a decode result is therefore twice the length of the corpus,
+with two entries sharing one vector `id`, told apart by `inputFraming`:
+
+```json
+{ "id": "encoding-boundary/root-w24", "status": "agreed", "hash": "abcd...", "matchedFraming": "definite", "inputFraming": "definite" },
+{ "id": "encoding-boundary/root-w24", "status": "agreed", "hash": "1234...", "matchedFraming": "cardanoBinary", "inputFraming": "cardanoBinary" }
+```
+
+The alternative, folding both answers into one object (`{ id, definite: {...},
+cardanoBinary: {...} }`), was rejected because it would need its own per-vector shape
+distinct from `construct`'s and its own comparison logic in `change.ts`, for a question
+that is otherwise identical: "did the hash match a recorded encoding". Keeping one flat
+`VectorResult` shape for both paths means `classifyOutcome` and the summary counts stay a
+single implementation; only `deriveFraming` needs the path, because "framing-preserving"
+is a claim about the relationship between `inputFraming` and `matchedFraming` that has no
+meaning on `construct`, where there is only one input per vector.
+
+`framing-preserving` means that, across every vector where the two encodings actually
+differ, the returned hash matched whichever encoding was fed in: `matchedFraming` equals
+`inputFraming` every time. gouroboros is the case this exists for: run on `construct` it
+reports `definite` like most JavaScript tooling; run on `decode` against the exact same
+corpus it reports `framing-preserving`, because `common.NativeScript.Hash()` hashes the
+bytes it decoded rather than re-encoding them. One release, two committed result files,
+two different framing classifications, both true at once because they answer different
+questions.
 
 ## Rendering a page from this
 
@@ -224,7 +286,13 @@ same logic runs locally:
 
 ```
 npx tsx scripts/compat-check.ts              # what is pending, without installing anything
-npx tsx scripts/compat-run.ts <tool> <version> <channel>   # run and record one version
+npx tsx scripts/compat-run.ts <tool> <version> <channel> [construct|decode]   # run and record one version
 npx tsx scripts/compat-watch.ts              # run everything pending and write a PR title/body
 npx tsx scripts/compat-watch.ts --dry-run    # the same, without installing or writing results
 ```
+
+The fourth argument to `compat-run.ts` defaults to `construct`. A tool registered against
+more than one path in `tools.json` (gouroboros's `paths: ["construct", "decode"]`) needs
+one invocation per path; `compat-check.ts` and `compat-watch.ts` already read `paths` from
+the registry and treat each (tool, channel, path) as its own pending item, so the daily
+watcher keeps both of gouroboros's result files current as new releases ship.

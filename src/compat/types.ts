@@ -94,6 +94,14 @@ export interface ToolDefinition {
   channels: Channel[];
   /** Which encoder actually produces this tool's bytes, and how it gets there. */
   engine: EngineLink;
+  /**
+   * Which construction paths this tool is run against, each producing its own
+   * result file. Defaults to `['construct']` when absent, which is every tool
+   * registered before a decode-path adapter existed. A tool that can legitimately
+   * answer differently on each path, the way gouroboros does, lists both and gets
+   * one independent run and one committed file per path.
+   */
+  paths?: ConstructionPath[];
 }
 
 export interface ToolsRegistry {
@@ -134,6 +142,25 @@ export interface ScriptItem {
 }
 
 /**
+ * One vector's two CBOR encodings, fed to a decode-path adapter one at a
+ * time. A vector is one question on `construct` (build this script, hash the
+ * result) but two on `decode` (hash whatever bytes you were handed, once per
+ * encoding), which is why this is a distinct shape from `ScriptItem` rather
+ * than a variant of it.
+ */
+export interface DecodeItem {
+  id: string;
+  definiteCborHex: string;
+  cardanoBinaryCborHex: string;
+}
+
+/** What a tool did with each of one vector's two encodings, decoded independently. */
+export interface DecodeOutcome {
+  definite: HashOutcome;
+  cardanoBinary: HashOutcome;
+}
+
+/**
  * A running instance of one tool version, holding whatever scratch state
  * (an extracted binary, an installed npm package) it needs to answer for a
  * batch of scripts. `hashScripts` takes the whole corpus at once so an
@@ -143,6 +170,14 @@ export interface ScriptItem {
  */
 export interface ToolSession {
   hashScripts(items: ScriptItem[]): Promise<Map<string, HashOutcome>>;
+  /**
+   * The decode path: feed the tool each vector's own CBOR bytes, once per
+   * encoding, and ask what hash it returns. Only present on a session whose
+   * adapter actually exercises decode; `runCompatCheck` throws if asked to run
+   * `path: 'decode'` against a session with no `decodeScripts`, the same way it
+   * throws when `hashScripts` silently drops a vector.
+   */
+  decodeScripts?(items: DecodeItem[]): Promise<Map<string, DecodeOutcome>>;
   /**
    * The engine version this install actually resolved, read from what is on
    * disk rather than from the registry.

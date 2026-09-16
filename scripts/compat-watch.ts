@@ -7,8 +7,9 @@
 // scheduled run do" without installing anything, and it is what
 // `workflow_dispatch` should be pointed at before trusting an unattended run.
 //
-// Without the flag, it runs every pending (tool, channel), writes
-// `compat/results/<tool>/<version>.json` for each, and writes a PR title and
+// Without the flag, it runs every pending (tool, channel, path), writes
+// `compat/results/<tool>/<version>.json` (or `<version>-decode.json` for a
+// tool that also runs the decode path) for each, and writes a PR title and
 // body describing what it found: `pr-title.txt` states whether a behavior
 // change was found, and `pr-body.md` lists every version tested with its
 // change report against the version it replaces.
@@ -20,12 +21,15 @@ import { resolvePendingWork } from '../src/compat/pending.js';
 import { loadToolRegistry } from '../src/compat/registry.js';
 import { runCompatCheck } from '../src/compat/runner.js';
 import { previousResult, writeCompatResult } from '../src/compat/results.js';
+import type { ConstructionPath } from '../src/compat/types.js';
 
 interface RanItem {
   tool: string;
   version: string;
   channel: string;
-  path: string;
+  path: ConstructionPath;
+  /** Where the result was written, on disk. */
+  filePath: string;
   status: string;
   framing: string | null;
   changed: boolean;
@@ -43,7 +47,9 @@ async function main(argv: string[]): Promise<number> {
   const pending = await resolvePendingWork(registry);
 
   console.error(pending.length === 0 ? 'nothing pending' : `${pending.length} pending:`);
-  for (const item of pending) console.error(`  ${item.tool} ${item.version} (${item.channel})`);
+  for (const item of pending) {
+    console.error(`  ${item.tool} ${item.version} (${item.channel}, ${item.path})`);
+  }
 
   if (dryRun || pending.length === 0) {
     await writeFile(
@@ -59,21 +65,23 @@ async function main(argv: string[]): Promise<number> {
   const version = await arachneVersion();
   const ran: RanItem[] = [];
   for (const item of pending) {
-    console.error(`running ${item.tool} ${item.version}...`);
+    console.error(`running ${item.tool} ${item.version} (${item.path})...`);
     const result = await runCompatCheck({
       toolId: item.tool,
       version: item.version,
       channel: item.channel,
       arachneVersion: version,
+      path: item.path,
     });
-    const previous = await previousResult(item.tool, item.version);
+    const previous = await previousResult(item.tool, item.version, undefined, item.path);
     const change = compareResults(result, previous);
-    const path = await writeCompatResult(result);
+    const filePath = await writeCompatResult(result);
     ran.push({
       tool: item.tool,
       version: item.version,
       channel: item.channel,
-      path,
+      path: item.path,
+      filePath,
       status: result.status,
       framing: result.framing,
       changed: change.changed,
@@ -142,14 +150,16 @@ function renderBody(pending: PendingItem[], ran: RanItem[], dryRun: boolean): st
 
   if (dryRun) {
     lines.push('Versions that would be tested:', '');
-    for (const item of pending) lines.push(`- ${item.tool} ${item.version} (${item.channel})`);
+    for (const item of pending) {
+      lines.push(`- ${item.tool} ${item.version} (${item.channel}, ${item.path})`);
+    }
     return lines.join('\n');
   }
 
   lines.push(summaryLine(ran), '');
 
   for (const r of ran) {
-    lines.push(`### ${r.tool} ${r.version} (${r.channel})`, '');
+    lines.push(`### ${r.tool} ${r.version} (${r.channel}, ${r.path})`, '');
     lines.push(`Status: ${r.status}${r.framing ? `, framing ${r.framing}` : ''}`);
     lines.push(r.headline);
     for (const detail of r.details) lines.push(`- ${detail}`);
