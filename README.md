@@ -74,7 +74,10 @@ do not satisfy it.
     "encodingSensitive": false
   },
   "credentials": {
-    "governance": { "drep": { "cip129": "drep1...", "cip105": "drep_script1..." } }
+    "definite": {
+      "governance": { "drep": { "cip129": "drep1...", "cip105": "drep_script1..." } }
+    },
+    "cardanoBinary": { "...": "the same shape, derived from the other hash" }
   },
   "satisfaction": [{ "id": "0+1@unbounded", "signers": ["..."], "expected": true }],
   "onchain": []

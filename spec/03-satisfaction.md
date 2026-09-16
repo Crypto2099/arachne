@@ -40,9 +40,9 @@ when `k` is zero or below, for the same reason.
 These are not this project's reading. They are the ledger's `evalTimelock`, transcribed:
 
 ```haskell
-lteNegInfty _ SNothing = False          -- an absent validity start fails
+lteNegInfty _ SNothing = False -- i > -∞
 lteNegInfty i (SJust j) = i <= j
-ltePosInfty SNothing _ = False          -- an absent validity end fails
+ltePosInfty SNothing _ = False -- ∞ > j
 ltePosInfty (SJust i) j = i <= j
 
 isValidMOf n SSeq.Empty = n <= 0
@@ -64,7 +64,10 @@ from behavior.
 
 ## The three that implementations get wrong
 
-These are not exotic. Each one has shipped.
+These are not exotic. `test/conformance/discriminating-power.test.ts` implements an
+evaluator that makes all three mistakes, the shape that accumulates key hashes up the
+tree and skips timelocks, and the corpus catches it on 125 of its 973 satisfaction
+cases.
 
 ### A threshold counts satisfied sub-scripts, not distinct keys
 
