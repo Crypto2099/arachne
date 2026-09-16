@@ -48,8 +48,6 @@ Source: `ppMaxRefScriptSizePerTxG` and its neighbors in
 `eras/conway/impl/src/Cardano/Ledger/Conway/PParams.hs`, with the size check itself in
 `Conway/Rules/Ledger.hs`.
 
-Two consequences follow, and they pull in opposite directions.
-
 The per-transaction reference budget is 12.5 times `maxTxSize`, so a spending
 transaction can reach far more script than it could ever carry inline. But a reference
 script has to be created before it can be referenced, and the transaction that creates
@@ -95,7 +93,7 @@ transaction can get to the limit without going over.
 
 "Exercised on-chain" means something different per role, and the differences are not
 cosmetic. A script that spends happily as a payment credential may still be refused as
-a DRep, because the transaction carrying it is shaped differently and the witness
+a DRep, because the transaction carrying it is shaped differently, and the witness
 reaches the ledger by another route.
 
 | Role                | Steps                                                       | The step that actually tests the script                               |
@@ -221,8 +219,6 @@ vitest project for this reason and is never part of the default test run.
 result in this document is a consequence of its current value, 16,384 bytes. None of the
 numbers below are properties of native scripts. They are properties of native scripts at
 one parameter setting.
-
-That has two consequences for anything built on this.
 
 **Do not hard-code them.** `src/chain/ceilings.ts` exposes `maxLinearNestDepth`,
 `maxUnanimousInline` and `maxUnanimousByReference` as functions of `maxTxSize`, and a
@@ -359,16 +355,16 @@ lovelace, and `base(16297) + 76890` equals the fee the node demanded to the love
 
 That arithmetic also exposed a one-byte disagreement. The node measured the transaction
 at 16,297 bytes where this builder measured 16,298, the same offset seen in the 123-of-123
-refusal, which reported 16,466 against a build of 16,467. The direction is consistent and
-it has no effect on any ceiling here, but it means a transaction built to land exactly on
+refusal, which reported 16,466 against a build of 16,467. The direction is consistent,
+and it has no effect on any ceiling here, but it means a transaction built to land exactly on
 `maxTxSize` should not be trusted to fit on this measurement alone.
 
 ## Federations, and which constraint actually binds
 
 A realistic governance structure is not a flat cohort. It is `all` over member
 organizations, each of which is itself a threshold, so every member must contribute
-without any of them surrendering its internal rule. That shape has two costs pulling in
-different directions, and which one binds flips depending on the internal threshold.
+without any of them surrendering its internal rule. That shape has two costs, and which
+one binds flips depending on the internal threshold.
 
 A member costs 32 bytes in the script whether or not it signs. A signature costs 101
 bytes in the transaction. So a low internal threshold makes members cheap to add but
@@ -418,7 +414,7 @@ size at which a 24-organization federation is constructible at all.
 A single script is bounded by `maxTxSize` whichever route it takes, so the interesting
 use of the 200 KiB reference budget is not one larger script but many scripts
 interacting in one transaction. That is the shape a federation produces: several
-organizations, each governed by its own sizeable multisig, transacting together.
+organizations, each governed by its own sizable multisig, transacting together.
 
 The `federation` and `federation-of-federations` families generate those scripts. The
 largest, twenty member organizations of twenty cosigners each, is 12,884 bytes and 400

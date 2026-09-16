@@ -28,7 +28,7 @@ cardano-serialization-lib, MeshJS and most of the JavaScript ecosystem write a
 definite-length array at every size.
 
 24 is not an arbitrary threshold. It is where a CBOR array header stops fitting in the
-head byte and needs a following length byte, so it is the point at which a
+head byte and needs a following length byte. That is the point at which a
 streaming encoder that does not know its length in advance starts preferring the
 indefinite form.
 
@@ -85,7 +85,7 @@ Same script, different bytes, different hash:
 
 Almost no real script reaches 24 sub-scripts in one container. A 3-of-5 treasury, a
 2-of-3 DRep and a 7-of-10 committee are all far below the line, and below it the two
-encodings are byte-identical. The divergence is invisible until an organisation grows a
+encodings are byte-identical. The divergence is invisible until an organization grows a
 cohort past 23, at which point it appears all at once.
 
 It is also self-concealing. A team using one toolchain end to end never sees it: the
