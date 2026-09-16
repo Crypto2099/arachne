@@ -102,7 +102,7 @@ reaches the ledger by another route.
 | ------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------- |
 | Payment, enterprise | Fund the script address, spend it back                      | The spend                                                             |
 | Payment and stake   | Fund the base address, register the stake credential, spend | The spend, with the same hash in both credential slots                |
-| Stake               | Register, delegate, withdraw rewards                        | The withdrawal                                                        |
+| Stake               | Register, delegate, withdraw rewards                        | The delegation, and every later operation on the credential           |
 | DRep                | Register with the 500 ADA deposit, vote, retire             | The vote                                                              |
 | CC cold             | Authorize a hot credential                                  | The authorization, and only where a testnet has seated the credential |
 | CC hot              | Cast a committee vote                                       | The vote, with the same constraint                                    |
@@ -141,7 +141,33 @@ withdrawal needs rewards, rewards need a full epoch of active delegation, and th
 credential was retired before one elapsed. Registration and delegation both succeeded,
 which is exactly what that row warns is insufficient.
 
-Registration alone proves that the credential is accepted, not that the script can
+### The delegation already tests the script
+
+An earlier version of this document said the withdrawal was the operation that really
+tested a stake script, on the reasoning that registration and delegation might both
+succeed for a credential that could not later authorize anything. That is wrong for
+delegation, and it was checked rather than reasoned about.
+
+Delegating a script stake credential was submitted three ways against the same 2-of-3
+script:
+
+| Witness set                            | Result                                                      |
+| -------------------------------------- | ----------------------------------------------------------- |
+| No script, no trustee signatures       | `MissingScriptWitnessesUTXOW`, naming the credential's hash |
+| Script present, one trustee signature  | `ScriptWitnessNotValidatingUTXOW`                           |
+| Script present, two trustee signatures | Accepted                                                    |
+
+So the script is required for a delegation and its threshold is evaluated there, in full.
+A withdrawal exercises the same credential witness path and would demonstrate nothing
+further about native script behavior, which is why this document no longer treats it as
+the operation that matters for this role.
+
+The middle row is the more useful of the two refusals. A missing script is an easy
+mistake to catch; a script that is present and unsatisfied is the case an implementation
+gets wrong quietly, and the ledger distinguishes them by name.
+
+Registration is the operation that proves least. It proves that the credential is
+accepted, not that the script can
 authorize anything. The distinction matters most for stake and DRep credentials, where
 registration and delegation can both succeed for a script that cannot later authorize a
 withdrawal or a vote.
