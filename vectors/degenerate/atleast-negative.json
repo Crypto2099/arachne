@@ -155,5 +155,22 @@
       "expectedReason": "required is -1, satisfied with no witnesses"
     }
   ],
-  "onchain": []
+  "onchain": [
+    {
+      "network": "preprod",
+      "role": "paymentEnterprise",
+      "action": "spend",
+      "caseId": "none@unbounded",
+      "accepted": true,
+      "txHash": "b1db2a411cb651a413840d3c8b112895a5bda2519a8ba6a372b8dd1ffc7746c2",
+      "observedAt": "2026-09-16T12:00:00.000Z",
+      "protocolParams": {
+        "epoch": 313,
+        "maxTxSize": 16384,
+        "minFeeA": 44,
+        "minFeeB": 155381,
+        "minFeeRefScriptCostPerByte": 15
+      }
+    }
+  ]
 }
