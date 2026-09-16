@@ -107,6 +107,40 @@ reaches the ledger by another route.
 | CC cold             | Authorize a hot credential                                  | The authorization, and only where a testnet has seated the credential |
 | CC hot              | Cast a committee vote                                       | The vote, with the same constraint                                    |
 
+### Confirmed on preprod
+
+Two credential roles have now been exercised end to end, each with a different script
+shape so that neither result depends on the other's structure.
+
+A 3-of-5 board registered as a DRep, voted, updated itself and retired, script hash
+`ce021f147f597c5b48affb3d51de3be142ffd9fd898e8631b4948964`:
+
+| Step                            | Transaction                                                        |
+| ------------------------------- | ------------------------------------------------------------------ |
+| Register, 500 ADA deposit       | `31ec4648ea0ce886d0ca0abda3ea839be56dfc2acf1070a57f981f66e2f5d286` |
+| Vote yes on a governance action | `ae52f76f442fbe6ad53bda43d83d1e8a402ea6132c9a8d4ef825f85c7f9df46d` |
+| Update                          | `3770ba2b45cbcdc3217793d30ac845f23f6e7b7714bf1a59b365745fe0207270` |
+| Retire, deposit reclaimed       | `f5822f80d4236138a9b913dac29c3545b0cd380b23144b7e878875ebef550854` |
+
+The vote is the step this table calls the real test, and it is readable back from an
+indexer rather than only from the submission: querying `drep_votes` for that credential's
+CIP-129 identifier returns the vote as `Yes` against the action it was cast on. Three of
+the five board signatures satisfied the script each time.
+
+A 2-of-3 trustee credential registered as a stake credential, delegated and retired,
+script hash `3a2640ad93281967ce64763495bf27064ddce92de689a067072a3b4e`:
+
+| Step                      | Transaction                                                        |
+| ------------------------- | ------------------------------------------------------------------ |
+| Register, 2 ADA deposit   | `436d377b754b503d4319c65ead5ee17495c27688bee910fdcf6c3614e381065e` |
+| Delegate to a stake pool  | `4e068e25cbdbe45f602d953bdb4a96e011cc961d4ca46ad4d6f7d81478ff6d44` |
+| Retire, deposit reclaimed | `3740d5d65f046d17197ce57bf6172e41d46c2a072b014549a7e8f31bff5227d2` |
+
+The withdrawal is NOT among these, so the row above still stands unconfirmed for stake. A
+withdrawal needs rewards, rewards need a full epoch of active delegation, and this
+credential was retired before one elapsed. Registration and delegation both succeeded,
+which is exactly what that row warns is insufficient.
+
 Registration alone proves that the credential is accepted, not that the script can
 authorize anything. The distinction matters most for stake and DRep credentials, where
 registration and delegation can both succeed for a script that cannot later authorize a
