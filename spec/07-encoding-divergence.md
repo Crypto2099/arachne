@@ -139,6 +139,35 @@ reproduce the bytes it read:
 | `['cardanoBinary']`             | Produced by cardano-cli, a node, or Haskell tooling                         |
 | `[]`                            | Neither standard encoder produces these bytes. Re-encoding changes the hash |
 
+## Confirmed on chain
+
+The divergence was tested on preprod with an `any` of 24 key hashes, one of them a key we
+held, so a single signature spends it. The two encodings gave two addresses, both funded
+from the same transaction.
+
+| Attempt                                               | Result                                                                       |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Definite address, spent with definite bytes           | Accepted, `71c07ab887ae65a02a7c9dae74cae970ea8a471ad3437a73d4fc3d074478124d` |
+| cardanoBinary address, spent with cardanoBinary bytes | Accepted, `7376f87c11960bf638c1fb3b6c2f23e2a3b9e2521ed106b3bd332a5c10a1fe72` |
+| Definite address, spent with cardanoBinary bytes      | Refused                                                                      |
+
+The refusal names both hashes in one error, which is as direct a statement of the problem
+as the ledger can make:
+
+```
+ConwayUtxowFailure (MissingScriptWitnessesUTXOW
+  (fromList [ScriptHash "b7e9fae91f0bd2119ee47c75379439345ec0a5116515e8cea326efcc"]))
+ConwayUtxowFailure (ExtraneousScriptWitnessesUTXOW
+  (fromList [ScriptHash "cca7321c5acd49f6dcda429401c054adc5724b424774c6097e9bc8ca"]))
+```
+
+The credential wanted the definite hash. The witness supplied the cardanoBinary one. Both
+are valid encodings of the same logical script, and the node treats them as two unrelated
+scripts, because to the ledger that is exactly what they are.
+
+So both halves of this document are now observed rather than reasoned: each encoding
+works end to end within its own toolchain, and crossing between them fails.
+
 ## Which one is right
 
 Neither, and that is the point. The ledger accepts both, and the CDDL constrains

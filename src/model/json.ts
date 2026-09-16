@@ -147,6 +147,15 @@ function parseHead(input: unknown, path: string): ParsedHead {
       if (typeof slot !== 'number' || !Number.isInteger(slot) || slot < 0) {
         throw new ScriptParseError('"slot" must be a non-negative integer', path);
       }
+      // The CDDL allows 0 to 2^64-1, but a JavaScript number is exact only to
+      // 2^53-1. Accepting more stores a value that re-encodes to different bytes
+      // and a different script hash without saying so.
+      if (slot > Number.MAX_SAFE_INTEGER) {
+        throw new ScriptParseError(
+          `"slot" ${slot} exceeds Number.MAX_SAFE_INTEGER and cannot be represented exactly`,
+          path,
+        );
+      }
       return { container: false, script: { type, slot } };
     }
     default:
@@ -207,10 +216,14 @@ export function serializeScript(script: NativeScript): unknown {
  * for scripts too deep for that expression to run at all.
  *
  * `JSON.parse` is iterative in V8 and survives well past any depth the ledger
- * accepts, but `JSON.stringify` is recursive there and throws at depth 5450,
- * exactly the on-chain ceiling this project cares about. Handing `stringify`
- * the object `serializeScript` builds is therefore a dead end regardless of
- * how that object was built, so this writes the JSON text directly, one
+ * accepts, but `JSON.stringify` is recursive there and gives out around depth
+ * 2000. The exact point moves with how much stack the caller has already
+ * spent, so it is a range rather than a constant: bisecting in a clean process
+ * on Node 22 puts the first failure just above 2082, and just above 2037 with
+ * 200 frames already on the stack. Either way it is far below the 5450-deep
+ * script a 16,384-byte transaction can carry, so handing `stringify` the
+ * object `serializeScript` builds is a dead end regardless of how that object
+ * was built. This writes the JSON text directly, one
  * array or object boundary at a time, with an explicit stack standing in for
  * the call stack recursion would have used.
  *

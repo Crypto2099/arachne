@@ -93,6 +93,78 @@ The outer `type` names the script language, not a script type. Blockfrost uses
 part of what gets hashed. Strip it before doing anything else. Hashing the envelope
 produces a hash that matches nothing on chain.
 
+## Three tiers, not two
+
+A script can fail in three distinct ways, and conflating them is how an
+implementation ends up producing something nobody can spend.
+
+| Tier          | Encodes | Hashes | Has an address | A node can decode it | Can ever be satisfied | Can appear on chain        |
+| ------------- | ------- | ------ | -------------- | -------------------- | --------------------- | -------------------------- |
+| Ordinary      | yes     | yes    | yes            | yes                  | yes                   | yes                        |
+| Unsatisfiable | yes     | yes    | yes            | yes                  | **no**                | yes, as a reference script |
+| Undecodable   | yes     | yes    | yes            | **no**               | not reachable         | **never**                  |
+
+The third tier is the dangerous one, because nothing about it looks wrong until
+the funds are already in. A script with a slot outside `uint` still serializes to
+CBOR, still hashes to a real 28-byte value, and still yields an address a wallet
+will happily pay. Only a transaction trying to SPEND it fails, and it fails at
+deserialization rather than at script validation, so the failure does not even
+name the script.
+
+An implementation MUST NOT produce a tier three script.
+
+### What it takes for a script to reach the chain
+
+An address carries only a hash, so funding one reveals nothing about the script. The bytes
+themselves reach the chain by exactly two routes, with different requirements.
+
+**In a witness set**, when something is spent. Native scripts are phase one, so a
+transaction whose script is not satisfied is rejected outright and never enters a block.
+There is no equivalent of a Plutus phase two failure that lands with collateral taken. By
+this route a script becomes visible only in a transaction that succeeded, which means it
+was both decodable and satisfied.
+
+**In a transaction output, as a reference script.** Nothing executes it, so satisfiability
+is irrelevant. This is how an unsatisfiable script reaches the chain: `any []` was stored
+this way on preprod in
+`cf05ba2db6ca337655f94e3b081a4ca4c6682c6c5e9e5f9f6b8b0d39a2eb1989`, and an indexer now
+reports it as `{"type": "any", "scripts": []}` against script hash
+`52dc3d43b6d2465e96109ce75ab61abe5e9c1d8a3c9ce6ff8a3af528`. It can never be satisfied and
+it is permanently visible.
+
+The node does validate what it stores. `script_ref = #6.24(bytes .cbor script)` wraps the
+script in a BYTE STRING, so the surrounding transaction stays well-formed whatever is
+inside and the decoder has to look deliberately to notice. It looks. A reference script
+carrying `after(-1)` was refused, and so was one carrying bytes that are not CBOR at all,
+both with `DecoderErrorDeserialiseFailure` rather than a script error.
+
+So the line that matters is decodability, not executability. A script that cannot be
+decoded cannot reach the chain by either route, which is what makes building one worse
+than building a merely useless one: the address is real and fundable, and the script
+behind it can never be published, executed, or shown to anyone.
+
+Concretely, an encoder MUST refuse a `slot` that is not an integer in `0` to
+`2^64-1`. `slot` is `uint`, so a negative value is CBOR major type 1 where the
+grammar requires major type 0, and a value past `2^64-1` needs a bignum, which is
+also not a `uint`. Both were submitted to preprod and both were refused with
+`DecoderErrorDeserialiseFailure`, at any magnitude: `after(-1)` and
+`after(-(2^64-1))` fail identically, because the problem is the type rather than
+the size.
+
+A decoder MUST NOT narrow a slot it cannot represent. This implementation stores
+`slot` as a JavaScript number and is exact only to `2^53-1`, so it refuses a
+larger one rather than rounding: slot `2^60+1` narrowed to `2^60` re-encodes to
+different bytes and yields a different script hash, and therefore a different
+address, with nothing raised. `scriptHashFromCbor` hashes such a script correctly
+without decoding it, which is the right primitive whenever bytes arrive from
+somewhere else.
+
+Tier two is different and must stay permitted. An `any []` can never be
+satisfied, but it is a legal script the ledger accepts and evaluates, and
+refusing to parse one means being unable to read scripts that exist on chain.
+The distinction is between a script that says something impossible, which is
+allowed, and a byte string that is not a script at all, which is not.
+
 ## Shapes that are well-formed and useless
 
 The grammar admits several scripts that no tool intends to produce and that no
