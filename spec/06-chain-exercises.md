@@ -155,6 +155,32 @@ the exercise rather than cleanup. Preview and preprod faucets are rate limited, 
 full sweep is planned rather than run on every change. The chain suite is a separate
 vitest project for this reason and is never part of the default test run.
 
+## How deep a single script can nest
+
+Nesting is far cheaper than breadth. One `all` wrapper is three bytes, `82 01 81`, against
+the 32 a signature entry costs and the 101 its witness costs, so depth is the axis on
+which a script grows most slowly.
+
+A single key wrapped in `all` repeatedly was submitted at the deepest point that fits.
+
+| Depth | Script       | Spending transaction | Result                                                                       |
+| ----- | ------------ | -------------------- | ---------------------------------------------------------------------------- |
+| 5,383 | 16,181 bytes | 16,383 bytes         | Accepted, `f90dce5765108da976abdbb9fc618f9a6ffd9fa4d93b2f288eed1808545424c9` |
+| 5,384 | 16,184 bytes | 16,386 bytes         | Refused, `MaxTxSizeUTxO` supplied 16385 expected 16384                       |
+
+**A single key can be nested 5,383 levels deep and still spent**, in one transaction, with
+one signature. One level further is refused, and refused for size: the node reports
+`MaxTxSizeUTxO` and says nothing about the script.
+
+That settles the open question in this specification. No recursion limit is written down
+in the CDDL, in the ledger's evaluator, or in its decoder, and none exists in practice
+either. A node accepted the deepest nest a transaction can physically carry, so size is
+not merely the first limit reached, it is the only one.
+
+The naive arithmetic for this ceiling is `(16384 - 32) / 3 = 5450`, which is wrong because
+it counts only the script. A real spending transaction also carries its input, its output,
+its fee and one vkey witness, about 202 bytes together, which brings the ceiling to 5,383.
+
 ## How large a single multisig can be
 
 The script is rarely the constraint. The signatures are.

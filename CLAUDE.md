@@ -213,8 +213,8 @@ library's own walks is the limiting factor any more.
 
 What still recurses is outside this library's control, because it is built into the JS
 engine rather than written here: `JSON.parse` is iterative in V8 and survives depth
-20000 comfortably, but `JSON.stringify` is recursive there and throws by depth 5450,
-exactly the deepest linear `all` that fits in a 16,384-byte transaction, and
+20000 comfortably, but `JSON.stringify` is recursive there and gives out around depth
+2000, far below the 5,383-deep script a transaction can carry, and
 `structuredClone` throws earlier still, by depth 1800. Handing either of those the plain
 object `serializeScript` builds is therefore a dead end at depths the chain would
 accept, regardless of how that object was built. This is why `serializeScriptToJson`

@@ -28,8 +28,9 @@ const HEX28 = /^[0-9a-f]{56}$/;
  * before parsing.
  */
 export function parseScript(input: unknown, path = ''): NativeScript {
-  // Iterative rather than recursive: a linear "all" nest of depth 5450 fits
-  // inside a 16,384-byte transaction, and this has to parse one that deep
+  // Iterative rather than recursive: a linear "all" nest of depth 5383 fits
+  // inside a 16,384-byte transaction, confirmed by spending one on preprod, and
+  // this has to parse one that deep
   // without spending a native stack frame per level. A container cannot be
   // built until every child is, so this keeps a work stack of open containers
   // instead: `parseHead` validates one JSON node's own fields without
@@ -220,7 +221,7 @@ export function serializeScript(script: NativeScript): unknown {
  * 2000. The exact point moves with how much stack the caller has already
  * spent, so it is a range rather than a constant: bisecting in a clean process
  * on Node 22 puts the first failure just above 2082, and just above 2037 with
- * 200 frames already on the stack. Either way it is far below the 5450-deep
+ * 200 frames already on the stack. Either way it is far below the 5383-deep
  * script a 16,384-byte transaction can carry, so handing `stringify` the
  * object `serializeScript` builds is a dead end regardless of how that object
  * was built. This writes the JSON text directly, one
