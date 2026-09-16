@@ -38,6 +38,17 @@ export interface GeneratedKey {
   keyHash: string;
 }
 
+/**
+ * A certificate or vote file `cardano-cli` wrote, together with the
+ * `cborHex` it contains: the path is what `transaction build-raw`'s
+ * `--certificate-file` and `--vote-file` need, and the hex is what a
+ * byte-for-byte comparison against this builder's own encoding needs.
+ */
+export interface CliDocument {
+  path: string;
+  cborHex: string;
+}
+
 /** Preview and preprod share network tag 0; any testnet magic yields the same credential. */
 const TESTNET_MAGIC = '2';
 
@@ -117,6 +128,166 @@ export class CardanoCliOracle {
       '--testnet-magic',
       TESTNET_MAGIC,
     ]);
+  }
+
+  /** A fresh throwaway stake pool identity: a cold key pair, reduced to its pool id, hex-encoded, 28 bytes. */
+  generatePoolIdHex(): string {
+    const coldVkey = this.freshPath('pool-cold.vkey');
+    const coldSkey = this.freshPath('pool-cold.skey');
+    const counter = this.freshPath('pool-cold.counter');
+    this.run([
+      'conway',
+      'node',
+      'key-gen',
+      '--cold-verification-key-file',
+      coldVkey,
+      '--cold-signing-key-file',
+      coldSkey,
+      '--operational-certificate-issue-counter-file',
+      counter,
+    ]);
+    const outPath = this.freshPath('pool.id.hex');
+    this.run([
+      'conway',
+      'stake-pool',
+      'id',
+      '--cold-verification-key-file',
+      coldVkey,
+      '--output-format',
+      'hex',
+      '--out-file',
+      outPath,
+    ]);
+    return readFileSync(outPath, 'utf8').trim();
+  }
+
+  /** `cardano-cli conway stake-address registration-certificate`, always the deposit-carrying form; see src/chain/certificates.ts. */
+  stakeRegistrationCertificate(scriptPath: string, depositAmt: bigint): CliDocument {
+    const path = this.freshPath('stake-reg.cert');
+    this.run([
+      'conway',
+      'stake-address',
+      'registration-certificate',
+      '--stake-script-file',
+      scriptPath,
+      '--key-reg-deposit-amt',
+      String(depositAmt),
+      '--out-file',
+      path,
+    ]);
+    return { path, cborHex: this.readEnvelope(path).cborHex };
+  }
+
+  /** `cardano-cli conway stake-address deregistration-certificate`, always the deposit-carrying form; see src/chain/certificates.ts. */
+  stakeDeregistrationCertificate(scriptPath: string, depositAmt: bigint): CliDocument {
+    const path = this.freshPath('stake-dereg.cert');
+    this.run([
+      'conway',
+      'stake-address',
+      'deregistration-certificate',
+      '--stake-script-file',
+      scriptPath,
+      '--key-reg-deposit-amt',
+      String(depositAmt),
+      '--out-file',
+      path,
+    ]);
+    return { path, cborHex: this.readEnvelope(path).cborHex };
+  }
+
+  /** `cardano-cli conway stake-address stake-delegation-certificate`. */
+  stakeDelegationCertificate(scriptPath: string, poolIdHex: string): CliDocument {
+    const path = this.freshPath('stake-deleg.cert');
+    this.run([
+      'conway',
+      'stake-address',
+      'stake-delegation-certificate',
+      '--stake-script-file',
+      scriptPath,
+      '--stake-pool-id',
+      poolIdHex,
+      '--out-file',
+      path,
+    ]);
+    return { path, cborHex: this.readEnvelope(path).cborHex };
+  }
+
+  /** `cardano-cli conway governance drep registration-certificate`. */
+  drepRegistrationCertificate(drepScriptHashHex: string, depositAmt: bigint): CliDocument {
+    const path = this.freshPath('drep-reg.cert');
+    this.run([
+      'conway',
+      'governance',
+      'drep',
+      'registration-certificate',
+      '--drep-script-hash',
+      drepScriptHashHex,
+      '--key-reg-deposit-amt',
+      String(depositAmt),
+      '--out-file',
+      path,
+    ]);
+    return { path, cborHex: this.readEnvelope(path).cborHex };
+  }
+
+  /** `cardano-cli conway governance drep retirement-certificate`, the CLI's name for `drep_unregistration_cert`. */
+  drepRetirementCertificate(drepScriptHashHex: string, depositAmt: bigint): CliDocument {
+    const path = this.freshPath('drep-retire.cert');
+    this.run([
+      'conway',
+      'governance',
+      'drep',
+      'retirement-certificate',
+      '--drep-script-hash',
+      drepScriptHashHex,
+      '--deposit-amt',
+      String(depositAmt),
+      '--out-file',
+      path,
+    ]);
+    return { path, cborHex: this.readEnvelope(path).cborHex };
+  }
+
+  /** `cardano-cli conway governance drep update-certificate`, with no anchor. */
+  drepUpdateCertificate(drepScriptHashHex: string): CliDocument {
+    const path = this.freshPath('drep-update.cert');
+    this.run([
+      'conway',
+      'governance',
+      'drep',
+      'update-certificate',
+      '--drep-script-hash',
+      drepScriptHashHex,
+      '--out-file',
+      path,
+    ]);
+    return { path, cborHex: this.readEnvelope(path).cborHex };
+  }
+
+  /** `cardano-cli conway governance vote create`, a DRep script voting on one governance action, with no anchor. */
+  voteCreate(
+    choice: 'yes' | 'no' | 'abstain',
+    drepScriptHashHex: string,
+    govActionTxId: string,
+    govActionIndex: number,
+  ): CliDocument {
+    const path = this.freshPath('vote.out');
+    this.run([
+      'conway',
+      'governance',
+      'vote',
+      'create',
+      `--${choice}`,
+      '--drep-script-hash',
+      drepScriptHashHex,
+      '--governance-action-tx-id',
+      govActionTxId,
+      '--governance-action-index',
+      String(govActionIndex),
+      '--out-file',
+      path,
+    ]);
+    return { path, cborHex: this.readEnvelope(path).cborHex };
   }
 
   /** `cardano-cli conway transaction build-raw`, returning the produced envelope's `cborHex`. */

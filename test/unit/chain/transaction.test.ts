@@ -8,6 +8,8 @@ import { cosigners } from '../../../src/generate/cosigners.js';
 import { toHex, fromHex } from '../../../src/encode/cbor.js';
 import { loadSigningKeyFile } from '../../../src/chain/keys.js';
 import type { Utxo } from '../../../src/chain/provider.js';
+import type { Certificate } from '../../../src/chain/certificates.js';
+import type { VoteCast } from '../../../src/chain/voting.js';
 import {
   encodeTransactionBody,
   encodeWitnessSet,
@@ -84,6 +86,97 @@ describe('transaction body encoding', () => {
     expect(toHex(withBounds)).toBe(
       'a5' + toHex(withoutBounds).slice(2) + '031a004c4b40' + '081a000f4240',
     );
+  });
+
+  it('writes field 4 (certificates) between field 3 and field 8, as a tag-258 set', () => {
+    const cert: Certificate = {
+      kind: 'stakeRegistrationWithDeposit',
+      stakeScriptHash: '11'.repeat(28),
+      deposit: 2_000_000n,
+    };
+    const body = encodeTransactionBody({
+      inputs: [{ txHash: fakeTxHash(0), index: 0 }],
+      outputs: [],
+      fee: 1n,
+      ttl: 5_000_000n,
+      certificates: [cert],
+      validityStart: 1_000_000n,
+    });
+    // map(6): 0, 1, 2, 3, 4, 8
+    expect(toHex(body).startsWith('a6')).toBe(true);
+    expect(toHex(body)).toContain(
+      '04' + 'd90102' + '81' + '83' + '07' + '8201581c' + '11'.repeat(28) + '1a001e8480',
+    );
+    // field 4 comes after field 3 and before field 8, in the body's own byte order.
+    const hex = toHex(body);
+    expect(hex.indexOf('031a004c4b40')).toBeLessThan(hex.indexOf('04d90102'));
+    expect(hex.indexOf('04d90102')).toBeLessThan(hex.indexOf('081a000f4240'));
+  });
+
+  it('omits field 4 entirely when certificates is given but empty, like the other set-typed fields', () => {
+    const body = encodeTransactionBody({
+      inputs: [{ txHash: fakeTxHash(0), index: 0 }],
+      outputs: [],
+      fee: 1n,
+      certificates: [],
+    });
+    expect(toHex(body).startsWith('a3')).toBe(true);
+  });
+
+  it('writes field 19 (voting_procedures) last, as a plain map with no tag', () => {
+    const vote: VoteCast = {
+      voter: { kind: 'drepScript', scriptHash: '11'.repeat(28) },
+      actionId: { transactionId: '22'.repeat(32), actionIndex: 0 },
+      choice: 'yes',
+    };
+    const body = encodeTransactionBody({
+      inputs: [{ txHash: fakeTxHash(0), index: 0 }],
+      outputs: [],
+      fee: 1n,
+      votingProcedures: [vote],
+    });
+    // map(4): 0, 1, 2, 19
+    expect(toHex(body).startsWith('a4')).toBe(true);
+    expect(
+      toHex(body).endsWith(
+        '13' +
+          'a1' +
+          '8203581c' +
+          '11'.repeat(28) +
+          'a1' +
+          '8258' +
+          '20' +
+          '22'.repeat(32) +
+          '00' +
+          '8201f6',
+      ),
+    ).toBe(true);
+  });
+
+  it('orders fields 0, 1, 2, 3, 4, 8, 19 ascending when all are present', () => {
+    const cert: Certificate = { kind: 'drepUpdate', drepScriptHash: '11'.repeat(28) };
+    const vote: VoteCast = {
+      voter: { kind: 'drepScript', scriptHash: '11'.repeat(28) },
+      actionId: { transactionId: '22'.repeat(32), actionIndex: 0 },
+      choice: 'abstain',
+    };
+    const body = encodeTransactionBody({
+      inputs: [{ txHash: fakeTxHash(0), index: 0 }],
+      outputs: [],
+      fee: 1n,
+      ttl: 5_000_000n,
+      certificates: [cert],
+      validityStart: 1_000_000n,
+      votingProcedures: [vote],
+    });
+    const hex = toHex(body);
+    expect(hex.startsWith('a7')).toBe(true); // map(7): 0, 1, 2, 3, 4, 8, 19
+    // Each field's own key-and-value bytes are distinctive enough to locate
+    // unambiguously, so checking their positions climb monotonically is a
+    // direct check on map key order rather than an assumption about it.
+    expect(hex.indexOf('031a004c4b40')).toBeLessThan(hex.indexOf('04d90102'));
+    expect(hex.indexOf('04d90102')).toBeLessThan(hex.indexOf('081a000f4240'));
+    expect(hex.indexOf('081a000f4240')).toBeLessThan(hex.indexOf('13a1'));
   });
 
   it('encodes an output as the legacy two-element array, address then lovelace', () => {
@@ -387,5 +480,59 @@ describeCli('cross-checked against cardano-cli', () => {
 
     expect(oracle.txid(toHex(txCardanoBinary.txBytes))).toBe(txCardanoBinary.txId);
     expect(oracle.txid(toHex(txDefinite.txBytes))).toBe(txDefinite.txId);
+  });
+
+  it('a body carrying a certificate and a vote together still produces a txid matching cardano-cli conway transaction txid', () => {
+    const { generated } = throwawaySigner();
+    const stakeScript = parseScript({ type: 'sig', keyHash: generated.keyHash });
+    const stakeScriptPath = oracle.scriptFile(stakeScript);
+    const stakeHash = scriptHash(stakeScript);
+    const deposit = 2_000_000n;
+
+    const drepGenerated = oracle.generateKey();
+    const drepScript = parseScript({ type: 'sig', keyHash: drepGenerated.keyHash });
+    const drepHash = scriptHash(drepScript);
+    const govActionTxId = fakeTxHash(0x33);
+
+    const cliCert = oracle.stakeRegistrationCertificate(stakeScriptPath, deposit);
+    const cliVote = oracle.voteCreate('yes', drepHash, govActionTxId, 0);
+
+    // `build-raw`'s `--out-file` carries the whole unsigned transaction, not
+    // the body alone: `[body, witness_set, true, null]`. Neither
+    // `--certificate-file` nor `--vote-file` was paired with a
+    // `--certificate-script-file`/`--tx-in-script-file`, so nothing adds to
+    // the witness set, which stays the empty map.
+    const cliTx = oracle.buildRaw([
+      '--tx-in',
+      `${fakeTxHash(0)}#0`,
+      '--fee',
+      '200000',
+      '--certificate-file',
+      cliCert.path,
+      '--vote-file',
+      cliVote.path,
+    ]);
+
+    const cert: Certificate = {
+      kind: 'stakeRegistrationWithDeposit',
+      stakeScriptHash: stakeHash,
+      deposit,
+    };
+    const vote: VoteCast = {
+      voter: { kind: 'drepScript', scriptHash: drepHash },
+      actionId: { transactionId: govActionTxId, actionIndex: 0 },
+      choice: 'yes',
+    };
+    const bodyBytes = encodeTransactionBody({
+      inputs: [{ txHash: fakeTxHash(0), index: 0 }],
+      outputs: [],
+      fee: 200_000n,
+      certificates: [cert],
+      votingProcedures: [vote],
+    });
+    const txBytes = encodeTransaction(bodyBytes, encodeWitnessSet({}));
+
+    expect(toHex(txBytes)).toBe(cliTx);
+    expect(oracle.txid(cliTx)).toBe(transactionId(bodyBytes));
   });
 });
