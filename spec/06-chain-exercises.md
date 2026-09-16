@@ -165,10 +165,9 @@ mistake to catch; a script that is present and unsatisfied is the case an implem
 gets wrong quietly, and the ledger distinguishes them by name.
 
 Registration is the operation that proves least. It proves that the credential is
-accepted, not that the script can
-authorize anything. The distinction matters most for stake and DRep credentials, where
-registration and delegation can both succeed for a script that cannot later authorize a
-withdrawal or a vote.
+accepted, not that the script can authorize anything. The distinction matters most for
+stake and DRep credentials, where registration can succeed for a script that cannot
+later authorize a withdrawal or a vote.
 
 ## What an exercise must produce
 
