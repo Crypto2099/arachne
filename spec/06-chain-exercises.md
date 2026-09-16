@@ -303,6 +303,56 @@ refusal, which reported 16,466 against a build of 16,467. The direction is consi
 it has no effect on any ceiling here, but it means a transaction built to land exactly on
 `maxTxSize` should not be trusted to fit on this measurement alone.
 
+## Federations, and which constraint actually binds
+
+A realistic governance structure is not a flat cohort. It is `all` over member
+organizations, each of which is itself a threshold, so every member must contribute
+without any of them surrendering its internal rule. That shape has two costs pulling in
+different directions, and which one binds flips depending on the internal threshold.
+
+A member costs 32 bytes in the script whether or not it signs. A signature costs 101
+bytes in the transaction. So a low internal threshold makes members cheap to add but
+makes the script large, and a high one makes the script small relative to the witnesses
+it demands.
+
+Largest federation of 23-member organizations that can be both created and spent:
+
+| Internal rule | Groups inline | Members | Groups by reference | Members | What stops it                |
+| ------------- | ------------- | ------- | ------------------- | ------- | ---------------------------- |
+| 1-of-23       | 19            | 437     | 21                  | 483     | Script too large to publish  |
+| 3-of-23       | 15            | 345     | 21                  | 483     | Script too large to publish  |
+| 12-of-23      | 8             | 184     | 13                  | 299     | Witnesses exceed `maxTxSize` |
+| 23-of-23      | 5             | 115     | 6                   | 138     | Witnesses exceed `maxTxSize` |
+
+The reference route stops helping once the threshold is high, because moving the script
+out of the spending transaction does nothing about the signatures that have to stay in
+it. Below that, the ceiling is the transaction that PUBLISHES the reference script, which
+carries the whole script in an output and is bounded like any other transaction.
+
+### Confirmed on preprod
+
+Two of these were submitted.
+
+Eight organizations of 23, each requiring an internal majority of 12. 184 members, 96
+signatures, a 5,923-byte script in a 15,721-byte transaction. Accepted as
+`26ea4c57248974265629c5513c66a4011cc596286f7128a2bc3b57b71aa4caca`.
+
+Twenty-four organizations of 20, each satisfied by any one member. 480 members, 24
+signatures. The script is 15,460 bytes, published as a reference script in a 15,745-byte
+transaction, and the spend that used it is 2,562 bytes and cost half an ada. Accepted as
+`28afe751287e7f5ee7df73545027960ea0cb1687d07a64937550f0fdac1c0b83`.
+
+The second one carries mixed framing, which nothing else in this corpus does at scale.
+Its root list holds 24 entries, so `cardano-binary` frames it indefinitely, while all
+twenty-four group lists hold 20 and are framed definite. Exactly one list of twenty-five
+diverges. A node accepted it, so the framing rule really is applied per list rather than
+per script, and a consumer that decides a script's framing by looking only at its root
+will be wrong about scripts like this one.
+
+Twenty-four organizations of 23 would be the more natural shape and cannot exist: its
+script is 17,764 bytes and no transaction can publish it. Twenty is the largest group
+size at which a 24-organization federation is constructible at all.
+
 ## Many scripts in one transaction
 
 A single script is bounded by `maxTxSize` whichever route it takes, so the interesting
