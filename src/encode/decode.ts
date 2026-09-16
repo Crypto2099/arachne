@@ -197,12 +197,37 @@ function readNodeHead(reader: CborReader): NodeHead {
       return { leaf: false, type: 'atLeast', required, ...list };
     }
     case SCRIPT_TAG.after:
-      return { leaf: true, script: { type: 'after', slot: Number(reader.uint()) } };
+      return { leaf: true, script: { type: 'after', slot: readSlot(reader, at, 'after') } };
     case SCRIPT_TAG.before:
-      return { leaf: true, script: { type: 'before', slot: Number(reader.uint()) } };
+      return { leaf: true, script: { type: 'before', slot: readSlot(reader, at, 'before') } };
     default:
       throw new CborDecodeError(`unknown script tag ${tag}`, at);
   }
+}
+
+/**
+ * A slot, refusing any value this AST cannot hold exactly.
+ *
+ * `slot` is `uint` in the CDDL, so it runs to 2^64-1, while this model stores it
+ * as a JavaScript number and is exact only to 2^53-1. Coercing the difference
+ * away is not a rounding error, it is a different script: slot 2^60+1 decodes to
+ * 2^60, re-encodes to different bytes, and yields a different script hash and so
+ * a different address, with nothing raised. Refusing is the only safe answer,
+ * and `scriptHashFromCbor` hashes such a script correctly without decoding it.
+ *
+ * No real script reaches this. 2^53 slots is roughly 70 million years away. One
+ * that does is either degenerate or hostile, and both are cases this project
+ * exists to handle rather than mangle.
+ */
+function readSlot(reader: CborReader, at: number, tag: 'after' | 'before'): number {
+  const slot = reader.uint();
+  if (slot > BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw new CborDecodeError(
+      `${tag} slot ${slot} exceeds Number.MAX_SAFE_INTEGER and cannot be represented exactly. It is a legal slot, since the CDDL allows 0 to 2^64-1. Use scriptHashFromCbor to hash this script without decoding it.`,
+      at,
+    );
+  }
+  return Number(slot);
 }
 
 function readListHead(reader: CborReader): { length: number | null; indefinite: boolean } {

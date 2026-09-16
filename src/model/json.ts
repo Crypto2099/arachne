@@ -147,6 +147,15 @@ function parseHead(input: unknown, path: string): ParsedHead {
       if (typeof slot !== 'number' || !Number.isInteger(slot) || slot < 0) {
         throw new ScriptParseError('"slot" must be a non-negative integer', path);
       }
+      // The CDDL allows 0 to 2^64-1, but a JavaScript number is exact only to
+      // 2^53-1. Accepting more stores a value that re-encodes to different bytes
+      // and a different script hash without saying so.
+      if (slot > Number.MAX_SAFE_INTEGER) {
+        throw new ScriptParseError(
+          `"slot" ${slot} exceeds Number.MAX_SAFE_INTEGER and cannot be represented exactly`,
+          path,
+        );
+      }
       return { container: false, script: { type, slot } };
     }
     default:

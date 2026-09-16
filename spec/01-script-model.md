@@ -93,6 +93,48 @@ The outer `type` names the script language, not a script type. Blockfrost uses
 part of what gets hashed. Strip it before doing anything else. Hashing the envelope
 produces a hash that matches nothing on chain.
 
+## Three tiers, not two
+
+A script can fail in three distinct ways, and conflating them is how an
+implementation ends up producing something nobody can spend.
+
+| Tier          | Encodes | Hashes | Has an address | A node can decode it | Can ever be satisfied |
+| ------------- | ------- | ------ | -------------- | -------------------- | --------------------- |
+| Ordinary      | yes     | yes    | yes            | yes                  | yes                   |
+| Unsatisfiable | yes     | yes    | yes            | yes                  | **no**                |
+| Undecodable   | yes     | yes    | yes            | **no**               | not reachable         |
+
+The third tier is the dangerous one, because nothing about it looks wrong until
+the funds are already in. A script with a slot outside `uint` still serializes to
+CBOR, still hashes to a real 28-byte value, and still yields an address a wallet
+will happily pay. Only a transaction trying to SPEND it fails, and it fails at
+deserialization rather than at script validation, so the failure does not even
+name the script.
+
+An implementation MUST NOT produce a tier three script.
+
+Concretely, an encoder MUST refuse a `slot` that is not an integer in `0` to
+`2^64-1`. `slot` is `uint`, so a negative value is CBOR major type 1 where the
+grammar requires major type 0, and a value past `2^64-1` needs a bignum, which is
+also not a `uint`. Both were submitted to preprod and both were refused with
+`DecoderErrorDeserialiseFailure`, at any magnitude: `after(-1)` and
+`after(-(2^64-1))` fail identically, because the problem is the type rather than
+the size.
+
+A decoder MUST NOT narrow a slot it cannot represent. This implementation stores
+`slot` as a JavaScript number and is exact only to `2^53-1`, so it refuses a
+larger one rather than rounding: slot `2^60+1` narrowed to `2^60` re-encodes to
+different bytes and yields a different script hash, and therefore a different
+address, with nothing raised. `scriptHashFromCbor` hashes such a script correctly
+without decoding it, which is the right primitive whenever bytes arrive from
+somewhere else.
+
+Tier two is different and must stay permitted. An `any []` can never be
+satisfied, but it is a legal script the ledger accepts and evaluates, and
+refusing to parse one means being unable to read scripts that exist on chain.
+The distinction is between a script that says something impossible, which is
+allowed, and a byte string that is not a script at all, which is not.
+
 ## Shapes that are well-formed and useless
 
 The grammar admits several scripts that no tool intends to produce and that no

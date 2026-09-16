@@ -120,6 +120,45 @@ terms of the transaction's own bounds, so an implementation does not need to rea
 about the interval algebra separately. It needs `n <= validityStart` and
 `validityEnd <= n`, with an absent bound failing.
 
+## Extreme and invalid time bounds
+
+Slots are `uint` in the CDDL, so the interesting cases sit at the two ends of that range
+and just outside it. All four were submitted to preprod, and the results separate two
+failure modes that are easy to conflate.
+
+| Script                                         | Result on preprod                                                            |
+| ---------------------------------------------- | ---------------------------------------------------------------------------- |
+| `all [ sig(k), before(18446744073709551615) ]` | Accepted, `aecef57696d8ea556442a8f305b5768e3ad9fb219561d02516eddbdbeca656e2` |
+| `all [ sig(k), before(0) ]`                    | Refused, `OutsideValidityIntervalUTxO`                                       |
+| `all [ sig(k), after(18446744073709551615) ]`  | Refused, `OutsideValidityIntervalUTxO`                                       |
+| `all [ sig(k), before(-1) ]`                   | Refused, `DecoderErrorDeserialiseFailure`                                    |
+
+A `before` at the largest representable slot constrains nothing. 2^64-1 slots is roughly
+585 billion years, and any transaction's `invalid_hereafter` is below it, so the timelock
+is satisfied by construction. It still has to be SET, because an absent bound fails, so
+the script is not quite a no-op: it forces the transaction to declare a ttl and then
+accepts any value.
+
+The two impossible bounds fail somewhere different from an ordinary unsatisfied script.
+`before(0)` needs `ttl <= 0`, and `after(2^64-1)` needs a validity start 585 billion years
+away. In both cases the transaction is refused for being outside its own validity
+interval, against the current slot, before the script is evaluated at all:
+
+```
+OutsideValidityIntervalUTxO
+  (ValidityInterval {invalidBefore = SNothing, invalidHereafter = SJust (SlotNo 0)})
+  (SlotNo 133854816)
+```
+
+That is the ledger rejecting the transaction, not the witness. An implementation that
+reports these as "script not satisfied" is describing a failure the node never reached.
+
+A negative slot is rejected earlier still. `slot` is `uint`, so a negative value is not in
+the grammar, and encoding one as CBOR major type 1 makes the whole transaction
+undecodable rather than merely invalid. The bound is enforced by the decoder, not by
+script validation, so such a script can be constructed and hashed and will yield a real
+address, but nothing spending it can ever be parsed.
+
 ## Degenerate thresholds
 
 `isValidMOf n` short-circuits on `n <= 0` at every step, including the first. This

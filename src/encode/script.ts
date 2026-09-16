@@ -111,6 +111,20 @@ function writeScript(writer: CborWriter, script: NativeScript, encoding: ArrayEn
       }
       case 'after':
       case 'before':
+        // `slot` is `uint`: 0 to 2^64-1. A value outside that is not a large
+        // timelock, it is a script no node can decode, and one that still
+        // produces a plausible hash and a fundable address. Refuse to build it
+        // rather than hand back bytes that look fine and are unspendable.
+        if (!Number.isInteger(node.slot) || node.slot < 0) {
+          throw new RangeError(
+            `${node.type} slot must be a non-negative integer, got ${node.slot}. The CDDL types slot as uint, so a negative value makes every transaction carrying this script undecodable.`,
+          );
+        }
+        if (node.slot > Number.MAX_SAFE_INTEGER) {
+          throw new RangeError(
+            `${node.type} slot ${node.slot} exceeds Number.MAX_SAFE_INTEGER and cannot be encoded exactly`,
+          );
+        }
         writer.arrayHeader(2).uint(SCRIPT_TAG[node.type]).uint(node.slot);
         break;
     }
