@@ -198,6 +198,25 @@ symmetrical and are not. cardano-cli refuses a threshold ABOVE the child count, 
 "Required number of script signatures exceeds the number of scripts", and accepts every
 value at or below zero.
 
+### A negative threshold and a negative slot are not the same case
+
+The two sit adjacent in the grammar and have different types, so it is easy to conclude
+from one that a tool is wrong about the other.
+
+| Field                                               | CDDL                  | Negative                                       |
+| --------------------------------------------------- | --------------------- | ---------------------------------------------- |
+| `script_n_of_k` threshold                           | `n : int64`           | In the grammar, down to `-9223372036854775808` |
+| `script_invalid_before`, `script_invalid_hereafter` | `slot = uint .size 8` | Not in the grammar at all                      |
+
+A tool accepting a negative threshold is following the specification. A tool accepting a
+negative slot would not be, and would be producing a script that hashes to a real address
+no transaction can ever spend, because the node's decoder refuses the transaction rather
+than the script.
+
+cardano-cli 10.7.0.0 gets both right. It builds a script with `"required": -1` and prints
+its hash, and refuses `"slot": -1` with a syntax error, in both the `after` and `before`
+positions and at any magnitude.
+
 ## Depth and breadth
 
 Nesting depth and child count are where "what is possible" stops being a question about
