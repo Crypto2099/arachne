@@ -92,7 +92,7 @@ Until `cardano-sdk-core` was measured directly, every result attributed to that 
 came through a consumer's `depends` relation, so the table reported whatever version that
 consumer happened to pin rather than what the engine itself does. `cardano-sdk-core` is
 now its own tool, `relation: "own"`, so a divergence between it and a `depends` consumer
-like MeshJS or Blaze is now readable as "the pin is stale" rather than an inference.
+like MeshJS or Blaze shows which pin is stale.
 
 ## `tools.json`
 
@@ -110,12 +110,12 @@ The registry of tools to watch. Each entry:
 | `channels`       | Which of `current`, `previous`, `beta` to track for this tool.                                          |
 | `paths`          | Which construction paths to run this tool against. Defaults to `["construct"]` when absent.             |
 
-Adding a tool that shares an existing adapter's API (another cardano-serialization-lib
-fork, another library exposing the same `resolveNativeScriptHash(script) -> string`
-shape MeshJS does, another cardano-multiplatform-lib fork, another package exposing the
-same `Serialization.NativeScript` class shape `@cardano-sdk/core` does) is adding an
-entry here. A tool with a genuinely different API needs a new adapter under
-`src/compat/adapters/`.
+Adding a tool that shares an existing adapter's API is adding an entry here. That covers
+another cardano-serialization-lib fork, another library exposing the same
+`resolveNativeScriptHash(script) -> string` shape MeshJS does, another
+cardano-multiplatform-lib fork, and another package exposing the same
+`Serialization.NativeScript` class shape `@cardano-sdk/core` does. A tool with a
+genuinely different API needs a new adapter under `src/compat/adapters/`.
 
 ### Adapters
 
@@ -126,31 +126,31 @@ entry here. A tool with a genuinely different API needs a new adapter under
   cardano-serialization-lib's builder API (`NativeScript.new_script_all`,
   `ScriptNOfK.new`, and so on) in a child process next to that install.
 - **`npm-cml`**: installs the npm package and drives cardano-multiplatform-lib's builder
-  API (`NativeScript.new_script_pubkey` taking an `Ed25519KeyHash` directly,
-  `NativeScriptList.new()` plus `.add(...)`, threshold and slot arguments as `BigInt`),
-  which is close to `npm-csl`'s shape but not the same one: the existing `npm-csl` driver
-  was tried against this package first and throws on the first `sig` script it builds,
-  which is what earns this its own adapter rather than a `npm-csl` entry. Registered
-  against `paths: ["construct", "decode"]`: CML's `from_cbor_hex` keeps the exact bytes
-  it decoded and `.hash()` hashes those, so `construct` (always definite-length) and
-  `decode` (whichever framing was fed in) answer differently. The Anastasia Labs fork
-  (`@anastasia-labs/cardano-multiplatform-lib-nodejs`) is built from the same source tree
-  and shares this exact API, so it is a second `tools.json` entry on this adapter rather
-  than new code.
+  API: `NativeScript.new_script_pubkey` takes an `Ed25519KeyHash` directly,
+  `NativeScriptList.new()` plus `.add(...)` builds a child list, and threshold and slot
+  arguments are `BigInt`. This is close to `npm-csl`'s shape but not the same one. The
+  existing `npm-csl` driver was tried against this package first and throws on the first
+  `sig` script it builds, which is why this package gets its own adapter instead of a
+  `npm-csl` entry. Registered against `paths: ["construct", "decode"]`: CML's
+  `from_cbor_hex` keeps the exact bytes it decoded and `.hash()` hashes those, so
+  `construct` (always definite-length) and `decode` (whichever framing was fed in) answer
+  differently. The Anastasia Labs fork (`@anastasia-labs/cardano-multiplatform-lib-nodejs`)
+  is built from the same source tree and shares this exact API, so it is a second
+  `tools.json` entry on this adapter rather than new code.
 - **`npm-native-script-json`**: installs the npm package and calls the function named in
   `adapterOptions.exportName` with the script's plain-JSON shape, converting timelock
   slots to a string first when `adapterOptions.slotEncoding` is `"string"`.
 - **`npm-native-script-classes`**: installs the npm package and drives
-  `Serialization.NativeScript`'s constructor-based API (`NativeScript.newScriptPubkey(new
-ScriptPubkey(keyHash))`, `newScriptAll(new ScriptAll(children))`, and so on, with
-  `.hash()` returning a hex string directly), reached at the dotted path named in
-  `adapterOptions.namespace` (`"Serialization"` for `@cardano-sdk/core`, or `""` for a
-  package that re-exports the same classes at its module root, which is what
-  `@blaze-cardano/core` does: its own source aliases `NativeScript` straight from
-  `Serialization.NativeScript` rather than reimplementing it). Registered against
-  `paths: ["construct", "decode"]`: every class here keeps the original bytes it was
-  decoded from and returns them verbatim from `toCbor()`, so `.hash()` after
-  `fromCbor(...)` reflects the input's own framing.
+  `Serialization.NativeScript`'s constructor-based API:
+  `NativeScript.newScriptPubkey(new ScriptPubkey(keyHash))`,
+  `newScriptAll(new ScriptAll(children))`, and so on, with `.hash()` returning a hex
+  string directly. `adapterOptions.namespace` names the dotted path to that namespace:
+  `"Serialization"` for `@cardano-sdk/core`, or `""` for a package that re-exports the
+  same classes at its module root. `@blaze-cardano/core` does the latter: its own source
+  aliases `NativeScript` straight from `Serialization.NativeScript` instead of
+  reimplementing it. Registered against `paths: ["construct", "decode"]`: every class
+  here keeps the original bytes it was decoded from and returns them verbatim from
+  `toCbor()`, so `.hash()` after `fromCbor(...)` reflects the input's own framing.
 - **`gouroboros`**: assumes a Go toolchain is already on `PATH` the way the npm adapters
   assume npm is, and installs exactly `gouroboros@version` into an isolated module cache
   under a scratch directory (`go mod tidy` resolves the rest of its dependency graph and
