@@ -7,6 +7,8 @@ import { NPM_CSL_ADAPTER } from './csl.js';
 import { GOUROBOROS_ADAPTER } from './gouroboros.js';
 import { NPM_NATIVE_SCRIPT_CLASSES_ADAPTER } from './native-script-classes.js';
 import { NPM_NATIVE_SCRIPT_JSON_ADAPTER } from './npm-native-script-json.js';
+import { PALLAS_ADAPTER } from './pallas.js';
+import { PYCARDANO_ADAPTER } from './pycardano.js';
 
 /**
  * Every adapter kind a `compat/tools.json` entry can name. A tool whose API
@@ -22,6 +24,8 @@ const ADAPTERS: Record<string, ToolAdapter> = {
   'npm-native-script-classes': NPM_NATIVE_SCRIPT_CLASSES_ADAPTER,
   gouroboros: GOUROBOROS_ADAPTER,
   'cardano-client-lib': CARDANO_CLIENT_LIB_ADAPTER,
+  pallas: PALLAS_ADAPTER,
+  pycardano: PYCARDANO_ADAPTER,
 };
 
 export function getAdapter(kind: string): ToolAdapter {
