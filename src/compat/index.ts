@@ -10,3 +10,4 @@ export * from './results.js';
 export * from './change.js';
 export * from './pending.js';
 export * from './arachne-version.js';
+export * from './aggregate.js';

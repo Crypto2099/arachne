@@ -52,6 +52,12 @@ jobs:
             exit 1
           fi
 
+      # Same discipline as the corpus: compat/aggregate.json is generated from
+      # compat/tools.json and compat/results/, so a hand edit, or a result
+      # file committed without regenerating it, fails the build here.
+      - name: Compat aggregate is current
+        run: npm run compat:aggregate:check
+
   audit:
     runs-on: ubuntu-latest
     steps:
