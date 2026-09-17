@@ -14,7 +14,14 @@ function vectorKey(v: VectorResult): string {
 export interface ChangeReport {
   /** True when this version behaves differently from the one compared against. */
   changed: boolean;
-  /** False for the first version ever recorded for a tool: there was nothing to compare against, which is not the same claim as "unchanged". */
+  /**
+   * False when there was nothing to compare against: either this is the
+   * first version ever recorded for the tool, or a previous result exists
+   * but shares no vector at all with this run (the id set moved under both,
+   * for instance a generator family was renamed). Both are the same claim,
+   * "nothing here supports a verdict", and neither is the same claim as
+   * "unchanged".
+   */
   hadBaseline: boolean;
   /** One line, suitable for a PR title or a table cell. */
   headline: string;
@@ -74,25 +81,16 @@ export function compareResults(
 
   // Both tested.
   const details: string[] = [];
-  let changed = false;
 
-  // The corpus grows monotonically (spec/07, `vectors/` is only ever added
-  // to), so a baseline run against an older digest is always a run against a
-  // subset of today's vectors. That makes the digest mismatch itself
-  // unremarkable; what would be wrong is staying silent about it while still
-  // reporting a flat "behaves the same", which is a claim about every vector
-  // this run touched, not just the ones the baseline happened to share.
+  // A different corpusDigest is not, by itself, a claim about the tool: it
+  // can mean the corpus gained vectors since the baseline ran, or that ids
+  // moved under both runs (a generator family renamed changes every id it
+  // produces). Nothing here decides which; it is named so a reader can, and
+  // the counts below are restricted to what the two runs actually share.
   const digestChanged = current.corpusDigest !== previous.corpusDigest;
   if (digestChanged) {
     details.push(
       `corpus digest changed from ${previous.corpusDigest} to ${current.corpusDigest}; only vectors present in both runs are compared below`,
-    );
-  }
-
-  if (current.framing !== previous.framing) {
-    changed = true;
-    details.push(
-      `framing changed from ${previous.framing ?? 'undetermined'} to ${current.framing ?? 'undetermined'}`,
     );
   }
 
@@ -101,6 +99,7 @@ export function compareResults(
   const transitions = new Map<string, number>();
   let vectorsChanged = 0;
   let addedVectors = 0;
+  let sharedVectors = 0;
   for (const vector of current.vectors) {
     const before = previousById.get(vectorKey(vector));
     if (before === undefined) {
@@ -113,6 +112,7 @@ export function compareResults(
       addedVectors += 1;
       continue;
     }
+    sharedVectors += 1;
     if (before === vector.status) continue;
     vectorsChanged += 1;
     const key = `${before} -> ${vector.status}`;
@@ -129,17 +129,16 @@ export function compareResults(
   }
 
   if (vectorsChanged > 0) {
-    changed = true;
     details.push(
       `${vectorsChanged} vector${vectorsChanged === 1 ? '' : 's'} changed status versus ${previousLabel}: ` +
         [...transitions.entries()].map(([k, n]) => `${n} ${k}`).join(', '),
     );
   }
 
-  // Neither of these two ever sets `changed`: a vector the baseline never
-  // saw has no regression to detect, and a vector missing from this run is
-  // reported so a reader can ask why, not treated as a divergence in a tool
-  // that never got the chance to answer it either way.
+  // Neither of these two ever implies a behavior change: a vector the
+  // baseline never saw has no regression to detect, and a vector missing
+  // from this run is reported so a reader can ask why, not treated as a
+  // divergence in a tool that never got the chance to answer it either way.
   if (addedVectors > 0) {
     details.push(
       `${addedVectors} vector${addedVectors === 1 ? '' : 's'} present in this run with no baseline counterpart in ${previousLabel}`,
@@ -148,6 +147,33 @@ export function compareResults(
   if (removedVectors > 0) {
     details.push(
       `${removedVectors} vector${removedVectors === 1 ? '' : 's'} present in ${previousLabel} missing from this run`,
+    );
+  }
+
+  // Zero vectors in common leaves nothing for a verdict to rest on: `framing`
+  // is an aggregate computed over each run's own full vector list, and a
+  // held or moved status can only be read off a vector both runs actually
+  // produced. Comparing either one here would be comparing two runs that, as
+  // far as this function can tell, tested disjoint sets of scripts. That is
+  // the same situation the `!previous` branch above handles (nothing to
+  // compare against), reached by a different route, so it gets the same
+  // answer rather than a "behaves the same" nothing here supports.
+  // `hadBaseline: false` matches that reading, which keeps this result out of
+  // `summaryLine`'s (scripts/compat-watch.ts) "behaves the same" bucket too.
+  if (sharedVectors === 0) {
+    return {
+      changed: false,
+      hadBaseline: false,
+      headline: `${label}: shares no vector with ${previousLabel}'s recorded run, nothing to compare against`,
+      details,
+    };
+  }
+
+  let changed = vectorsChanged > 0;
+  if (current.framing !== previous.framing) {
+    changed = true;
+    details.push(
+      `framing changed from ${previous.framing ?? 'undetermined'} to ${current.framing ?? 'undetermined'}`,
     );
   }
 

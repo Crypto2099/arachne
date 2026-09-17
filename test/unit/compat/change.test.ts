@@ -127,10 +127,10 @@ describe('compareResults', () => {
 
   // The bug this whole file exists to close: `before === undefined` used to
   // take the same "skip it" branch as `before === vector.status`, so a
-  // vector the corpus grew between the two runs was silently invisible
-  // rather than reported. A corpus that only ever adds vectors (spec/07)
-  // means this is the common case, not an edge case, so it needs its own
-  // count and must not be read as a status transition.
+  // vector new since the baseline ran was silently invisible rather than
+  // reported. It needs its own count and must not be read as a status
+  // transition, because there is no prior status for it to have held or
+  // moved away from.
   it('counts a vector with no baseline counterpart as added rather than as an unchanged status', () => {
     const a = tested('16.0.0', 'definite', [AGREED]);
     const b = tested('17.0.0', 'definite', [AGREED, AGREED2]);
@@ -167,10 +167,9 @@ describe('compareResults', () => {
   });
 
   // A digest change on its own, with every shared vector holding its status,
-  // is not evidence the tool behaves differently: the task this closes
-  // specifically requires that `changed` not flip on digest movement or on
-  // new vectors alone, only on an actual status transition shared by both
-  // runs.
+  // is not evidence the tool behaves differently: `changed` must keep
+  // meaning "a status transition on a vector both runs actually answered",
+  // not "the corpus moved under one of them".
   it('is not a change from a digest change alone when every shared vector holds its status', () => {
     const a = tested('16.0.0', 'definite', [AGREED], 'a6688f76');
     const b = tested('17.0.0', 'definite', [AGREED, AGREED2], '82c304f8');
@@ -178,10 +177,10 @@ describe('compareResults', () => {
     expect(report.changed).toBe(false);
   });
 
-  // The specific wording this closes: "behaves the same" must never appear
-  // unqualified when the two runs were not run against the same corpus,
-  // because "the same" implicitly claims to speak for every vector this run
-  // touched, not just the ones old enough to have been in the baseline too.
+  // "behaves the same" must never appear unqualified when the two runs were
+  // not run against the same corpus, because "the same" implicitly claims to
+  // speak for every vector this run touched, not just the ones old enough to
+  // have been in the baseline too.
   it('qualifies the "behaves the same" headline instead of stating it plainly across a digest change', () => {
     const a = tested('16.0.0', 'definite', [AGREED], 'a6688f76');
     const b = tested('17.0.0', 'definite', [AGREED], '82c304f8');
@@ -228,5 +227,48 @@ describe('compareResults', () => {
     expect(report.details.join(' ')).toContain(
       '1 vector present in this run with no baseline counterpart',
     );
+  });
+
+  // Renaming a generator family changes every id it produces, so a baseline
+  // and a current run can share zero vectors while both are real, non-empty
+  // results (not the `!previous` case, where there was no result at all). A
+  // held `framing` or an empty transition count would both be comparisons
+  // over disjoint sets of scripts, so neither supports a verdict; this must
+  // read the same way as "nothing to compare against" rather than as
+  // "behaves the same", which is what the ordinary path would have said.
+  it('treats a baseline that shares no vector with this run as no baseline at all', () => {
+    const a = tested('16.0.0', 'definite', [
+      { id: 'old-family/w3', status: 'agreed', hash: 'aaaa', matchedFraming: 'both' },
+    ]);
+    const b = tested('17.0.0', 'definite', [
+      { id: 'new-family/w3', status: 'agreed', hash: 'aaaa', matchedFraming: 'both' },
+    ]);
+    const report = compareResults(b, a);
+    expect(report.changed).toBe(false);
+    expect(report.hadBaseline).toBe(false);
+    expect(report.headline).not.toContain('behaves the same');
+    expect(report.headline).toContain('nothing to compare');
+  });
+
+  // A partial overlap is not the same situation: there is at least one
+  // vector both runs actually answered, so a sameness claim is about that
+  // vector rather than about nothing. The added/removed counts already say
+  // how much of the comparison this represents, so this case gets no
+  // handling beyond the counts every other case already gets.
+  it('keeps the sameness headline for a partial overlap, with the counts showing how small it was', () => {
+    const a = tested('16.0.0', 'definite', [AGREED, AGREED2]);
+    const b = tested('17.0.0', 'definite', [
+      AGREED,
+      { id: 'breadth/w5', status: 'agreed', hash: 'cccc', matchedFraming: 'both' },
+      { id: 'breadth/w6', status: 'agreed', hash: 'dddd', matchedFraming: 'both' },
+    ]);
+    const report = compareResults(b, a);
+    expect(report.changed).toBe(false);
+    expect(report.hadBaseline).toBe(true);
+    expect(report.headline).toContain('behaves the same');
+    expect(report.details.join(' ')).toContain(
+      '2 vectors present in this run with no baseline counterpart',
+    );
+    expect(report.details.join(' ')).toContain('1 vector present in cardano-cli 16.0.0 missing');
   });
 });
