@@ -250,6 +250,28 @@ describe('compareResults', () => {
     expect(report.headline).toContain('nothing to compare');
   });
 
+  // A disjoint baseline still has a `framing` value on each side, and a
+  // reader needs both even though neither run's vectors overlap: declining
+  // to call a framing difference a change (there is nothing shared to
+  // attribute it to) is not the same as never mentioning it, which would be
+  // the same silent-drop defect this file exists to close, at a different
+  // edge.
+  it('names both framing values in a disjoint comparison without calling it a change', () => {
+    const a = tested('16.0.0', 'definite', [
+      { id: 'old-family/w3', status: 'agreed', hash: 'aaaa', matchedFraming: 'both' },
+    ]);
+    const b = tested('17.0.0', 'cardanoBinary', [
+      { id: 'new-family/w3', status: 'agreed', hash: 'aaaa', matchedFraming: 'both' },
+    ]);
+    const report = compareResults(b, a);
+    expect(report.changed).toBe(false);
+    expect(report.hadBaseline).toBe(false);
+    expect(report.details.join(' ')).toContain('cardano-cli 16.0.0 recorded framing definite');
+    expect(report.details.join(' ')).toContain(
+      'cardano-cli 17.0.0 (current) recorded framing cardanoBinary',
+    );
+  });
+
   // A partial overlap is not the same situation: there is at least one
   // vector both runs actually answered, so a sameness claim is about that
   // vector rather than about nothing. The added/removed counts already say

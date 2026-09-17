@@ -161,6 +161,17 @@ export function compareResults(
   // `hadBaseline: false` matches that reading, which keeps this result out of
   // `summaryLine`'s (scripts/compat-watch.ts) "behaves the same" bucket too.
   if (sharedVectors === 0) {
+    // Declining to rule on `framing` here is not the same act as staying
+    // quiet about it. A reader still needs to know both values even though
+    // neither run's `framing` says anything about the other's, so this
+    // states what each run recorded rather than the normal path's "framing
+    // changed from X to Y", which would assert a movement this comparison
+    // has no basis for.
+    if (current.framing !== previous.framing) {
+      details.push(
+        `${previousLabel} recorded framing ${previous.framing ?? 'undetermined'}; ${label} recorded framing ${current.framing ?? 'undetermined'}`,
+      );
+    }
     return {
       changed: false,
       hadBaseline: false,
