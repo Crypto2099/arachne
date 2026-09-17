@@ -364,6 +364,105 @@ describe('renderSite', () => {
     expect(html).not.toContain('has no recorded result yet');
   });
 
+  // The verdict sentence is a function of the framing, the aggregate and the
+  // tool, and of nothing that varies between one of that tool's rows and the
+  // next, so a tool whose every version landed on the same side has one
+  // finding, not one per version. Stating it per row put the identical
+  // paragraph in every row of every table and grew with the corpus.
+  it("states a tool's verdict once per distinct framing, not once per result row", () => {
+    const html = renderSite(
+      aggregate({
+        tools: [
+          tool({
+            results: [
+              result({ version: '1.0.0', framing: 'definite' }),
+              result({ version: '2.0.0', framing: 'definite' }),
+              result({ version: '3.0.0', framing: 'definite' }),
+            ],
+          }),
+        ],
+      }),
+      versionDoc(),
+    );
+    const occurrences = html.split('Produces the definite encoding').length - 1;
+    expect(occurrences).toBe(1);
+    // The raw value is still against every row: once in the overview, once on
+    // the tool's own panel, and once per result.
+    expect(html.split('framing-definite">definite<').length - 1).toBe(5);
+  });
+
+  it('gives a tool a panel for each framing when its results disagree', () => {
+    const html = renderSite(
+      aggregate({
+        tools: [
+          tool({
+            paths: ['construct', 'decode'],
+            results: [
+              result({ path: 'construct', framing: 'definite' }),
+              result({ path: 'decode', framing: 'framing-preserving' }),
+            ],
+          }),
+        ],
+      }),
+      versionDoc(),
+    );
+    expect(html).toContain('Produces the definite encoding');
+    expect(html).toContain('Returned the hash of whichever bytes it was handed');
+  });
+
+  // Requirement: the reader arrives to find out which side their tool is on,
+  // so the page answers that before it asks them to read a table.
+  it('groups every tool by the encoding it produced before the first table', () => {
+    const html = renderSite(
+      aggregate({
+        tools: [
+          tool({ id: 'tool-a', displayName: 'Tool A', results: [result({ framing: 'definite' })] }),
+          tool({
+            id: 'tool-b',
+            displayName: 'Tool B',
+            results: [result({ framing: 'cardanoBinary' })],
+          }),
+        ],
+      }),
+      versionDoc({ toolCount: 2 }),
+    );
+    const firstTableIndex = html.indexOf('<table');
+    const overview = html.slice(0, firstTableIndex);
+    expect(overview).toContain('href="#tool-tool-a"');
+    expect(overview).toContain('href="#tool-tool-b"');
+    expect(overview).toContain('framing-definite">definite<');
+    expect(overview).toContain('framing-cardanoBinary">cardanoBinary<');
+  });
+
+  it('anchors every overview link to a section that exists on the page', () => {
+    const html = renderSite(aggregate(), versionDoc());
+    for (const [, id] of html.matchAll(/href="#([^"]+)"/g)) {
+      expect(html).toContain(`id="${id}"`);
+    }
+  });
+
+  // Every cell carries its own label, because below the width where seven
+  // columns fit the stylesheet renders each row as labeled blocks and the
+  // header row is no longer beside the value it names.
+  it('labels every data cell so a narrow screen can name each value', () => {
+    const html = renderSite(aggregate(), versionDoc());
+    const row = html.slice(html.indexOf('<tbody>'), html.indexOf('</tbody>'));
+    for (const label of ['Version', 'Channel', 'Path', 'Tested', 'Corpus', 'Framing', 'Vectors']) {
+      expect(row).toContain(`data-label="${label}"`);
+    }
+  });
+
+  // The favicon is drawn inline as a data URI rather than fetched, which is
+  // the same rule the stylesheet and the type follow.
+  it('carries no off-origin reference, the favicon included', () => {
+    const html = renderSite(aggregate(), versionDoc());
+    expect(html).toMatch(/<link rel="icon" href="data:image\/svg\+xml,/);
+    expect(html).not.toMatch(/href=["']\/\//);
+    expect(html.match(/https?:\/\//g) ?? []).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^https?:\/\/$/)]),
+    );
+  });
+
   // Requirement: a plain-English verdict alongside the raw framing value,
   // naming which other tracked tool currently lands on the same side.
   it('names another tracked tool that currently produces the same encoding', () => {
