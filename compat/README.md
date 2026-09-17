@@ -292,7 +292,7 @@ result sitting on a still-open pull request would be invisible to that day's pen
 check, get resolved again, and then be lost when the branch was rebuilt without it. The
 workflow also only opens or updates a pull request when `git status --porcelain --
 compat/results` actually reports a change, rather than when the watcher ran anything: a
-day with nothing pending, or a day where everything pending had already been carried
+day with nothing pending, or a day when everything pending had already been carried
 forward, must leave an already-open pull request alone instead of force-pushing a branch
 with no diff against `main`, which closes the pull request and deletes it.
 
