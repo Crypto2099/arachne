@@ -26,6 +26,15 @@ export interface SubmitResult {
   txHash?: string;
   /** The submit endpoint's verbatim error. Recorded unmodified into the corpus. */
   error?: string;
+  /**
+   * The submitted transaction's raw CBOR, lowercase hex.
+   *
+   * Set by the implementation from the `txCbor` it was given, on both
+   * outcomes. An accepted transaction's bytes stay retrievable from the chain
+   * by `txHash` afterwards; a rejected one never reaches a chain and its
+   * bytes exist nowhere else, so losing them here loses them for good.
+   */
+  cborHex?: string;
 }
 
 /**

@@ -83,6 +83,19 @@ export interface ChainObservation {
   txHash?: string;
   /** The node's or the submit API's verbatim error when it did not. */
   error?: string;
+  /**
+   * The submitted transaction's raw CBOR, lowercase hex, named to match
+   * `EncodingRecord.cborHex`.
+   *
+   * Worth capturing on a rejection as much as on an acceptance, and for an
+   * asymmetric reason: an accepted transaction's bytes stay retrievable from
+   * the chain itself by `txHash` for as long as the chain exists, but a
+   * rejected transaction never reaches a chain, so its bytes exist nowhere
+   * afterwards and cannot be reconstructed later, since its fee, inputs and
+   * TTL vary with every build. Absent on an observation recorded before this
+   * field existed.
+   */
+  cborHex?: string;
   /** ISO 8601. Says when, not under what: `protocolParams` carries that. */
   observedAt: string;
   /** The parameter set this result is true of. */

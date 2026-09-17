@@ -1,9 +1,10 @@
 import { defineConfig } from 'vitest/config';
 
-// Three projects, because the three things Arachne checks fail for different
+// Several projects, because the things Arachne checks fail for different
 // reasons and must be runnable apart. `unit` and `conformance` are offline and
-// deterministic; `chain` submits real transactions to a public testnet and is
-// never part of the default run. See spec/05-conformance.md.
+// deterministic; `cli`, `koios` and `chain` each need something external, a
+// binary, a network, or a funded testnet wallet, and each skips or is kept
+// out of the default run for that reason. See spec/05-conformance.md.
 export default defineConfig({
   test: {
     projects: [
@@ -33,6 +34,19 @@ export default defineConfig({
           include: ['test/cli/**/*.test.ts'],
           environment: 'node',
           testTimeout: 120_000,
+        },
+      },
+      {
+        test: {
+          // Checks that every txHash in chain-evidence/observations.json
+          // actually exists on the network it claims, against Koios, which
+          // needs no API key. It skips itself cleanly when Koios is
+          // unreachable, so it is kept out of the default run rather than
+          // failing on a machine with no network.
+          name: 'koios',
+          include: ['test/koios/**/*.test.ts'],
+          environment: 'node',
+          testTimeout: 30_000,
         },
       },
       {

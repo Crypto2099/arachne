@@ -1,0 +1,214 @@
+{
+  "formatVersion": 1,
+  "entryCount": 21,
+  "entries": [
+    {
+      "network": "preprod",
+      "txHash": "74aa539069a5b4c84a63649c9cf18bc71c0bd813ff1cb28b7226d431ff00a83c",
+      "accepted": true,
+      "observedAt": "2026-09-15T18:20:00.000Z",
+      "demonstrates": "An `all []` address was spent with no vkey witness at all and accepted: an empty `all` is satisfied by construction, so anyone holding the script can spend it.",
+      "vectorId": "degenerate/empty-all",
+      "source": "spec/03-satisfaction.md, \"Degenerate thresholds\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "5bf18ed8f19463ae102b24bf920f74a1e7665d4cec343bf93ebf132454f99840",
+      "accepted": true,
+      "observedAt": "2026-09-16T12:00:00.000Z",
+      "demonstrates": "atLeast(0, []) was spent with no vkey witness: a non-positive threshold is satisfied on entry, before the empty child list is even consulted.",
+      "vectorId": "degenerate/empty-atleast-0",
+      "source": "spec/03-satisfaction.md, \"Degenerate thresholds\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "cf05ba2db6ca337655f94e3b081a4ca4c6682c6c5e9e5f9f6b8b0d39a2eb1989",
+      "accepted": true,
+      "observedAt": "2026-09-15T23:55:00.000Z",
+      "demonstrates": "`any []`, a script that can never be satisfied, was stored as a reference script output. Nothing executes a reference script, so satisfiability is irrelevant to whether it can reach the chain, and it is now permanently visible there.",
+      "vectorId": "degenerate/empty-any",
+      "source": "spec/01-script-model.md, \"What it takes for a script to reach the chain\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "c45881950029d5545bec2550068050be388db0a464172895134a449df0d4215b",
+      "accepted": true,
+      "observedAt": "2026-09-16T12:00:00.000Z",
+      "demonstrates": "atLeast(0, [sig, sig, sig]) was spent with no vkey witness: a non-positive threshold is satisfied even though the script names three signers, because `isValidMOf` returns before looking at a single child.",
+      "vectorId": "threshold-matrix/atleast-0-of-3",
+      "source": "spec/03-satisfaction.md, \"Degenerate thresholds\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "b1db2a411cb651a413840d3c8b112895a5bda2519a8ba6a372b8dd1ffc7746c2",
+      "accepted": true,
+      "observedAt": "2026-09-16T12:00:00.000Z",
+      "demonstrates": "atLeast(-1, [sig, sig]) was spent with no vkey witness: a negative threshold, representable because the CDDL types it as int64, is satisfied the same way a zero threshold is.",
+      "vectorId": "degenerate/atleast-negative",
+      "source": "spec/03-satisfaction.md, \"Degenerate thresholds\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "aecef57696d8ea556442a8f305b5768e3ad9fb219561d02516eddbdbeca656e2",
+      "accepted": true,
+      "demonstrates": "`all [ sig(k), before(18446744073709551615) ]` was accepted: a `before` at the largest representable slot constrains nothing, but the transaction still had to declare a validityEnd, because an absent bound fails a timelock rather than passing it.",
+      "source": "spec/03-satisfaction.md, \"Extreme and invalid time bounds\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "6ce721421b4b0994b7cf268cb0be84165dbaf0c2da1f8a112b36afb808f05346",
+      "accepted": true,
+      "demonstrates": "`all [ sig(k), after(133000000) ]` was accepted once `validityStart` was set to the locked slot. The identical signature, on a transaction with no validity interval, was refused with `ScriptWitnessNotValidatingUTXOW`, confirming that an absent interval bound fails the timelock rather than being skipped.",
+      "source": "spec/03-satisfaction.md, \"A timelock against an absent interval bound fails\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "31ec4648ea0ce886d0ca0abda3ea839be56dfc2acf1070a57f981f66e2f5d286",
+      "accepted": true,
+      "demonstrates": "A 3-of-5 board registered as a DRep with the 500 ADA deposit, script hash ce021f147f597c5b48affb3d51de3be142ffd9fd898e8631b4948964, satisfied by three of the five board signatures.",
+      "shape": {
+        "keyCount": 5
+      },
+      "source": "spec/06-chain-exercises.md, \"Confirmed on preprod\" (DRep)"
+    },
+    {
+      "network": "preprod",
+      "txHash": "ae52f76f442fbe6ad53bda43d83d1e8a402ea6132c9a8d4ef825f85c7f9df46d",
+      "accepted": true,
+      "demonstrates": "The same 3-of-5 board cast a Yes vote on an open governance action, again satisfied by three of the five board signatures. The vote reads back from an indexer's `drep_votes` query against the credential's CIP-129 identifier as `Yes` against the action it was cast on.",
+      "shape": {
+        "keyCount": 5
+      },
+      "source": "spec/06-chain-exercises.md, \"Confirmed on preprod\" (DRep)"
+    },
+    {
+      "network": "preprod",
+      "txHash": "3770ba2b45cbcdc3217793d30ac845f23f6e7b7714bf1a59b365745fe0207270",
+      "accepted": true,
+      "demonstrates": "The same 3-of-5 board submitted a DRep update, satisfied by three of the five board signatures.",
+      "shape": {
+        "keyCount": 5
+      },
+      "source": "spec/06-chain-exercises.md, \"Confirmed on preprod\" (DRep)"
+    },
+    {
+      "network": "preprod",
+      "txHash": "f5822f80d4236138a9b913dac29c3545b0cd380b23144b7e878875ebef550854",
+      "accepted": true,
+      "demonstrates": "The same 3-of-5 board retired the DRep registration and reclaimed the 500 ADA deposit.",
+      "shape": {
+        "keyCount": 5
+      },
+      "source": "spec/06-chain-exercises.md, \"Confirmed on preprod\" (DRep)"
+    },
+    {
+      "network": "preprod",
+      "txHash": "436d377b754b503d4319c65ead5ee17495c27688bee910fdcf6c3614e381065e",
+      "accepted": true,
+      "demonstrates": "A 2-of-3 trustee credential, script hash 3a2640ad93281967ce64763495bf27064ddce92de689a067072a3b4e, registered as a stake credential with the 2 ADA deposit.",
+      "shape": {
+        "keyCount": 3
+      },
+      "source": "spec/06-chain-exercises.md, \"Confirmed on preprod\" (stake)"
+    },
+    {
+      "network": "preprod",
+      "txHash": "4e068e25cbdbe45f602d953bdb4a96e011cc961d4ca46ad4d6f7d81478ff6d44",
+      "accepted": true,
+      "demonstrates": "The same 2-of-3 trustee credential delegated to a stake pool, satisfied by two of the three trustee signatures. The identical delegation was refused beforehand with no script witness (`MissingScriptWitnessesUTXOW`, naming the credential hash) and with only one trustee signature (`ScriptWitnessNotValidatingUTXOW`); only the two-signature attempt, this transaction, was accepted.",
+      "shape": {
+        "keyCount": 3
+      },
+      "source": "spec/06-chain-exercises.md, \"Confirmed on preprod\" (stake) and \"The delegation already tests the script\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "3740d5d65f046d17197ce57bf6172e41d46c2a072b014549a7e8f31bff5227d2",
+      "accepted": true,
+      "demonstrates": "The same 2-of-3 trustee credential retired and reclaimed the 2 ADA deposit, before a full epoch of delegation had elapsed, so this exercise does not confirm a withdrawal for the stake role.",
+      "shape": {
+        "keyCount": 3
+      },
+      "source": "spec/06-chain-exercises.md, \"Confirmed on preprod\" (stake)"
+    },
+    {
+      "network": "preprod",
+      "txHash": "f90dce5765108da976abdbb9fc618f9a6ffd9fa4d93b2f288eed1808545424c9",
+      "accepted": true,
+      "demonstrates": "A single key nested 5,383 `all` wrappers deep still spent in one transaction with one signature. One level further was refused for size (`MaxTxSizeUTxO`, supplied 16385 expected 16384), which settles that no recursion limit binds before `maxTxSize` does.",
+      "shape": {
+        "depth": 5383,
+        "scriptBytes": 16181,
+        "transactionBytes": 16383
+      },
+      "source": "spec/06-chain-exercises.md, \"How deep a single script can nest\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "1d40d02c1b63a5eac942ff18c9731b457b502ca732820279a87c1a6f3f2bb140",
+      "accepted": true,
+      "demonstrates": "A 122-of-122 unanimous multisig, script carried inline, spent in a 16,334-byte transaction. A 123-of-123 attempt was refused for size (`MaxTxSizeUTxO`, supplied 16466 expected 16384).",
+      "shape": {
+        "keyCount": 122,
+        "transactionBytes": 16334
+      },
+      "source": "spec/06-chain-exercises.md, \"How large a single multisig can be\", \"Confirmed on preprod\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "ebccf64ce29571dde8bfaf2e7f741582254a937cf862082188ffa697d00cffd3",
+      "accepted": true,
+      "demonstrates": "A 160-of-160 unanimous multisig, its 5,126-byte script carried as a reference input rather than inline, spent in a 16,298-byte transaction. A 161-of-161 attempt was refused for size (`MaxTxSizeUTxO`, supplied 16398 expected 16384). The node's fee demand for the reference script matched this project's own tiered reference-script fee arithmetic to the lovelace.",
+      "shape": {
+        "keyCount": 160,
+        "scriptBytes": 5126,
+        "transactionBytes": 16298
+      },
+      "source": "spec/06-chain-exercises.md, \"How large a single multisig can be\", \"Confirmed on preprod\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "26ea4c57248974265629c5513c66a4011cc596286f7128a2bc3b57b71aa4caca",
+      "accepted": true,
+      "demonstrates": "Eight member organizations of 23, each satisfied by an internal majority of 12, 184 members and 96 signatures in total, spent through a 5,923-byte script in a 15,721-byte transaction.",
+      "shape": {
+        "keyCount": 184,
+        "scriptBytes": 5923,
+        "transactionBytes": 15721
+      },
+      "source": "spec/06-chain-exercises.md, \"Federations, and which constraint actually binds\", \"Confirmed on preprod\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "28afe751287e7f5ee7df73545027960ea0cb1687d07a64937550f0fdac1c0b83",
+      "accepted": true,
+      "demonstrates": "Twenty-four member organizations of 20, each satisfied by any one member, 480 members and 24 signatures in total, spent through a 15,460-byte script carried as a reference input in a 2,562-byte spending transaction. The script's root list holds 24 entries, so cardano-binary frames it indefinitely, while every 20-entry group list is framed definite: the framing rule applies per list rather than per script.",
+      "shape": {
+        "keyCount": 480,
+        "scriptBytes": 15460,
+        "transactionBytes": 2562
+      },
+      "source": "spec/06-chain-exercises.md, \"Federations, and which constraint actually binds\", \"Confirmed on preprod\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "71c07ab887ae65a02a7c9dae74cae970ea8a471ad3437a73d4fc3d074478124d",
+      "accepted": true,
+      "demonstrates": "An `any` of 24 key hashes, one of them a held key, was funded at its definite-framed address and spent with definite-framed script bytes.",
+      "shape": {
+        "keyCount": 24
+      },
+      "source": "spec/07-encoding-divergence.md, \"Confirmed on chain\""
+    },
+    {
+      "network": "preprod",
+      "txHash": "7376f87c11960bf638c1fb3b6c2f23e2a3b9e2521ed106b3bd332a5c10a1fe72",
+      "accepted": true,
+      "demonstrates": "The same script, funded separately at its cardanoBinary-framed address, was spent with cardanoBinary-framed script bytes. A definite address spent with cardanoBinary bytes was refused, naming both the missing definite hash and the extraneous cardanoBinary hash in one error: the two encodings do not interoperate.",
+      "shape": {
+        "keyCount": 24
+      },
+      "source": "spec/07-encoding-divergence.md, \"Confirmed on chain\""
+    }
+  ]
+}
