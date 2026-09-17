@@ -42,10 +42,16 @@ record. It needs no network access and no key material to do so.
 3. Hash each encoding and compare against its `scriptHash`.
 4. Derive each credential in `credentials.definite` and `credentials.cardanoBinary` and
    compare the strings.
-5. For each entry in `satisfaction`, evaluate the script against the case's signers
-   and validity interval, and compare against `expected`.
+5. Compare `encoding.encodingSensitive` against whether the two hashes you computed
+   differ. This is the check that catches a port which read one encoding and skipped
+   the other, because it cannot be derived from either encoding alone.
+6. For each entry in `satisfaction`, evaluate the script against the case's signers
+   and validity interval, and compare against `expected`. Satisfaction does not depend
+   on framing, so this is asked once per vector rather than once per encoding.
 
-A port that passes all five is conformant at the format version recorded in the file.
+A port that passes all six is conformant at the format version recorded in the file.
+[05-conformance.md](05-conformance.md) is the normative statement of this and says what
+a partial claim looks like when an implementation deliberately supports one encoding.
 Conformance says nothing about transaction building, which is a separate concern and
 not covered here.
 

@@ -48,11 +48,12 @@ than decoding and re-encoding them.
 
 ## Watching it stay true
 
-That finding is a snapshot, and tool releases keep coming. `compat/` runs current,
-previous and beta releases of cardano-cli, cardano-address, cardano-serialization-lib
-and MeshJS against the committed corpus and records which side of the divergence each
-one actually lands on, not which side its documentation claims. A daily workflow opens
-a pull request when a new version has something to report; nothing under
+That finding is a snapshot, and tool releases keep coming. `compat/` runs the current
+and previous releases of cardano-cli, cardano-address, cardano-serialization-lib, MeshJS
+and gouroboros against the committed corpus, plus a beta release wherever a tool
+publishes one. It records which side of the divergence each one actually lands on, not
+which side its documentation claims. A daily workflow opens a pull request when a new
+version has something to report; nothing under
 `compat/results/` is computed by hand. [compat/README.md](compat/README.md) has the
 full account, including why some of these tools sit on the same underlying encoder and
 why that means they only count once as evidence.
@@ -73,7 +74,10 @@ do not satisfy it.
     "encodingSensitive": false
   },
   "credentials": {
-    "governance": { "drep": { "cip129": "drep1...", "cip105": "drep_script1..." } }
+    "definite": {
+      "governance": { "drep": { "cip129": "drep1...", "cip105": "drep_script1..." } }
+    },
+    "cardanoBinary": { "...": "the same shape, derived from the other hash" }
   },
   "satisfaction": [{ "id": "0+1@unbounded", "signers": ["..."], "expected": true }],
   "onchain": []
@@ -148,10 +152,12 @@ npm run vectors:build     regenerate the corpus
 `npm run test:cli` cross-checks the whole corpus against cardano-cli and skips cleanly
 when the binary is not on PATH.
 
-`npm run test:chain` is where the chain exercises will submit real transactions to a
-public testnet and spend testnet ADA. They are not yet implemented, so the command
-currently has no tests to run. It is never part of the default run and needs the
-configuration in `.env.example`.
+`npm run test:chain` is where a corpus vector's own exercise plan will submit a script
+automatically and spend testnet ADA. That automation is not yet implemented, so the
+command currently has no tests to run. It is never part of the default run and needs the
+configuration in `.env.example`. The results in
+[spec/06-chain-exercises.md](spec/06-chain-exercises.md) were submitted separately, by
+hand-built transactions, ahead of that automation.
 
 ## What is known and what is not
 
@@ -168,10 +174,19 @@ array-framing rule in its own code rather than linking the library, so its agree
 with cardano-cli is a second implementation reaching the same answer, not the same
 dependency counted twice.
 
-What is not yet established is the third question. Transaction construction for the
-chain exercises is unimplemented, so the `onchain` array in every vector is empty, and no
-limit has been observed rather than reasoned about. The corpus brackets the transaction
-size limit and reaches nesting depths no wallet produces, ready for that work.
+The third question now has two confirmed answers. A single key nested 5,383 levels deep
+still spends in one preprod transaction, and one level further is refused for size. A
+unanimous multisig tops out at 122 members with the script carried inline, and 160 with
+it carried by reference. Both were found by submitting the boundary transaction itself
+and reading the node's verdict, not by calculation alone.
+[spec/06-chain-exercises.md](spec/06-chain-exercises.md) has the transaction hashes, two
+federation shapes confirmed the same way, and the DRep and stake credential roles
+exercised by registering, voting, delegating and retiring on preprod.
+
+Most vectors still carry an empty `onchain` array. Six observations exist so far, all for
+the payment credential. The code that would submit an arbitrary corpus vector's exercise
+automatically is not yet built, so the results above came from purpose-built transactions
+instead.
 
 When a node eventually disagrees with the reference evaluator, the node is right, and the
 defect is in the evaluator or the specification. How that is recorded is in

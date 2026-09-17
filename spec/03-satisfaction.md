@@ -19,7 +19,8 @@ A script is evaluated against exactly two things:
   them, and the two sets of names are easy to run together.
 
 Both bounds are optional because both are optional in a transaction body. Their absence
-is not neutral, which is rule three below.
+is not neutral: an absent bound fails the timelock it is compared against rather than
+leaving it unconstrained.
 
 ## The rules
 
@@ -39,9 +40,9 @@ when `k` is zero or below, for the same reason.
 These are not this project's reading. They are the ledger's `evalTimelock`, transcribed:
 
 ```haskell
-lteNegInfty _ SNothing = False          -- an absent validity start fails
+lteNegInfty _ SNothing = False -- i > -∞
 lteNegInfty i (SJust j) = i <= j
-ltePosInfty SNothing _ = False          -- an absent validity end fails
+ltePosInfty SNothing _ = False -- ∞ > j
 ltePosInfty (SJust i) j = i <= j
 
 isValidMOf n SSeq.Empty = n <= 0
@@ -63,7 +64,10 @@ from behavior.
 
 ## The three that implementations get wrong
 
-These are not exotic. Each one has shipped.
+These are not exotic. `test/conformance/discriminating-power.test.ts` implements an
+evaluator that makes all three mistakes, the shape that accumulates key hashes up the
+tree and skips timelocks, and the corpus catches it on 125 of its 973 satisfaction
+cases.
 
 ### A threshold counts satisfied sub-scripts, not distinct keys
 
@@ -134,15 +138,15 @@ failure modes that are easy to conflate.
 | `all [ sig(k), before(-1) ]`                   | Refused, `DecoderErrorDeserialiseFailure`                                    |
 
 A `before` at the largest representable slot constrains nothing. 2^64-1 slots is roughly
-585 billion years, and any transaction's `invalid_hereafter` is below it, so the timelock
+585 billion years, and any transaction's `invalidHereafter` is below it, so the timelock
 is satisfied by construction. It still has to be SET, because an absent bound fails, so
-the script is not quite a no-op: it forces the transaction to declare a ttl and then
-accepts any value.
+the script is not quite a no-op: it forces the transaction to declare a `validityEnd` and
+then accepts any value.
 
 The two impossible bounds fail somewhere different from an ordinary unsatisfied script.
-`before(0)` needs `ttl <= 0`, and `after(2^64-1)` needs a validity start 585 billion years
-away. In both cases the transaction is refused for being outside its own validity
-interval, against the current slot, before the script is evaluated at all:
+`before(0)` needs `validityEnd <= 0`, and `after(2^64-1)` needs a validity start 585
+billion years away. In both cases the transaction is refused for being outside its own
+validity interval, against the current slot, before the script is evaluated at all:
 
 ```
 OutsideValidityIntervalUTxO
@@ -218,7 +222,7 @@ refused with
 `ConwayUtxowFailure (ScriptWitnessNotValidatingUTXOW ... ScriptHash "036b3fb6...")`.
 With `validityStart` set to the locked slot the same signature was accepted, as
 transaction `6ce721421b4b0994b7cf268cb0be84165dbaf0c2da1f8a112b36afb808f05346`. A correct
-signature is not sufficient, which is the whole point of the rule.
+signature is not sufficient.
 
 The empty containers were tested as themselves. An `all []` address was spent with NO
 vkey witness at all, accepted as

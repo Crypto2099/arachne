@@ -12,7 +12,7 @@ Security, then Report a vulnerability. Do not open a public issue.
 Please include what an attacker can do, the steps to reproduce it, and the version or
 commit you tested.
 
-You can expect an acknowledgement within a week. Once a fix is available it ships in a
+You can expect an acknowledgment within a week. Once a fix is available it ships in a
 normal release and an advisory is published so that watchers and dependency scanners
 pick it up.
 

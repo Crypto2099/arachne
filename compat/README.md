@@ -36,8 +36,9 @@ One library, two framing categories, depending only on which of its own APIs is 
 "Construction paths" below for how a decode run is represented.
 
 If a tool's behavior turns out to depend on which of its own APIs is used, the right fix
-is to register it against both paths, each independently run and each its own committed
-result file, rather than picking one path and calling it "the" result for that tool.
+is to register it against both paths, each independently run and each with its own
+committed result file, rather than picking one path and calling it "the" result for that
+tool.
 
 ## Engines, and why a tool is not an implementation
 

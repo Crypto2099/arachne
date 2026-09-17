@@ -35,8 +35,8 @@ because an implementation that only ever talks to JavaScript tooling may have no
 the node's framing, but it has to be stated as partial rather than arrived at by not
 looking. Report it as "conformant, definite encoding only".
 
-Steps 5 and 6 are the ones that catch a port which skipped an encoding without meaning
-to: `encodingSensitive` cannot be derived from one encoding alone.
+Step 5 is the one that catches a port which skipped an encoding without meaning to:
+`encodingSensitive` cannot be derived from one encoding alone.
 
 ## Three independent claims
 
@@ -47,8 +47,8 @@ produces a pass or fail that nobody can act on.
 
 | Claim             | Established by      | Needs                   |
 | ----------------- | ------------------- | ----------------------- |
-| Encoding          | Steps 1 to 4 above  | Nothing                 |
-| Satisfaction      | Step 5 above        | Nothing                 |
+| Encoding          | Steps 1 to 5 above  | Nothing                 |
+| Satisfaction      | Step 6 above        | Nothing                 |
 | Ledger acceptance | The `onchain` array | A funded testnet wallet |
 
 ## Keeping the corpus honest

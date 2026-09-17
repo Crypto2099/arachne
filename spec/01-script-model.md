@@ -134,7 +134,7 @@ it is permanently visible.
 
 The node does validate what it stores. `script_ref = #6.24(bytes .cbor script)` wraps the
 script in a BYTE STRING, so the surrounding transaction stays well-formed whatever is
-inside and the decoder has to look deliberately to notice. It looks. A reference script
+inside, and the decoder has to look deliberately to notice. It looks. A reference script
 carrying `after(-1)` was refused, and so was one carrying bytes that are not CBOR at all,
 both with `DecoderErrorDeserialiseFailure` rather than a script error.
 
@@ -168,7 +168,7 @@ allowed, and a byte string that is not a script at all, which is not.
 ## Shapes that are well-formed and useless
 
 The grammar admits several scripts that no tool intends to produce and that no
-validation rejects. They have real hashes and real addresses, and nothing in the grammar rejects them.
+validation rejects. They have real hashes and real addresses.
 
 | Shape                                           | Behavior                                               |
 | ----------------------------------------------- | ------------------------------------------------------ |
@@ -193,10 +193,9 @@ than the rule: its constructor takes an unsigned count, so a negative threshold 
 it only as a wrapped unsigned value, which is a separate defect recorded in the
 compatibility results.
 
-The validation is one-sided, which is worth knowing because the two directions look
-symmetrical and are not. cardano-cli refuses a threshold ABOVE the child count, with
-"Required number of script signatures exceeds the number of scripts", and accepts every
-value at or below zero.
+The validation is one-sided. cardano-cli accepts every value at or below zero, and
+refuses a threshold above the child count with "Required number of script signatures
+exceeds the number of scripts."
 
 ### A negative threshold and a negative slot are not the same case
 
@@ -232,9 +231,12 @@ What constrains a script is therefore the transaction size limit, and it binds o
 bytes rather than on structure. This is why depth and breadth trade against each other
 rather than each having a ceiling of its own.
 
-A flat `all` of 400 signatures encodes to 12,805 bytes against a `maxTxSize` of 16,384,
-which leaves too little room for the inputs, outputs and witnesses that have to travel
-with it. Nesting is far cheaper per level: each container costs a handful of bytes, so
+A flat `all` of 400 signatures encodes to 12,805 bytes against a `maxTxSize` of 16,384.
+That figure is a protocol parameter rather than a property of native scripts, so every
+ceiling derived from it moves if governance moves it, and
+[06-chain-exercises.md](06-chain-exercises.md) sets out which limits follow from it. At
+its current value, 12,805 bytes leave too little room for the inputs, outputs and
+witnesses that have to travel with it. Nesting is far cheaper per level: each container costs a handful of bytes, so
 a deeply nested script stays small long after a wide one has stopped fitting.
 
 The residual risk is not a specified limit but an unspecified one. A structure with no
