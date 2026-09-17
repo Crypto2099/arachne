@@ -79,14 +79,14 @@ so on), and `tools`, the things people install. Every tool entry names an `engin
 **State the relation honestly.** It decides what a result can be read as, not whether
 the tool belongs in the matrix. `isIndependentEvidence` in `src/compat/registry.ts`
 treats two tools on the same engine as one observation about that engine, however many
-package names they wear. MeshJS core depends on `cardano-sdk-core`, so its agreement with
-another tool that also depends on `cardano-sdk-core` would say nothing beyond "the
-engine is deterministic", only who has received a given fix and when. cardano-address,
-by contrast, carries its own copy of the framing rule that cardano-cli's
-`cardano-binary` engine follows, rather than linking the library, so it is registered as
-`reimplements`, and its agreement with cardano-cli is real corroboration. Neither
-relation is a judgment on the tool; each is a statement about what its agreement or
-disagreement with another entry can support.
+package names they wear. `meshsdk-core` depends on `cardano-sdk-core`, so its agreement
+with another tool that also depends on `cardano-sdk-core` would establish only that the
+engine is deterministic. What that same pairing actually shows is which tool has
+received a given fix and when. cardano-address, by contrast, carries its own copy of the
+framing rule that cardano-cli's `cardano-binary` engine follows, rather than linking the
+library, so it is registered as `reimplements`, and its agreement with cardano-cli is
+real corroboration. Neither relation is a judgment on the tool; each is a statement
+about what its agreement or disagreement with another entry can support.
 
 **Two paths in, and which one applies.** A tool whose API matches an adapter already in
 `src/compat/adapters/` needs only a `compat/tools.json` entry. Another
@@ -123,12 +123,19 @@ tool's own words. Four adapters already do this and serve as templates:
 
 **Discovery and channels.** `discovery` says how to resolve which versions of a tool
 exist. GitHub-releases discovery names a `repo` and a `tagPrefix`; npm discovery just
-reads the tool's own `package` off the registry. `channels` says which of `current`,
-`previous` and `beta` to track for a tool; not every tool has all three at a given
-moment, and a channel with no candidate is left out rather than filled with a guess. A
-version is run once, and its result committed as a file under `compat/results/<tool>/`.
-A version that later falls outside the tracked channels, because a newer release
-displaced it, is not re-run; the committed result stands as the record for that version.
+reads the tool's own `package` off the registry. Those are the only two types
+`DiscoveryConfig` in `src/compat/types.ts` defines, and `resolveVersions` in
+`src/compat/versions.ts` branches on exactly those two with no fallback. A tool
+published through a registry neither covers (Packagist, crates.io, PyPI) needs a third
+discovery type added to that union and a matching branch in `resolveVersions` before its
+entry can resolve a version at all. That is a small addition next to writing the adapter
+itself, and it is better to know it going in than to find out partway through.
+`channels` says which of `current`, `previous` and `beta` to track for a tool; not every
+tool has all three at a given moment, and a channel with no candidate is left out rather
+than filled with a guess. A version is run once, and its result committed as a file
+under `compat/results/<tool>/`. A version that later falls outside the tracked channels,
+because a newer release displaced it, is not re-run; the committed result stands as the
+record for that version.
 
 **Construction paths.** `construct` builds a script from the corpus's JSON shape and
 hashes the result; it is what every adapter above does by default. `decode` asks a
