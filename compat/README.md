@@ -282,8 +282,21 @@ surfacing on its own, not averaged away.
 
 `.github/workflows/upstream-watch.yml` runs daily: it resolves every registered tool's
 current/previous/beta versions, checks which ones have no result file yet, runs those,
-and opens a pull request with the new files. It never pushes to `main` directly. The
-same logic runs locally:
+and opens a pull request with the new files. It never pushes to `main` directly.
+
+Before checking what is pending, it runs `scripts/carry-forward-results.ts`, which looks
+for an open pull request on the `upstream-watch/results` branch and, when one exists,
+copies whatever result files are already committed there into the working tree. The
+branch is rebuilt from `main` and force-pushed on every run, so without this step a
+result sitting on a still-open pull request would be invisible to that day's pending
+check, get resolved again, and then be lost when the branch was rebuilt without it. The
+workflow also only opens or updates a pull request when `git status --porcelain --
+compat/results` actually reports a change, rather than when the watcher ran anything: a
+day with nothing pending, or a day when everything pending had already been carried
+forward, must leave an already-open pull request alone instead of force-pushing a branch
+with no diff against `main`, which closes the pull request and deletes it.
+
+The same pending/run logic runs locally:
 
 ```
 npx tsx scripts/compat-check.ts              # what is pending, without installing anything

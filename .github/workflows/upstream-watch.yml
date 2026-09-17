@@ -53,6 +53,11 @@ jobs:
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             npx tsx scripts/compat-watch.ts --dry-run
           else
+            # Fold in whatever compat/results already sit on an open
+            # upstream-watch/results pull request before deciding what is
+            # pending, so a result recorded there is neither rerun nor, once
+            # the branch below is rebuilt from this checkout, dropped.
+            npx tsx scripts/carry-forward-results.ts
             npx tsx scripts/compat-watch.ts
           fi
           echo "title=$(cat compat-watch-title.txt)" >> "$GITHUB_OUTPUT"
@@ -60,8 +65,28 @@ jobs:
       - name: Report
         run: cat compat-watch-body.md
 
+      # peter-evans/create-pull-request rebuilds upstream-watch/results from
+      # this checkout and force-pushes it every run. Its own README warns that
+      # when that leaves the branch with no diff against base, it deletes the
+      # branch, closing whatever pull request was open on it. The watcher's
+      # own "nothing pending" count is not a safe stand-in for that check: on
+      # a quiet day, or a day where every pending version was already carried
+      # forward above, `ran` is empty even though a pull request opened on an
+      # earlier day may still be sitting there with results on it. Checking
+      # the working tree directly is what keeps that PR open on days like
+      # that instead of closing it and discarding its results.
+      - name: Check whether compat/results changed
+        id: diff
+        run: |
+          set -euo pipefail
+          if [ -n "$(git status --porcelain -- compat/results)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Open pull request
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ inputs.dry_run != true && steps.diff.outputs.changed == 'true' }}
         uses: peter-evans/create-pull-request@v7
         with:
           commit-message: ${{ steps.watch.outputs.title }}
