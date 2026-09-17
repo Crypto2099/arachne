@@ -1,0 +1,68 @@
+name: pages
+
+# Publishing requires a human to have merged: this runs only on a push to
+# main, and only when it touches the compat data or the code that renders it
+# into a page. No workflow_dispatch and no schedule, unlike upstream-watch.yml,
+# which opens a pull request but never publishes anything itself.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'compat/**'
+      - 'src/compat/site.ts'
+      - 'scripts/compat-site.ts'
+      - '.github/workflows/pages.yml'
+
+permissions:
+  contents: read
+
+# Only one deployment runs at a time; a second merge queues behind it rather
+# than racing it, and neither is cancelled mid-upload.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      # A job-level permissions block replaces the workflow-level default for
+      # that job rather than adding to it, so contents:read has to be listed
+      # again here for the checkout step, the same way upstream-watch.yml's
+      # job-level block restates contents alongside its own additions.
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # compat/aggregate.json and compat/version.json are committed, not
+      # built here; this only checks that what is committed still matches
+      # compat/tools.json, compat/results/ and each other, the same checks
+      # "npm run verify" already runs. A stale commit fails the deploy
+      # instead of quietly publishing something the corpus does not match.
+      - name: Compat data is current
+        run: |
+          npm run compat:aggregate:check
+          npm run compat:version:check
+
+      - name: Build the site
+        run: npx tsx scripts/compat-site.ts site
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

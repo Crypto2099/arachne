@@ -58,6 +58,12 @@ jobs:
       - name: Compat aggregate is current
         run: npm run compat:aggregate:check
 
+      # compat/version.json is generated from compat/aggregate.json's own
+      # committed bytes, so it moves whenever the aggregate does and must be
+      # checked after it, the same order "npm run verify" runs both in.
+      - name: Compat version is current
+        run: npm run compat:version:check
+
   audit:
     runs-on: ubuntu-latest
     steps:

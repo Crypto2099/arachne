@@ -21,3 +21,7 @@ compat-watch-body.md
 
 # Testnet key material for chain exercises. Never committed.
 .secrets/
+
+# scripts/compat-site.ts writes the Pages artifact here; the deploy workflow
+# builds it fresh on every run, so it is never committed.
+/site/
