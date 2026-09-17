@@ -91,7 +91,7 @@ export interface ChainObservation {
    * asymmetric reason: an accepted transaction's bytes stay retrievable from
    * the chain itself by `txHash` for as long as the chain exists, but a
    * rejected transaction never reaches a chain, so its bytes exist nowhere
-   * afterwards and cannot be reconstructed later, since its fee, inputs and
+   * afterward and cannot be reconstructed later, since its fee, inputs and
    * TTL vary with every build. Absent on an observation recorded before this
    * field existed.
    */

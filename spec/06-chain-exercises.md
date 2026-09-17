@@ -195,8 +195,9 @@ something is refused and the refusal says why.
 
 Not every submission this document describes has a vector to attach to. The
 depth-ceiling and multisig-ceiling exercises below submit scripts larger than anything
-the corpus generates, so their observations, along with every other transaction hash
-named in this document and its neighbors, are indexed in
+the corpus generates, so they have no vector to attach an observation to. Their
+observations, along with every other transaction hash named in this document and its
+neighbors, are indexed in
 [chain-evidence/observations.json](../chain-evidence/observations.json), which
 cross-references back to a vector's own `onchain` array wherever one exists. See
 [chain-evidence/README.md](../chain-evidence/README.md) for its format.

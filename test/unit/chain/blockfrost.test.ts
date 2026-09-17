@@ -5,7 +5,7 @@ import { toHex } from '../../../src/encode/cbor.js';
 /**
  * `submit()` is the only place a transaction's raw CBOR is ever seen by this
  * project. A rejected transaction never reaches a chain and cannot be
- * refetched or rebuilt afterwards, so the bytes have to be captured here or
+ * refetched or rebuilt afterward, so the bytes have to be captured here or
  * they are gone permanently. This pins that capture on both outcomes rather
  * than trusting it to be remembered when transaction construction is built.
  */

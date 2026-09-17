@@ -31,7 +31,7 @@ export interface SubmitResult {
    *
    * Set by the implementation from the `txCbor` it was given, on both
    * outcomes. An accepted transaction's bytes stay retrievable from the chain
-   * by `txHash` afterwards; a rejected one never reaches a chain and its
+   * by `txHash` afterward; a rejected one never reaches a chain and its
    * bytes exist nowhere else, so losing them here loses them for good.
    */
   cborHex?: string;

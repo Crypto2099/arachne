@@ -82,7 +82,7 @@ export class BlockfrostProvider implements ChainProvider {
    * `cborHex` is captured on both outcomes, from the same bytes that were
    * sent, so a rejection keeps its transaction rather than losing it: a
    * rejected transaction never reaches a chain and cannot be refetched or
-   * rebuilt afterwards, unlike an accepted one, which stays retrievable by
+   * rebuilt afterward, unlike an accepted one, which stays retrievable by
    * `txHash` for as long as the chain exists.
    */
   async submit(txCbor: Uint8Array): Promise<SubmitResult> {

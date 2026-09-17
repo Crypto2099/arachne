@@ -186,9 +186,9 @@ exercised by registering, voting, delegating and retiring on preprod.
 Most vectors still carry an empty `onchain` array. Six observations exist there so far,
 all for the payment credential. The code that would submit an arbitrary corpus vector's
 exercise automatically is not yet built, so both those and the results described above
-came from purpose-built transactions instead, most of which exercised a protocol limit
-rather than a corpus vector and so have no `onchain` array to sit in.
-[chain-evidence/observations.json](chain-evidence/observations.json) indexes every
+came from purpose-built transactions instead. Most of those transactions exercised a
+protocol limit that no corpus vector represents, so they have no `onchain` array to sit
+in. [chain-evidence/observations.json](chain-evidence/observations.json) indexes every
 transaction hash named anywhere in this specification, twenty-one in total, and
 cross-references the ones that do belong to a vector back to it.
 

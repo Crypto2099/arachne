@@ -9,13 +9,13 @@ corpus under `vectors/`.
 Everything else this project ships is either generated and checked by rebuilding it, or
 carried forward by a chain exercise that records what a node actually did. This record
 is neither. It is transcribed by hand from `spec/06-chain-exercises.md` and its
-neighbors, each value checked against what that document states, because most of the
+neighbors, each value checked against what that document states. Most of the
 submissions here predate the exercise automation that would otherwise have written them
 as a vector's own `onchain` observation.
 
 Nothing regenerates `observations.json`, and nothing should. There is no
-`chain-evidence:build` script and none should be added: an observation records what a
-node did, it cannot be recomputed, and a hand edit that could not be told from a rebuild
+`chain-evidence:build` script, and none should be added. An observation records what a
+node did, and it cannot be recomputed: a hand edit that could not be told from a rebuild
 would stop this file being evidence of anything. The same rule already governs a
 vector's `onchain` array; see `spec/05-conformance.md`.
 
@@ -32,24 +32,25 @@ An entry that corresponds to a corpus vector carries that vector's `id` as `vect
 `threshold-matrix/atleast-0-of-3` and `degenerate/atleast-negative` are the five vectors
 this applies to today; their own `onchain` arrays remain the authority the verifier's
 contradiction check reads, and this record only points at them. An entry without a
-`vectorId` exercised a protocol limit rather than a corpus shape, for example the
+`vectorId` exercised a protocol limit that no corpus vector represents, for example the
 depth-ceiling and multisig-ceiling exercises, whose scripts are larger than anything the
-corpus generates; `shape` then carries whatever the source states about that script or
+corpus generates. `shape` then carries whatever the source states about that script or
 transaction: `depth`, `keyCount`, `scriptBytes`, `transactionBytes`.
 
 `cborHex`, matching `EncodingRecord.cborHex` and `ChainObservation.cborHex`, is defined
-on every entry and populated on none of them today: the spec prose this record was
+on every entry and populated on none of them today. The spec prose this record was
 transcribed from never quotes a transaction's raw bytes, and inventing one would be the
 fabricated observation this project exists to avoid. A future chain exercise that
 submits through `ChainProvider.submit` records it by construction, on both an
 acceptance and a rejection, because a rejected transaction never reaches a chain and its
-bytes cannot be recovered afterwards.
+bytes cannot be recovered afterward.
 
 `src/chain/evidence.ts` has the loader and the validators. `test/unit/chain/evidence.test.ts`
 checks this file's own shape and its agreement with the five vectors it cross-references,
 as part of the default offline suite. `npm run test:koios` checks every `txHash` here
-against Koios and is opt-in, since it needs a reachable network; see its own file for
-why Koios rather than the Blockfrost provider the exercise code otherwise uses.
+against Koios and is opt-in, since it needs a reachable network. Koios needs no API key,
+which is why this check uses it rather than the Blockfrost provider the exercise code
+otherwise uses.
 
 For the narrative behind each entry, read `spec/06-chain-exercises.md`,
 `spec/03-satisfaction.md`, `spec/01-script-model.md` and `spec/07-encoding-divergence.md`.
