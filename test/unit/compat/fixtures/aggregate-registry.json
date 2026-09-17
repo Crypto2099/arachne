@@ -1,0 +1,45 @@
+{
+  "formatVersion": 2,
+  "engines": [
+    { "id": "shared-engine", "displayName": "Shared Engine" },
+    { "id": "other-engine", "displayName": "Other Engine" }
+  ],
+  "tools": [
+    {
+      "id": "tool-a",
+      "displayName": "Tool A",
+      "homepage": "https://example.invalid/a",
+      "adapter": "npm-csl",
+      "discovery": { "type": "npm" },
+      "channels": ["current"],
+      "engine": { "id": "shared-engine", "relation": "depends" }
+    },
+    {
+      "id": "tool-b",
+      "displayName": "Tool B",
+      "homepage": "https://example.invalid/b",
+      "adapter": "npm-csl",
+      "discovery": { "type": "npm" },
+      "channels": ["current"],
+      "engine": { "id": "shared-engine", "relation": "depends" }
+    },
+    {
+      "id": "tool-c",
+      "displayName": "Tool C",
+      "homepage": "https://example.invalid/c",
+      "adapter": "npm-csl",
+      "discovery": { "type": "npm" },
+      "channels": ["current"],
+      "engine": { "id": "shared-engine", "relation": "reimplements" }
+    },
+    {
+      "id": "tool-d",
+      "displayName": "Tool D",
+      "homepage": "https://example.invalid/d",
+      "adapter": "npm-csl",
+      "discovery": { "type": "npm" },
+      "channels": ["current"],
+      "engine": { "id": "other-engine", "relation": "own" }
+    }
+  ]
+}

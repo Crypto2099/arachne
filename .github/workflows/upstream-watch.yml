@@ -65,6 +65,15 @@ jobs:
       - name: Report
         run: cat compat-watch-body.md
 
+      # compat/aggregate.json is generated from compat/results/, and ci.yml's
+      # "Compat aggregate is current" step fails a pull request that adds
+      # result files without it, the same way it would fail one that hand-
+      # edited a result. Regenerating here, before the diff check below,
+      # is what keeps this workflow's own pull requests passing that check.
+      - name: Regenerate compat aggregate
+        if: ${{ inputs.dry_run != true }}
+        run: npm run compat:aggregate
+
       # peter-evans/create-pull-request rebuilds upstream-watch/results from
       # this checkout and force-pushes it every run. Its own README warns that
       # when that leaves the branch with no diff against base, it deletes the
@@ -93,5 +102,7 @@ jobs:
           title: ${{ steps.watch.outputs.title }}
           body-path: compat-watch-body.md
           branch: upstream-watch/results
-          add-paths: compat/results/**
+          add-paths: |
+            compat/results/**
+            compat/aggregate.json
           delete-branch: true

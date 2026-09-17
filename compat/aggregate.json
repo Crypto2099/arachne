@@ -1,0 +1,407 @@
+{
+  "formatVersion": 1,
+  "latestTestedAt": "2026-09-17T11:48:20.813Z",
+  "engines": [
+    {
+      "id": "cardano-binary",
+      "displayName": "cardano-binary (Haskell)",
+      "homepage": "https://github.com/IntersectMBO/cardano-base",
+      "note": "Not separately versioned in a way a tool install exposes. It ships inside each Haskell binary, so the tool version is the only version there is."
+    },
+    {
+      "id": "cardano-serialization-lib",
+      "displayName": "cardano-serialization-lib",
+      "homepage": "https://github.com/Emurgo/cardano-serialization-lib",
+      "package": "@emurgo/cardano-serialization-lib-nodejs"
+    },
+    {
+      "id": "cardano-sdk-core",
+      "displayName": "cardano-js-sdk core",
+      "homepage": "https://github.com/input-output-hk/cardano-js-sdk",
+      "package": "@cardano-sdk/core"
+    },
+    {
+      "id": "gouroboros",
+      "displayName": "gouroboros",
+      "homepage": "https://github.com/blinklabs-io/gouroboros"
+    }
+  ],
+  "tools": [
+    {
+      "id": "cardano-cli",
+      "displayName": "cardano-cli",
+      "homepage": "https://github.com/IntersectMBO/cardano-cli",
+      "engine": {
+        "id": "cardano-binary",
+        "relation": "depends"
+      },
+      "independentOf": [
+        "cardano-address",
+        "cardano-serialization-lib-nodejs",
+        "meshsdk-core",
+        "gouroboros"
+      ],
+      "results": [
+        {
+          "version": "11.2.3.1",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-09-16T00:27:53.780Z",
+          "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 126,
+            "agreed": 119,
+            "diverged": 0,
+            "refused": 7,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-cli/11.2.3.1.json"
+        },
+        {
+          "version": "11.2.3.0",
+          "channel": "previous",
+          "path": "construct",
+          "testedAt": "2026-09-16T00:27:58.112Z",
+          "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 126,
+            "agreed": 119,
+            "diverged": 0,
+            "refused": 7,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-cli/11.2.3.0.json"
+        }
+      ]
+    },
+    {
+      "id": "cardano-address",
+      "displayName": "cardano-address",
+      "homepage": "https://github.com/IntersectMBO/cardano-addresses",
+      "engine": {
+        "id": "cardano-binary",
+        "relation": "reimplements"
+      },
+      "independentOf": [
+        "cardano-cli",
+        "cardano-serialization-lib-nodejs",
+        "meshsdk-core",
+        "gouroboros"
+      ],
+      "results": [
+        {
+          "version": "4.0.8",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-09-16T00:27:31.693Z",
+          "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 126,
+            "agreed": 116,
+            "diverged": 0,
+            "refused": 10,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-address/4.0.8.json"
+        },
+        {
+          "version": "4.0.7",
+          "channel": "previous",
+          "path": "construct",
+          "testedAt": "2026-09-16T00:27:40.023Z",
+          "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 126,
+            "agreed": 116,
+            "diverged": 0,
+            "refused": 10,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-address/4.0.7.json"
+        }
+      ]
+    },
+    {
+      "id": "cardano-serialization-lib-nodejs",
+      "displayName": "cardano-serialization-lib (nodejs)",
+      "homepage": "https://github.com/Emurgo/cardano-serialization-lib",
+      "engine": {
+        "id": "cardano-serialization-lib",
+        "relation": "own"
+      },
+      "independentOf": [
+        "cardano-cli",
+        "cardano-address",
+        "meshsdk-core",
+        "gouroboros"
+      ],
+      "results": [
+        {
+          "version": "17.0.0",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-09-16T00:28:08.086Z",
+          "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 126,
+            "agreed": 125,
+            "diverged": 1,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-serialization-lib-nodejs/17.0.0.json"
+        },
+        {
+          "version": "16.0.0",
+          "channel": "previous",
+          "path": "construct",
+          "testedAt": "2026-09-16T00:28:09.212Z",
+          "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 126,
+            "agreed": 125,
+            "diverged": 1,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-serialization-lib-nodejs/16.0.0.json"
+        }
+      ]
+    },
+    {
+      "id": "meshsdk-core",
+      "displayName": "MeshJS core",
+      "homepage": "https://github.com/MeshJS/mesh",
+      "engine": {
+        "id": "cardano-sdk-core",
+        "relation": "depends",
+        "via": [
+          "@meshsdk/core-cst"
+        ]
+      },
+      "independentOf": [
+        "cardano-cli",
+        "cardano-address",
+        "cardano-serialization-lib-nodejs",
+        "gouroboros"
+      ],
+      "results": [
+        {
+          "version": "1.9.1",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-09-16T00:28:09.997Z",
+          "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 126,
+            "agreed": 126,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/meshsdk-core/1.9.1.json"
+        },
+        {
+          "version": "1.9.0",
+          "channel": "previous",
+          "path": "construct",
+          "testedAt": "2026-09-16T00:28:26.536Z",
+          "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 126,
+            "agreed": 126,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/meshsdk-core/1.9.0.json"
+        }
+      ]
+    },
+    {
+      "id": "gouroboros",
+      "displayName": "gouroboros",
+      "homepage": "https://github.com/blinklabs-io/gouroboros",
+      "engine": {
+        "id": "gouroboros",
+        "relation": "own"
+      },
+      "independentOf": [
+        "cardano-cli",
+        "cardano-address",
+        "cardano-serialization-lib-nodejs",
+        "meshsdk-core"
+      ],
+      "results": [
+        {
+          "version": "0.205.4",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-09-17T11:47:49.106Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 282,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.205.4-decode.json"
+        },
+        {
+          "version": "0.205.4",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-09-17T11:47:32.407Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 141,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 1
+          },
+          "resultFile": "compat/results/gouroboros/0.205.4.json"
+        },
+        {
+          "version": "0.205.3",
+          "channel": "previous",
+          "path": "decode",
+          "testedAt": "2026-09-17T11:48:20.813Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 282,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.205.3-decode.json"
+        },
+        {
+          "version": "0.205.3",
+          "channel": "previous",
+          "path": "construct",
+          "testedAt": "2026-09-17T11:48:05.011Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 141,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 1
+          },
+          "resultFile": "compat/results/gouroboros/0.205.3.json"
+        },
+        {
+          "version": "0.205.1",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-09-16T05:45:44.505Z",
+          "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 252,
+            "agreed": 250,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.205.1-decode.json"
+        },
+        {
+          "version": "0.205.1",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-09-16T05:45:24.324Z",
+          "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 126,
+            "agreed": 125,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 1
+          },
+          "resultFile": "compat/results/gouroboros/0.205.1.json"
+        },
+        {
+          "version": "0.205.0",
+          "channel": "previous",
+          "path": "decode",
+          "testedAt": "2026-09-16T11:42:30.857Z",
+          "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 252,
+            "agreed": 250,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.205.0-decode.json"
+        },
+        {
+          "version": "0.205.0",
+          "channel": "previous",
+          "path": "construct",
+          "testedAt": "2026-09-16T11:42:16.336Z",
+          "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 126,
+            "agreed": 125,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 1
+          },
+          "resultFile": "compat/results/gouroboros/0.205.0.json"
+        }
+      ]
+    }
+  ]
+}
