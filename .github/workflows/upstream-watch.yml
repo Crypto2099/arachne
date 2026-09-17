@@ -54,6 +54,23 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      # pallas is a Rust crate. Its adapter assumes a "cargo" binary is
+      # already on PATH the same way gouroboros's assumes "go" is, and pins
+      # the exact pallas-primitives/pallas-codec/pallas-crypto release in the
+      # scratch Cargo.toml it writes rather than this step choosing a
+      # version; "stable" just needs to be new enough to build whatever that
+      # release's own edition/rust-version requires (1.88 as of pallas 1.3.0).
+      - uses: dtolnay/rust-toolchain@stable
+
+      # pycardano is a Python package. Its adapter assumes a "python3" binary
+      # is already on PATH the same way the others assume their own
+      # toolchains are, and creates its own venv per run rather than
+      # installing anything globally. 3.12 matches what this project develops
+      # and tests the adapter against.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - run: npm ci
 
       - name: Resolve pending versions and run the watcher
