@@ -76,6 +76,19 @@ export function compareResults(
   const details: string[] = [];
   let changed = false;
 
+  // The corpus grows monotonically (spec/07, `vectors/` is only ever added
+  // to), so a baseline run against an older digest is always a run against a
+  // subset of today's vectors. That makes the digest mismatch itself
+  // unremarkable; what would be wrong is staying silent about it while still
+  // reporting a flat "behaves the same", which is a claim about every vector
+  // this run touched, not just the ones the baseline happened to share.
+  const digestChanged = current.corpusDigest !== previous.corpusDigest;
+  if (digestChanged) {
+    details.push(
+      `corpus digest changed from ${previous.corpusDigest} to ${current.corpusDigest}; only vectors present in both runs are compared below`,
+    );
+  }
+
   if (current.framing !== previous.framing) {
     changed = true;
     details.push(
@@ -84,15 +97,37 @@ export function compareResults(
   }
 
   const previousById = new Map(previous.vectors.map((v) => [vectorKey(v), v.status]));
+  const currentKeys = new Set(current.vectors.map((v) => vectorKey(v)));
   const transitions = new Map<string, number>();
   let vectorsChanged = 0;
+  let addedVectors = 0;
   for (const vector of current.vectors) {
     const before = previousById.get(vectorKey(vector));
-    if (before === undefined || before === vector.status) continue;
+    if (before === undefined) {
+      // Present now, absent from the baseline entirely: there is no prior
+      // status for this vector to have moved away from, so it is not a
+      // transition. Folding it into `vectorsChanged` is exactly the bug
+      // this function used to have, because it made every corpus growth
+      // look like a behavior change in whatever version happened to run
+      // right after the growth landed.
+      addedVectors += 1;
+      continue;
+    }
+    if (before === vector.status) continue;
     vectorsChanged += 1;
     const key = `${before} -> ${vector.status}`;
     transitions.set(key, (transitions.get(key) ?? 0) + 1);
   }
+
+  // The mirror case: present in the baseline, absent from this run. Iterating
+  // only `current.vectors` (as the old code did) makes this invisible, but a
+  // vector a tool used to answer and no longer appears for is worth surfacing
+  // even though it is not, on its own, evidence the tool's behavior changed.
+  let removedVectors = 0;
+  for (const vector of previous.vectors) {
+    if (!currentKeys.has(vectorKey(vector))) removedVectors += 1;
+  }
+
   if (vectorsChanged > 0) {
     changed = true;
     details.push(
@@ -101,9 +136,26 @@ export function compareResults(
     );
   }
 
+  // Neither of these two ever sets `changed`: a vector the baseline never
+  // saw has no regression to detect, and a vector missing from this run is
+  // reported so a reader can ask why, not treated as a divergence in a tool
+  // that never got the chance to answer it either way.
+  if (addedVectors > 0) {
+    details.push(
+      `${addedVectors} vector${addedVectors === 1 ? '' : 's'} present in this run with no baseline counterpart in ${previousLabel}`,
+    );
+  }
+  if (removedVectors > 0) {
+    details.push(
+      `${removedVectors} vector${removedVectors === 1 ? '' : 's'} present in ${previousLabel} missing from this run`,
+    );
+  }
+
   const headline = changed
     ? `${label}: behavior differs from ${previousLabel}`
-    : `${label}: behaves the same as ${previousLabel}`;
+    : digestChanged
+      ? `${label}: behaves the same as ${previousLabel} on the vectors both runs share (corpus digest changed)`
+      : `${label}: behaves the same as ${previousLabel}`;
 
   return { changed, hadBaseline: true, headline, details };
 }
