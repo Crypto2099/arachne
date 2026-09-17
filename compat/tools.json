@@ -23,6 +23,12 @@
       "id": "gouroboros",
       "displayName": "gouroboros",
       "homepage": "https://github.com/blinklabs-io/gouroboros"
+    },
+    {
+      "id": "cardano-multiplatform-lib",
+      "displayName": "cardano-multiplatform-lib",
+      "homepage": "https://github.com/dcSpark/cardano-multiplatform-lib",
+      "package": "@dcspark/cardano-multiplatform-lib-nodejs"
     }
   ],
   "tools": [
@@ -108,6 +114,73 @@
       "engine": {
         "id": "gouroboros",
         "relation": "own"
+      }
+    },
+    {
+      "id": "cardano-multiplatform-lib-nodejs",
+      "displayName": "cardano-multiplatform-lib (nodejs)",
+      "homepage": "https://github.com/dcSpark/cardano-multiplatform-lib",
+      "package": "@dcspark/cardano-multiplatform-lib-nodejs",
+      "adapter": "npm-cml",
+      "discovery": {
+        "type": "npm"
+      },
+      "channels": ["current", "previous", "beta"],
+      "paths": ["construct", "decode"],
+      "engine": {
+        "id": "cardano-multiplatform-lib",
+        "relation": "own"
+      }
+    },
+    {
+      "id": "anastasia-labs-cardano-multiplatform-lib-nodejs",
+      "displayName": "cardano-multiplatform-lib (Anastasia Labs fork, nodejs)",
+      "homepage": "https://github.com/Anastasia-Labs/cardano-multiplatform-lib",
+      "package": "@anastasia-labs/cardano-multiplatform-lib-nodejs",
+      "adapter": "npm-cml",
+      "discovery": {
+        "type": "npm"
+      },
+      "channels": ["current", "previous", "beta"],
+      "paths": ["construct", "decode"],
+      "engine": {
+        "id": "cardano-multiplatform-lib",
+        "relation": "fork"
+      }
+    },
+    {
+      "id": "cardano-sdk-core",
+      "displayName": "cardano-js-sdk core",
+      "homepage": "https://github.com/input-output-hk/cardano-js-sdk",
+      "package": "@cardano-sdk/core",
+      "adapter": "npm-native-script-classes",
+      "adapterOptions": {
+        "namespace": "Serialization"
+      },
+      "discovery": {
+        "type": "npm"
+      },
+      "channels": ["current", "previous"],
+      "paths": ["construct", "decode"],
+      "engine": {
+        "id": "cardano-sdk-core",
+        "relation": "own"
+      }
+    },
+    {
+      "id": "blaze-cardano-core",
+      "displayName": "Blaze core",
+      "homepage": "https://github.com/butaneprotocol/blaze-cardano",
+      "package": "@blaze-cardano/core",
+      "adapter": "npm-native-script-classes",
+      "discovery": {
+        "type": "npm"
+      },
+      "channels": ["current", "previous", "beta"],
+      "paths": ["construct", "decode"],
+      "engine": {
+        "id": "cardano-sdk-core",
+        "relation": "depends"
       }
     }
   ]

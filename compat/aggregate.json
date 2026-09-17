@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "latestTestedAt": "2026-09-17T11:48:20.813Z",
+  "latestTestedAt": "2026-09-17T18:57:27.175Z",
   "engines": [
     {
       "id": "cardano-binary",
@@ -24,6 +24,12 @@
       "id": "gouroboros",
       "displayName": "gouroboros",
       "homepage": "https://github.com/blinklabs-io/gouroboros"
+    },
+    {
+      "id": "cardano-multiplatform-lib",
+      "displayName": "cardano-multiplatform-lib",
+      "homepage": "https://github.com/dcSpark/cardano-multiplatform-lib",
+      "package": "@dcspark/cardano-multiplatform-lib-nodejs"
     }
   ],
   "tools": [
@@ -42,7 +48,11 @@
         "cardano-address",
         "cardano-serialization-lib-nodejs",
         "meshsdk-core",
-        "gouroboros"
+        "gouroboros",
+        "cardano-multiplatform-lib-nodejs",
+        "anastasia-labs-cardano-multiplatform-lib-nodejs",
+        "cardano-sdk-core",
+        "blaze-cardano-core"
       ],
       "results": [
         {
@@ -98,7 +108,11 @@
         "cardano-cli",
         "cardano-serialization-lib-nodejs",
         "meshsdk-core",
-        "gouroboros"
+        "gouroboros",
+        "cardano-multiplatform-lib-nodejs",
+        "anastasia-labs-cardano-multiplatform-lib-nodejs",
+        "cardano-sdk-core",
+        "blaze-cardano-core"
       ],
       "results": [
         {
@@ -154,7 +168,11 @@
         "cardano-cli",
         "cardano-address",
         "meshsdk-core",
-        "gouroboros"
+        "gouroboros",
+        "cardano-multiplatform-lib-nodejs",
+        "anastasia-labs-cardano-multiplatform-lib-nodejs",
+        "cardano-sdk-core",
+        "blaze-cardano-core"
       ],
       "results": [
         {
@@ -213,7 +231,9 @@
         "cardano-cli",
         "cardano-address",
         "cardano-serialization-lib-nodejs",
-        "gouroboros"
+        "gouroboros",
+        "cardano-multiplatform-lib-nodejs",
+        "anastasia-labs-cardano-multiplatform-lib-nodejs"
       ],
       "results": [
         {
@@ -270,7 +290,11 @@
         "cardano-cli",
         "cardano-address",
         "cardano-serialization-lib-nodejs",
-        "meshsdk-core"
+        "meshsdk-core",
+        "cardano-multiplatform-lib-nodejs",
+        "anastasia-labs-cardano-multiplatform-lib-nodejs",
+        "cardano-sdk-core",
+        "blaze-cardano-core"
       ],
       "results": [
         {
@@ -416,6 +440,424 @@
             "unsupported": 1
           },
           "resultFile": "compat/results/gouroboros/0.205.0.json"
+        }
+      ]
+    },
+    {
+      "id": "cardano-multiplatform-lib-nodejs",
+      "displayName": "cardano-multiplatform-lib (nodejs)",
+      "homepage": "https://github.com/dcSpark/cardano-multiplatform-lib",
+      "engine": {
+        "id": "cardano-multiplatform-lib",
+        "relation": "own"
+      },
+      "paths": [
+        "construct",
+        "decode"
+      ],
+      "independentOf": [
+        "cardano-cli",
+        "cardano-address",
+        "cardano-serialization-lib-nodejs",
+        "meshsdk-core",
+        "gouroboros",
+        "cardano-sdk-core",
+        "blaze-cardano-core"
+      ],
+      "results": [
+        {
+          "version": "6.2.0",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-09-17T18:55:48.854Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 282,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-multiplatform-lib-nodejs/6.2.0-decode.json"
+        },
+        {
+          "version": "6.2.0",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-09-17T18:55:43.765Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 141,
+            "diverged": 1,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-multiplatform-lib-nodejs/6.2.0.json"
+        },
+        {
+          "version": "6.1.0",
+          "channel": "previous",
+          "path": "decode",
+          "testedAt": "2026-09-17T18:56:05.193Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 282,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-multiplatform-lib-nodejs/6.1.0-decode.json"
+        },
+        {
+          "version": "6.1.0",
+          "channel": "previous",
+          "path": "construct",
+          "testedAt": "2026-09-17T18:56:00.388Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 141,
+            "diverged": 1,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-multiplatform-lib-nodejs/6.1.0.json"
+        }
+      ]
+    },
+    {
+      "id": "anastasia-labs-cardano-multiplatform-lib-nodejs",
+      "displayName": "cardano-multiplatform-lib (Anastasia Labs fork, nodejs)",
+      "homepage": "https://github.com/Anastasia-Labs/cardano-multiplatform-lib",
+      "engine": {
+        "id": "cardano-multiplatform-lib",
+        "relation": "fork"
+      },
+      "paths": [
+        "construct",
+        "decode"
+      ],
+      "independentOf": [
+        "cardano-cli",
+        "cardano-address",
+        "cardano-serialization-lib-nodejs",
+        "meshsdk-core",
+        "gouroboros",
+        "cardano-sdk-core",
+        "blaze-cardano-core"
+      ],
+      "results": [
+        {
+          "version": "6.2.0-2",
+          "channel": "beta",
+          "path": "decode",
+          "testedAt": "2026-09-17T18:56:17.627Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 282,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/anastasia-labs-cardano-multiplatform-lib-nodejs/6.2.0-2-decode.json"
+        },
+        {
+          "version": "6.2.0-2",
+          "channel": "beta",
+          "path": "construct",
+          "testedAt": "2026-09-17T18:56:16.561Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 141,
+            "diverged": 1,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/anastasia-labs-cardano-multiplatform-lib-nodejs/6.2.0-2.json"
+        },
+        {
+          "version": "6.0.1",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-09-17T18:56:13.167Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 282,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/anastasia-labs-cardano-multiplatform-lib-nodejs/6.0.1-decode.json"
+        },
+        {
+          "version": "6.0.1",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-09-17T18:56:10.454Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 141,
+            "diverged": 1,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/anastasia-labs-cardano-multiplatform-lib-nodejs/6.0.1.json"
+        },
+        {
+          "version": "6.0.0",
+          "channel": "previous",
+          "path": "decode",
+          "testedAt": "2026-09-17T18:56:15.499Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 282,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/anastasia-labs-cardano-multiplatform-lib-nodejs/6.0.0-decode.json"
+        },
+        {
+          "version": "6.0.0",
+          "channel": "previous",
+          "path": "construct",
+          "testedAt": "2026-09-17T18:56:14.170Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 141,
+            "diverged": 1,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/anastasia-labs-cardano-multiplatform-lib-nodejs/6.0.0.json"
+        }
+      ]
+    },
+    {
+      "id": "cardano-sdk-core",
+      "displayName": "cardano-js-sdk core",
+      "homepage": "https://github.com/input-output-hk/cardano-js-sdk",
+      "engine": {
+        "id": "cardano-sdk-core",
+        "relation": "own"
+      },
+      "paths": [
+        "construct",
+        "decode"
+      ],
+      "independentOf": [
+        "cardano-cli",
+        "cardano-address",
+        "cardano-serialization-lib-nodejs",
+        "gouroboros",
+        "cardano-multiplatform-lib-nodejs",
+        "anastasia-labs-cardano-multiplatform-lib-nodejs"
+      ],
+      "results": [
+        {
+          "version": "0.47.0",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-09-17T18:56:35.171Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-sdk-core/0.47.0-decode.json"
+        },
+        {
+          "version": "0.47.0",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-09-17T18:56:22.347Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-sdk-core/0.47.0.json"
+        },
+        {
+          "version": "0.46.15",
+          "channel": "previous",
+          "path": "decode",
+          "testedAt": "2026-09-17T18:56:53.924Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-sdk-core/0.46.15-decode.json"
+        },
+        {
+          "version": "0.46.15",
+          "channel": "previous",
+          "path": "construct",
+          "testedAt": "2026-09-17T18:56:44.923Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-sdk-core/0.46.15.json"
+        }
+      ]
+    },
+    {
+      "id": "blaze-cardano-core",
+      "displayName": "Blaze core",
+      "homepage": "https://github.com/butaneprotocol/blaze-cardano",
+      "engine": {
+        "id": "cardano-sdk-core",
+        "relation": "depends"
+      },
+      "paths": [
+        "construct",
+        "decode"
+      ],
+      "independentOf": [
+        "cardano-cli",
+        "cardano-address",
+        "cardano-serialization-lib-nodejs",
+        "gouroboros",
+        "cardano-multiplatform-lib-nodejs",
+        "anastasia-labs-cardano-multiplatform-lib-nodejs"
+      ],
+      "results": [
+        {
+          "version": "0.9.1",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-09-17T18:57:15.181Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/blaze-cardano-core/0.9.1-decode.json"
+        },
+        {
+          "version": "0.9.1",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-09-17T18:57:04.430Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/blaze-cardano-core/0.9.1.json"
+        },
+        {
+          "version": "0.9.0",
+          "channel": "previous",
+          "path": "decode",
+          "testedAt": "2026-09-17T18:57:27.175Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/blaze-cardano-core/0.9.0-decode.json"
+        },
+        {
+          "version": "0.9.0",
+          "channel": "previous",
+          "path": "construct",
+          "testedAt": "2026-09-17T18:57:21.404Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/blaze-cardano-core/0.9.0.json"
         }
       ]
     }
