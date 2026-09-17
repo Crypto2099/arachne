@@ -8,3 +8,5 @@ export * from './cbor.js';
 export * from './certificates.js';
 export * from './voting.js';
 export * from './transaction.js';
+export * from './evidence.js';
+export * from './koios.js';

@@ -168,6 +168,9 @@ scripts, because to the ledger that is exactly what they are.
 So both halves of this document are now observed rather than reasoned: each encoding
 works end to end within its own toolchain, and crossing between them fails.
 
+All three attempts in the table above, the two accepted and the one refused, are indexed
+in [chain-evidence/observations.json](../chain-evidence/observations.json).
+
 ## Which one is right
 
 Neither, and that is the point. The ledger accepts both, and the CDDL constrains

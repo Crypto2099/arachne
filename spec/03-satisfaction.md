@@ -234,6 +234,10 @@ The remaining row stays open. Source agreement establishes what the ledger compu
 that a transaction carrying an unusual script survives everything else between a wallet
 and a block.
 
+Every submission named in this document, accepted or refused and including the extreme
+time bounds above, is indexed in
+[chain-evidence/observations.json](../chain-evidence/observations.json).
+
 ## When a node disagrees
 
 The node is right. See [05-conformance.md](05-conformance.md) for how a contradiction

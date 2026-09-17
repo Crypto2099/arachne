@@ -183,10 +183,14 @@ and reading the node's verdict, not by calculation alone.
 federation shapes confirmed the same way, and the DRep and stake credential roles
 exercised by registering, voting, delegating and retiring on preprod.
 
-Most vectors still carry an empty `onchain` array. Six observations exist so far, all for
-the payment credential. The code that would submit an arbitrary corpus vector's exercise
-automatically is not yet built, so the results above came from purpose-built transactions
-instead.
+Most vectors still carry an empty `onchain` array. Six observations exist there so far,
+all for the payment credential. The code that would submit an arbitrary corpus vector's
+exercise automatically is not yet built, so both those and the results described above
+came from purpose-built transactions instead. Most of those transactions exercised a
+protocol limit that no corpus vector represents, so they have no `onchain` array to sit
+in. [chain-evidence/observations.json](chain-evidence/observations.json) indexes every
+transaction hash named anywhere in this specification, twenty-one in total, and
+cross-references the ones that do belong to a vector back to it.
 
 When a node eventually disagrees with the reference evaluator, the node is right, and the
 defect is in the evaluator or the specification. How that is recorded is in

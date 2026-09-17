@@ -1,5 +1,6 @@
 import type { ChainProvider, ProtocolParams, SubmitResult, Testnet, Utxo } from './provider.js';
 import { ProviderError } from './provider.js';
+import { toHex } from '../encode/cbor.js';
 
 const BASE: Record<Testnet, string> = {
   preview: 'https://cardano-preview.blockfrost.io/api/v0',
@@ -77,8 +78,15 @@ export class BlockfrostProvider implements ChainProvider {
    * The node's message is the finding, so it is returned verbatim for the
    * corpus to record. This is how a nesting or size limit gets discovered:
    * something is refused, and the refusal says why.
+   *
+   * `cborHex` is captured on both outcomes, from the same bytes that were
+   * sent, so a rejection keeps its transaction rather than losing it: a
+   * rejected transaction never reaches a chain and cannot be refetched or
+   * rebuilt afterward, unlike an accepted one, which stays retrievable by
+   * `txHash` for as long as the chain exists.
    */
   async submit(txCbor: Uint8Array): Promise<SubmitResult> {
+    const cborHex = toHex(txCbor);
     const response = await fetch(`${BASE[this.network]}/tx/submit`, {
       method: 'POST',
       headers: {
@@ -88,7 +96,7 @@ export class BlockfrostProvider implements ChainProvider {
       body: txCbor,
     });
     const body = await response.text();
-    if (!response.ok) return { accepted: false, error: body };
-    return { accepted: true, txHash: body.replaceAll('"', '') };
+    if (!response.ok) return { accepted: false, error: body, cborHex };
+    return { accepted: true, txHash: body.replaceAll('"', ''), cborHex };
   }
 }
