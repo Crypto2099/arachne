@@ -374,7 +374,7 @@ downloading and diffing the whole thing:
 ```json
 {
   "formatVersion": 1,
-  "latestTestedAt": "2026-09-16T05:45:44.505Z",
+  "latestTestedAt": "2026-09-17T11:48:20.813Z",
   "aggregateDigest": "a212919d76f6a05f31b726e3e0767889198f7c2021c70b7a1bd40cd491494480",
   "toolCount": 5,
   "resultCount": 16
