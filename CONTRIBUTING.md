@@ -60,6 +60,100 @@ no family there yet.
 Key hashes come from `cosigners(count, prefix)`, which derives them from a label so that
 a vector reproduces in any language. Never generate one another way.
 
+## Adding a tool to the compatibility matrix
+
+`compat/` runs real releases of Cardano tooling against the committed corpus and records
+which recorded encoding each one produces. Proposing a tool starts with
+`compat/tools.json`, which separates two things: `engines`, the code that actually
+produces bytes (`cardano-binary`, `cardano-serialization-lib`, `cardano-sdk-core`, and
+so on), and `tools`, the things people install. Every tool entry names an `engine` and a
+`relation` to it:
+
+- `depends`: an ordinary dependency, so an upstream fix arrives when the tool bumps its
+  range.
+- `fork`: a forked build shipped under its own package name.
+- `vendored`: a copy carried inside the package with no dependency edge.
+- `reimplements`: an independent implementation of the same written rule.
+- `own`: its own encoder, no shared ancestry with anything else tracked.
+
+**State the relation honestly.** It decides what a result can be read as, not whether
+the tool belongs in the matrix. `isIndependentEvidence` in `src/compat/registry.ts`
+treats two tools on the same engine as one observation about that engine, however many
+package names they wear. MeshJS core depends on `cardano-sdk-core`, so its agreement with
+another tool that also depends on `cardano-sdk-core` would say nothing beyond "the
+engine is deterministic", only who has received a given fix and when. cardano-address,
+by contrast, carries its own copy of the framing rule that cardano-cli's
+`cardano-binary` engine follows, rather than linking the library, so it is registered as
+`reimplements`, and its agreement with cardano-cli is real corroboration. Neither
+relation is a judgment on the tool; each is a statement about what its agreement or
+disagreement with another entry can support.
+
+**Two paths in, and which one applies.** A tool whose API matches an adapter already in
+`src/compat/adapters/` needs only a `compat/tools.json` entry. Another
+cardano-serialization-lib fork sets `adapter` to `npm-csl` and names its own `package`.
+Another library that exposes a single function taking this project's plain-JSON native
+script shape and returning a hex hash sets `adapter` to `npm-native-script-json` and
+names that export in `adapterOptions`. A tool with a genuinely different API needs a new
+adapter under `src/compat/adapters/`, registered in `src/compat/adapters/index.ts`. That
+second path is the normal case for a library in a language not yet represented here:
+there is no existing adapter whose API a Rust or Python library happens to share.
+
+**What an adapter does.** It installs or downloads exactly one released version of the
+tool and drives that tool's own API to build a native script from the corpus's JSON
+shape. It hashes the result and reports what came back, including a refusal, in the
+tool's own words. Four adapters already do this and serve as templates:
+
+- `npm-native-script-json.ts` and `csl.ts`, for a tool distributed as an npm package.
+  Each installs the package into an isolated scratch directory and runs a small driver
+  script next to it in a child process.
+- `cardano-cli.ts` and `cardano-address.ts`, for a tool distributed as a released
+  binary. Each downloads the matching release asset, verifies it against the release's
+  own checksums, and shells out to the binary.
+- `gouroboros.ts`, paired with `gouroboros-driver.go`, for a library in a language other
+  than JavaScript. The TypeScript side installs the Go module into an isolated module
+  cache and builds a small Go program from `gouroboros-driver.go`. That program is the
+  one that actually imports the library, builds its structs from the corpus's JSON,
+  marshals them to CBOR, and hashes the result, reporting back as a JSON array on
+  stdout. The TypeScript adapter never touches the tool's native API directly, only the
+  driver's file-in, JSON-on-stdout contract. This is the pattern to follow for a library
+  in a new language. Write a small driver program in that language that reads the
+  corpus's JSON shape from a file argument and writes a JSON array of results to stdout.
+  Then write the handful of lines of TypeScript that install the toolchain, run the
+  driver, and parse what it printed.
+
+**Discovery and channels.** `discovery` says how to resolve which versions of a tool
+exist. GitHub-releases discovery names a `repo` and a `tagPrefix`; npm discovery just
+reads the tool's own `package` off the registry. `channels` says which of `current`,
+`previous` and `beta` to track for a tool; not every tool has all three at a given
+moment, and a channel with no candidate is left out rather than filled with a guess. A
+version is run once, and its result committed as a file under `compat/results/<tool>/`.
+A version that later falls outside the tracked channels, because a newer release
+displaced it, is not re-run; the committed result stands as the record for that version.
+
+**Construction paths.** `construct` builds a script from the corpus's JSON shape and
+hashes the result; it is what every adapter above does by default. `decode` asks a
+different question: feed the tool existing CBOR and record what it hashes, rather than
+asking it to build anything. A tool can legitimately answer differently depending on
+which of its own APIs is exercised; gouroboros does. A tool with that property is
+registered against both `construct` and `decode` in `tools.json`'s `paths` field, and
+each path is run and committed independently as its own result file.
+
+**What to open.** A proposal names the tool, its homepage, which engine it sits on and
+by what relation, and either the existing adapter it reuses or the new adapter it needs.
+A result file is never hand-written or hand-edited: it comes from actually running the
+tool against the committed corpus, then regenerating the summary:
+
+```
+npx tsx scripts/compat-run.ts <tool> <version> <current|previous|beta> [construct|decode]
+npm run compat:aggregate
+```
+
+The corpus and the results beside it are evidence in the same sense the vectors are: a
+result that was never produced by running the tool would carry the same authority as one
+that was, and would be used to overrule correct code.
+[compat/README.md](compat/README.md) documents the full result format and how the daily
+watcher keeps it current.
+
 ## Writing
 
 Commit messages, pull request bodies and issue bodies state what changed and why it is
