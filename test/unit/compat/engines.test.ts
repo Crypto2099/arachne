@@ -7,7 +7,8 @@ import {
   toolsByEngine,
 } from '../../../src/compat/registry.js';
 import { toScriptExpression } from '../../../src/compat/adapters/cardano-address.js';
-import { isScriptHash } from '../../../src/compat/adapters/hash-shape.js';
+import { scriptTextEnvelope } from '../../../src/compat/adapters/cardano-cli.js';
+import { driverEntryToHashOutcome, isScriptHash } from '../../../src/compat/adapters/hash-shape.js';
 import { parseScript } from '../../../src/model/json.js';
 
 describe('the registry models engines separately from tools', () => {
@@ -109,5 +110,56 @@ describe('the cardano-address script expression grammar', () => {
       ],
     });
     expect(toScriptExpression(script)).toBe(`all [${key}, any [active_from 5]]`);
+  });
+});
+
+describe('the cardano-cli decode-path text envelope', () => {
+  // cardano-cli's script-file reader only reaches its cborHex-decoding branch
+  // once the file fails to parse as the native-script JSON grammar, which
+  // requires a top-level "type" key alongside "description" and "cborHex";
+  // omitting either was confirmed by hand to make cardano-cli fall through to
+  // "key \"type\" not found" or an "atLeast\" script value not found" error
+  // instead of decoding the bytes, so all three fields are asserted here.
+  it('carries type, description and the bytes to decode', () => {
+    const envelope = scriptTextEnvelope('820200581cabc');
+    expect(envelope).toEqual({
+      type: 'SimpleScript',
+      description: '',
+      cborHex: '820200581cabc',
+    });
+  });
+
+  it('never truncates or reformats the hex it is given', () => {
+    const cborHex = '82029f8200581c' + 'ab'.repeat(28) + 'ff';
+    expect(scriptTextEnvelope(cborHex).cborHex).toBe(cborHex);
+  });
+});
+
+describe('the decode-driver hash-outcome guard', () => {
+  // Shared by the CSL and MeshJS decode drivers, which both report either
+  // side of a decode as a plain { status, hash | error } object over a child
+  // process boundary, with no HashOutcome type of their own on the other side
+  // of it.
+  it('accepts a real hash', () => {
+    expect(
+      driverEntryToHashOutcome({
+        status: 'ok',
+        hash: '2ac096b860eb407ffb4a8955ef15c3774be4c632f6d3310925f2026f',
+      }),
+    ).toEqual({ status: 'ok', hash: '2ac096b860eb407ffb4a8955ef15c3774be4c632f6d3310925f2026f' });
+  });
+
+  it('refuses a driver error verbatim', () => {
+    expect(driverEntryToHashOutcome({ status: 'error', error: 'boom' })).toEqual({
+      status: 'refused',
+      error: 'boom',
+    });
+  });
+
+  it('refuses a value that is not a 28-byte hash even when the driver reported ok', () => {
+    // A driver bug or an unexpected return type should never surface as a
+    // hash this project then treats as agreement or divergence.
+    const outcome = driverEntryToHashOutcome({ status: 'ok', hash: 'not-a-hash' });
+    expect(outcome.status).toBe('refused');
   });
 });

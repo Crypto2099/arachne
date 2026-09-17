@@ -1,6 +1,8 @@
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type {
+  DecodeItem,
+  DecodeOutcome,
   HashOutcome,
   InstallContext,
   InstallOutcome,
@@ -8,7 +10,7 @@ import type {
   ToolAdapter,
   ToolDefinition,
 } from '../types.js';
-import { isScriptHash, tidyToolMessage } from './hash-shape.js';
+import { driverEntryToHashOutcome, isScriptHash, tidyToolMessage } from './hash-shape.js';
 import { installNpmPackage, resolveInstalledVersion, runDriverBatch } from './npm-install.js';
 
 /**
@@ -23,6 +25,15 @@ import { installNpmPackage, resolveInstalledVersion, runDriverBatch } from './np
  * carries `slot` as a decimal string rather than a number; a future tool with
  * the same function shape but a numeric slot sets it to `"number"` and needs
  * no code change either.
+ *
+ * `adapterOptions.decodeExportName`, when present, names a second exported
+ * function of the same shape as MeshJS's `resolveScriptHash`: it takes a CBOR
+ * hex string directly and returns a hash, with no JSON native-script shape
+ * involved at all, which is what makes it a decode path rather than the
+ * construct path wearing a different name. A tool entry that sets this and
+ * lists `"decode"` in `paths` gets a second driver built from it; a tool with
+ * no such function (or none confirmed) simply omits the option and stays on
+ * `construct`, the default for this adapter before this field existed.
  */
 export const NPM_NATIVE_SCRIPT_JSON_ADAPTER: ToolAdapter = {
   async install(
@@ -34,6 +45,7 @@ export const NPM_NATIVE_SCRIPT_JSON_ADAPTER: ToolAdapter = {
     const pkg = requirePackage(tool);
     const exportName = requireString(tool, 'exportName');
     const slotEncoding = optionalSlotEncoding(tool);
+    const decodeExportName = optionalString(tool, 'decodeExportName');
 
     const installed = await installNpmPackage(pkg, version, scratchDir);
     if (installed.status === 'failed') return { status: 'failed', error: installed.error };
@@ -41,10 +53,22 @@ export const NPM_NATIVE_SCRIPT_JSON_ADAPTER: ToolAdapter = {
     const driverPath = join(scratchDir, 'driver.mjs');
     await writeFile(driverPath, driverSource(pkg, exportName, slotEncoding), 'utf8');
 
+    let decodeDriverPath: string | undefined;
+    if (decodeExportName) {
+      decodeDriverPath = join(scratchDir, 'decode-driver.mjs');
+      await writeFile(decodeDriverPath, decodeDriverSource(pkg, decodeExportName), 'utf8');
+    }
+
     return {
       status: 'ok',
       session: {
         hashScripts: async (items: ScriptItem[]) => runBatch(driverPath, scratchDir, items),
+        ...(decodeDriverPath
+          ? {
+              decodeScripts: async (items: DecodeItem[]) =>
+                runDecodeBatch(decodeDriverPath!, scratchDir, items),
+            }
+          : {}),
         // The engine sits below this package, often at a version the tool pins
         // rather than the newest published, so it is read off the install.
         resolveEngineVersion: async () =>
@@ -68,6 +92,11 @@ function requireString(tool: ToolDefinition, key: string): string {
     throw new Error(`tool "${tool.id}" is missing adapterOptions.${key}`);
   }
   return value;
+}
+
+function optionalString(tool: ToolDefinition, key: string): string | undefined {
+  const value = tool.adapterOptions?.[key];
+  return typeof value === 'string' ? value : undefined;
 }
 
 function optionalSlotEncoding(tool: ToolDefinition): 'number' | 'string' {
@@ -111,6 +140,42 @@ async function runBatch(
   return outcomes;
 }
 
+interface DecodeDriverEntry {
+  status: 'ok' | 'error';
+  hash?: string;
+  error?: string;
+}
+
+interface DecodeDriverOutputEntry {
+  id: string;
+  definite: DecodeDriverEntry;
+  cardanoBinary: DecodeDriverEntry;
+}
+
+async function runDecodeBatch(
+  driverPath: string,
+  scratchDir: string,
+  items: DecodeItem[],
+): Promise<Map<string, DecodeOutcome>> {
+  const inputPath = join(scratchDir, 'decode-input.json');
+  await writeFile(inputPath, JSON.stringify(items), 'utf8');
+
+  const result = runDriverBatch<DecodeDriverOutputEntry>(driverPath, inputPath);
+  const outcomes = new Map<string, DecodeOutcome>();
+  if (result.status === 'failed') {
+    const refused: HashOutcome = { status: 'refused', error: result.error };
+    for (const item of items) outcomes.set(item.id, { definite: refused, cardanoBinary: refused });
+    return outcomes;
+  }
+  for (const entry of result.entries) {
+    outcomes.set(entry.id, {
+      definite: driverEntryToHashOutcome(entry.definite),
+      cardanoBinary: driverEntryToHashOutcome(entry.cardanoBinary),
+    });
+  }
+  return outcomes;
+}
+
 function driverSource(pkg: string, exportName: string, slotEncoding: 'number' | 'string'): string {
   // Generated rather than a static file, because the package name and export
   // to call are data from compat/tools.json, not known until an adapter runs.
@@ -144,6 +209,42 @@ const out = items.map(({ id, script }) => {
     return { id, status: 'error', error: error instanceof Error ? error.message : String(error) };
   }
 });
+process.stdout.write(JSON.stringify(out));
+`;
+}
+
+/**
+ * A driver for the decode path: `decodeExportName` takes a CBOR hex string
+ * directly (MeshJS's `resolveScriptHash(scriptCode, version?)`, called here
+ * with only `scriptCode` so it takes the native-script branch) rather than
+ * this project's JSON shape, so `transformSlots` above has nothing to do
+ * here and is not reused.
+ */
+function decodeDriverSource(pkg: string, decodeExportName: string): string {
+  return `import { readFileSync } from 'node:fs';
+
+const mod = await import(${JSON.stringify(pkg)});
+const resolve = mod[${JSON.stringify(decodeExportName)}] ?? (mod.default ? mod.default[${JSON.stringify(decodeExportName)}] : undefined);
+if (typeof resolve !== 'function') {
+  process.stderr.write(${JSON.stringify(`"${decodeExportName}" is not an exported function of "${pkg}"`)});
+  process.exit(1);
+}
+
+function decodeAndHash(cborHex) {
+  try {
+    return { status: 'ok', hash: resolve(cborHex) };
+  } catch (error) {
+    return { status: 'error', error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+const [, , inputPath] = process.argv;
+const items = JSON.parse(readFileSync(inputPath, 'utf8'));
+const out = items.map(({ id, definiteCborHex, cardanoBinaryCborHex }) => ({
+  id,
+  definite: decodeAndHash(definiteCborHex),
+  cardanoBinary: decodeAndHash(cardanoBinaryCborHex),
+}));
 process.stdout.write(JSON.stringify(out));
 `;
 }

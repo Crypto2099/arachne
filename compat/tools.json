@@ -58,6 +58,7 @@
         "tagPrefix": "cardano-cli-"
       },
       "channels": ["current", "previous", "beta"],
+      "paths": ["construct", "decode"],
       "engine": {
         "id": "cardano-binary",
         "relation": "depends"
@@ -89,6 +90,7 @@
         "type": "npm"
       },
       "channels": ["current", "previous", "beta"],
+      "paths": ["construct", "decode"],
       "engine": {
         "id": "cardano-serialization-lib",
         "relation": "own"
@@ -102,12 +104,14 @@
       "adapter": "npm-native-script-json",
       "adapterOptions": {
         "exportName": "resolveNativeScriptHash",
-        "slotEncoding": "string"
+        "slotEncoding": "string",
+        "decodeExportName": "resolveScriptHash"
       },
       "discovery": {
         "type": "npm"
       },
       "channels": ["current", "previous", "beta"],
+      "paths": ["construct", "decode"],
       "engine": {
         "id": "cardano-sdk-core",
         "relation": "depends",
