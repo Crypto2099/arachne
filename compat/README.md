@@ -173,6 +173,28 @@ genuinely different API needs a new adapter under `src/compat/adapters/`.
   cardano-client-lib's `getScriptHash()` always re-serializes through a plain,
   non-chunked `co.nstant.in.cbor.model.Array` rather than hashing the bytes it decoded,
   so decode does not preserve the framing it was given.
+- **`pallas`**: assumes a Rust toolchain is already on `PATH`, and writes a scratch
+  `Cargo.toml` pinning `pallas-primitives`, `pallas-codec` and `pallas-crypto` to the
+  exact version under test (the upstream workspace always releases all three together).
+  Registered against `paths: ["construct", "decode"]`: `construct` builds
+  `pallas_primitives::alonzo::NativeScript` from the script's JSON and hashes it with
+  `pallas_crypto::hash::Hasher`; `decode` feeds the corpus's own CBOR to `minicbor` as
+  `pallas_codec::utils::KeepRaw<NativeScript>`, which records the exact bytes read and
+  re-emits them verbatim rather than re-serializing, so hashing it answers whichever
+  framing the input actually used.
+- **`pycardano`**: assumes a Python 3 toolchain is already on `PATH`, and creates a
+  fresh venv per run rather than installing anything globally. Pins `cbor2` and
+  `cbor2pure` to the versions recorded in that pycardano release's own `poetry.lock`
+  before installing it, because the package's published metadata alone allows a newer
+  `cbor2` than `cbor2pure` has been tested against. Registered against
+  `paths: ["construct", "decode"]`, calling `NativeScript.from_dict(...).hash()` and
+  `NativeScript.from_cbor(...).hash()` respectively; unlike gouroboros and pallas,
+  `hash()` always re-serializes through `cbor2` rather than hashing the bytes that were
+  decoded, so `decode` is not framing-preserving here. Runs one process per vector rather
+  than one for the whole corpus, because `NativeScript`'s `typeguard`-checked recursive
+  field types make hashing cost grow sharply with nesting depth; a script nested past
+  about depth 10 does not finish within this adapter's per-vector timeout, and that
+  finding would otherwise cost every other vector's result in the same batch.
 
 ## Channels
 

@@ -50,13 +50,13 @@ than decoding and re-encoding them.
 
 That finding is a snapshot, and tool releases keep coming. `compat/` runs the current and
 previous releases of cardano-cli, cardano-address, cardano-serialization-lib, MeshJS,
-gouroboros and cardano-client-lib against the committed corpus, plus a beta release
-wherever a tool publishes one. It records which side of the divergence each one actually
-lands on, not which side its documentation claims. A daily workflow opens a pull request
-when a new version has something to report; nothing under `compat/results/` is computed
-by hand. [compat/README.md](compat/README.md) has the full account, including why some of
-these tools sit on the same underlying encoder and why that means they only count once as
-evidence.
+gouroboros, cardano-client-lib, pallas and PyCardano against the committed corpus, plus a
+beta release wherever a tool publishes one. It records which side of the divergence each
+one actually lands on, not which side its documentation claims. A daily workflow opens a
+pull request when a new version has something to report; nothing under `compat/results/`
+is computed by hand. [compat/README.md](compat/README.md) has the full account, including
+why some of these tools sit on the same underlying encoder and why that means they only
+count once as evidence.
 
 ## The corpus
 
