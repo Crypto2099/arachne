@@ -98,17 +98,17 @@ like MeshJS or Blaze shows which pin is stale.
 
 The registry of tools to watch. Each entry:
 
-| Field            | Meaning                                                                                                 |
-| ---------------- | ------------------------------------------------------------------------------------------------------- |
-| `id`             | Stable identifier, also the directory name under `results/`.                                            |
-| `displayName`    | Name for a rendered page.                                                                               |
-| `homepage`       | Where the tool's source or release notes live.                                                          |
-| `package`        | npm package name, for tools discovered or installed via npm.                                            |
-| `adapter`        | Which installer/hasher this tool uses. See below.                                                       |
-| `adapterOptions` | Small adapter-specific configuration, e.g. which function to call.                                      |
-| `discovery`      | How to find new versions: `{ "type": "npm" }`, or `{ "type": "github-releases", "repo", "tagPrefix" }`. |
-| `channels`       | Which of `current`, `previous`, `beta` to track for this tool.                                          |
-| `paths`          | Which construction paths to run this tool against. Defaults to `["construct"]` when absent.             |
+| Field            | Meaning                                                                                                                                                         |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`             | Stable identifier, also the directory name under `results/`.                                                                                                    |
+| `displayName`    | Name for a rendered page.                                                                                                                                       |
+| `homepage`       | Where the tool's source or release notes live.                                                                                                                  |
+| `package`        | npm package name, for tools discovered or installed via npm.                                                                                                    |
+| `adapter`        | Which installer/hasher this tool uses. See below.                                                                                                               |
+| `adapterOptions` | Small adapter-specific configuration, e.g. which function to call.                                                                                              |
+| `discovery`      | How to find new versions: `{ "type": "npm" }`, `{ "type": "github-releases", "repo", "tagPrefix" }`, or `{ "type": "maven-central", "groupId", "artifactId" }`. |
+| `channels`       | Which of `current`, `previous`, `beta` to track for this tool.                                                                                                  |
+| `paths`          | Which construction paths to run this tool against. Defaults to `["construct"]` when absent.                                                                     |
 
 Adding a tool that shares an existing adapter's API is adding an entry here. That covers
 another cardano-serialization-lib fork, another library exposing the same
@@ -159,6 +159,20 @@ genuinely different API needs a new adapter under `src/compat/adapters/`.
   the script's JSON, marshals them to CBOR and hashes the result; `decode` feeds the
   corpus's own CBOR straight to `cbor.Decode` and hashes whatever
   `common.NativeScript.Hash()` returns, once per encoding.
+- **`cardano-client-lib`**: assumes a JDK and Maven are already on `PATH` the way a Go
+  toolchain is for gouroboros, and installs exactly
+  `com.bloxbean.cardano:cardano-client-lib:version` into an isolated local Maven
+  repository under a scratch directory, packaging a small driver program
+  (`cardano-client-lib-driver.java`) and that one dependency into a single runnable jar
+  with the Maven Assembly Plugin. Registered against `paths: ["construct", "decode"]`:
+  `construct` hands the script's JSON straight to the library's own
+  `NativeScript.deserializeJson`, whose tag and field names already match this project's
+  JSON shape, and hashes the result with `getScriptHash()`; `decode` feeds the corpus's
+  own CBOR to `CborSerializationUtil.deserialize` and `NativeScript.deserialize`, then
+  hashes the same way. Unlike gouroboros, both paths answer `definite`:
+  cardano-client-lib's `getScriptHash()` always re-serializes through a plain,
+  non-chunked `co.nstant.in.cbor.model.Array` rather than hashing the bytes it decoded,
+  so decode does not preserve the framing it was given.
 
 ## Channels
 
@@ -488,7 +502,8 @@ npx tsx scripts/compat-aggregate.ts          # regenerate compat/aggregate.json 
 ```
 
 The fourth argument to `compat-run.ts` defaults to `construct`. A tool registered against
-more than one path in `tools.json` (gouroboros's `paths: ["construct", "decode"]`) needs
-one invocation per path; `compat-check.ts` and `compat-watch.ts` already read `paths` from
-the registry and treat each (tool, channel, path) as its own pending item, so the daily
-watcher keeps both of gouroboros's result files current as new releases ship.
+more than one path in `tools.json` (gouroboros's and cardano-client-lib's
+`paths: ["construct", "decode"]`) needs one invocation per path; `compat-check.ts` and
+`compat-watch.ts` already read `paths` from the registry and treat each (tool, channel,
+path) as its own pending item, so the daily watcher keeps both of each tool's result files
+current as new releases ship.

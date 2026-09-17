@@ -29,6 +29,11 @@
       "displayName": "cardano-multiplatform-lib",
       "homepage": "https://github.com/dcSpark/cardano-multiplatform-lib",
       "package": "@dcspark/cardano-multiplatform-lib-nodejs"
+    },
+    {
+      "id": "cardano-client-lib",
+      "displayName": "cardano-client-lib",
+      "homepage": "https://github.com/bloxbean/cardano-client-lib"
     }
   ],
   "tools": [
@@ -181,6 +186,23 @@
       "engine": {
         "id": "cardano-sdk-core",
         "relation": "depends"
+      }
+    },
+    {
+      "id": "cardano-client-lib",
+      "displayName": "cardano-client-lib",
+      "homepage": "https://github.com/bloxbean/cardano-client-lib",
+      "adapter": "cardano-client-lib",
+      "discovery": {
+        "type": "maven-central",
+        "groupId": "com.bloxbean.cardano",
+        "artifactId": "cardano-client-lib"
+      },
+      "channels": ["current", "previous", "beta"],
+      "paths": ["construct", "decode"],
+      "engine": {
+        "id": "cardano-client-lib",
+        "relation": "own"
       }
     }
   ]

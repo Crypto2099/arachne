@@ -42,6 +42,18 @@ jobs:
         with:
           go-version: stable
 
+      # cardano-client-lib is a Java tool. Its adapter assumes "java" and
+      # "mvn" are already on PATH the same way "go" is for gouroboros, and
+      # records the version untested with the verbatim error rather than
+      # failing the job when they are not; this step is what keeps that from
+      # happening here. Maven ships preinstalled on the runner image, so only
+      # the JDK needs pinning, to the same release this adapter's pom.xml
+      # compiles against.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
       - run: npm ci
 
       - name: Resolve pending versions and run the watcher
