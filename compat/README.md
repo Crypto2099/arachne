@@ -311,6 +311,7 @@ commands.
       "displayName": "cardano-cli",
       "homepage": "https://github.com/IntersectMBO/cardano-cli",
       "engine": { "id": "cardano-binary", "relation": "depends" },
+      "paths": ["construct"],
       "independentOf": [
         "cardano-address",
         "cardano-serialization-lib-nodejs",
@@ -342,6 +343,7 @@ commands.
 | `latestTestedAt`         | The latest `testedAt` among every result carried below, derived from the data rather than the wall clock at generation time. Regenerating from an unchanged set of result files reproduces the same value, which is what lets CI compare this file byte for byte the way it compares `vectors/`. |
 | `engines`                | `tools.json`'s own `engines` array, passed through unchanged.                                                                                                                                                                                                                                    |
 | `tools[].engine`         | The tool's engine link from `tools.json`: which encoder produces its bytes, and by what relation (`depends`, `fork`, `vendored`, `reimplements`, or `own`).                                                                                                                                      |
+| `tools[].paths`          | Which construction paths this tool is registered against, carried from `tools.json` with the same `["construct"]` default applied there when the entry omits it. Lets a consumer tell a path with no results because it is not registered apart from one that is registered but has not run yet. |
 | `tools[].independentOf`  | Other tool ids in the registry whose agreement with this one is independent evidence about an encoding, computed with `isIndependentEvidence` in `src/compat/registry.ts`. A tool sharing this one's engine without reimplementing it is excluded from its own list, and vice versa.             |
 | `tools[].results[]`      | One entry per committed result file for this tool, both construction paths included, newest version first.                                                                                                                                                                                       |
 | `results[].corpusDigest` | Carried from the result file unchanged. Two results are only directly comparable when this matches, so it travels with every summary instead of being assumed constant across the file.                                                                                                          |
