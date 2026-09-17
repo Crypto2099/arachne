@@ -1,6 +1,7 @@
 import type { ToolAdapter } from '../types.js';
 import { CARDANO_ADDRESS_ADAPTER } from './cardano-address.js';
 import { CARDANO_CLI_ADAPTER } from './cardano-cli.js';
+import { CARDANO_CLIENT_LIB_ADAPTER } from './cardano-client-lib.js';
 import { NPM_CML_ADAPTER } from './cml.js';
 import { NPM_CSL_ADAPTER } from './csl.js';
 import { GOUROBOROS_ADAPTER } from './gouroboros.js';
@@ -20,6 +21,7 @@ const ADAPTERS: Record<string, ToolAdapter> = {
   'npm-native-script-json': NPM_NATIVE_SCRIPT_JSON_ADAPTER,
   'npm-native-script-classes': NPM_NATIVE_SCRIPT_CLASSES_ADAPTER,
   gouroboros: GOUROBOROS_ADAPTER,
+  'cardano-client-lib': CARDANO_CLIENT_LIB_ADAPTER,
 };
 
 export function getAdapter(kind: string): ToolAdapter {

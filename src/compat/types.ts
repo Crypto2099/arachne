@@ -73,8 +73,17 @@ export interface EngineLink {
  */
 export type ConstructionPath = 'construct' | 'decode';
 
+/**
+ * `maven-central` names the two coordinates that address a Java library's
+ * versions the way `package` addresses an npm one: `groupId` and
+ * `artifactId`, read straight from `https://repo1.maven.org/maven2/<groupId
+ * with dots turned to slashes>/<artifactId>/maven-metadata.xml`, the registry
+ * a Maven or Gradle build itself resolves against.
+ */
 export type DiscoveryConfig =
-  { type: 'npm' } | { type: 'github-releases'; repo: string; tagPrefix: string };
+  | { type: 'npm' }
+  | { type: 'github-releases'; repo: string; tagPrefix: string }
+  | { type: 'maven-central'; groupId: string; artifactId: string };
 
 /**
  * One entry in `compat/tools.json`. `adapter` names which installer/hasher

@@ -12,7 +12,9 @@ export async function resolveVersions(tool: ToolDefinition): Promise<ResolvedVer
   const resolved =
     tool.discovery.type === 'npm'
       ? await resolveNpmVersions(requirePackage(tool))
-      : await resolveGithubReleaseVersions(tool.discovery.repo, tool.discovery.tagPrefix);
+      : tool.discovery.type === 'maven-central'
+        ? await resolveMavenVersions(tool.discovery.groupId, tool.discovery.artifactId)
+        : await resolveGithubReleaseVersions(tool.discovery.repo, tool.discovery.tagPrefix);
   return resolved.filter((r) => tool.channels.includes(r.channel));
 }
 
@@ -54,7 +56,20 @@ export async function resolveNpmVersions(pkg: string): Promise<ResolvedVersion[]
   const doc = await fetchNpmRegistryDoc(pkg);
   const all = Object.keys(doc.versions ?? {});
   if (all.length === 0) throw new Error(`npm registry listed no versions for ${pkg}`);
+  return channelsFromVersionStrings(all);
+}
 
+/**
+ * The current/previous/beta selection npm and Maven Central discovery share:
+ * highest stable version, the next stable version below it, and the highest
+ * pre-release ahead of "current" (an upcoming preview, not a pre-release for
+ * a line that has already shipped). Both registries hand back a flat list of
+ * every version ever published with no separate "is this a pre-release" flag
+ * of their own, unlike GitHub's release API, which carries that as a field on
+ * the release rather than encoding it in the tag; so here, "pre-release"
+ * means exactly what `isPrerelease` says the version string itself means.
+ */
+export function channelsFromVersionStrings(all: string[]): ResolvedVersion[] {
   const parsed = all.map(parseVersion);
   const stable = parsed.filter((v) => !isPrerelease(v)).sort((a, b) => -compareVersions(a, b));
   const prereleases = parsed.filter(isPrerelease).sort((a, b) => -compareVersions(a, b));
@@ -138,4 +153,51 @@ export async function resolveGithubReleaseVersions(
 
 function stripTagPrefix(tag: string, prefix: string): string {
   return tag.startsWith(prefix) ? tag.slice(prefix.length) : tag;
+}
+
+async function fetchMavenMetadata(groupId: string, artifactId: string): Promise<string> {
+  const groupPath = groupId.split('.').join('/');
+  const url = `https://repo1.maven.org/maven2/${groupPath}/${artifactId}/maven-metadata.xml`;
+  const response = await fetch(url);
+  const body = await response.text();
+  if (!response.ok) {
+    throw new Error(`GET ${url} failed with ${response.status}: ${body.slice(0, 300)}`);
+  }
+  return body;
+}
+
+/**
+ * Every version listed for a coordinate in Maven Central's own
+ * `maven-metadata.xml`, in document order. Only the `<version>` children of
+ * the `<versions>` list are read; `<latest>` and `<release>` are separate
+ * elements the same document carries and are never matched by this pattern.
+ */
+export function parseMavenMetadataVersions(xml: string): string[] {
+  return [...xml.matchAll(/<version>([^<]+)<\/version>/g)].map((m) => m[1]!);
+}
+
+/**
+ * Maven Central's own version list, unlike GitHub's release list, contains
+ * only versions actually deployed there: a build a project tags on GitHub but
+ * never publishes (bloxbean tags every CI run, including throwaway "-devN"
+ * builds it does not deploy) simply never appears here. That is what makes
+ * this discovery type necessary rather than reusing `github-releases` for a
+ * library whose GitHub tags and Maven Central releases happen to share a
+ * naming scheme: resolving "beta" from GitHub's tags, as
+ * `resolveGithubReleaseVersions` does by publish recency, can name a version
+ * this adapter's Maven install then fails to resolve, for no reason the
+ * library's own encoding behavior has anything to do with. Reading the
+ * registry the adapter actually installs from, the way `resolveNpmVersions`
+ * already does for npm, is what keeps that from happening.
+ */
+export async function resolveMavenVersions(
+  groupId: string,
+  artifactId: string,
+): Promise<ResolvedVersion[]> {
+  const xml = await fetchMavenMetadata(groupId, artifactId);
+  const all = parseMavenMetadataVersions(xml);
+  if (all.length === 0) {
+    throw new Error(`Maven Central listed no versions for ${groupId}:${artifactId}`);
+  }
+  return channelsFromVersionStrings(all);
 }
