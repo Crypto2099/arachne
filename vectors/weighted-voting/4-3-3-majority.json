@@ -1,0 +1,263 @@
+{
+  "formatVersion": 3,
+  "id": "weighted-voting/4-3-3-majority",
+  "family": "weighted-voting",
+  "question": "When a holder with several votes is modeled as several copies of one key hash, does the reference evaluator sum weight across holders correctly, and does a statutory quorum floor evaluate differently from the default majority-to-pass threshold over the same cohort?",
+  "params": {
+    "distribution": [
+      4,
+      3,
+      3
+    ],
+    "rule": "majority"
+  },
+  "script": {
+    "type": "atLeast",
+    "required": 6,
+    "scripts": [
+      {
+        "type": "sig",
+        "keyHash": "816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a"
+      },
+      {
+        "type": "sig",
+        "keyHash": "816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a"
+      },
+      {
+        "type": "sig",
+        "keyHash": "816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a"
+      },
+      {
+        "type": "sig",
+        "keyHash": "816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a"
+      },
+      {
+        "type": "sig",
+        "keyHash": "898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d"
+      },
+      {
+        "type": "sig",
+        "keyHash": "898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d"
+      },
+      {
+        "type": "sig",
+        "keyHash": "898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d"
+      },
+      {
+        "type": "sig",
+        "keyHash": "4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf"
+      },
+      {
+        "type": "sig",
+        "keyHash": "4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf"
+      },
+      {
+        "type": "sig",
+        "keyHash": "4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf"
+      }
+    ]
+  },
+  "shape": {
+    "depth": 2,
+    "nodeCount": 11,
+    "sigCount": 10,
+    "keyHashes": [
+      "4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf",
+      "816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a",
+      "898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d"
+    ],
+    "timelockCount": 0,
+    "maxBreadth": 10,
+    "containerCounts": {
+      "all": 0,
+      "any": 0,
+      "atLeast": 1
+    }
+  },
+  "remarks": [
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 816a11e9 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 816a11e9 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 816a11e9 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 898f5b52 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 898f5b52 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 4df29aa5 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 4df29aa5 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    }
+  ],
+  "encoding": {
+    "definite": {
+      "cborHex": "8303068a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d8200581c898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d8200581c898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d8200581c4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf8200581c4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf8200581c4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf",
+      "preimageHex": "008303068a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d8200581c898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d8200581c898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d8200581c4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf8200581c4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf8200581c4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf",
+      "scriptHash": "1a92c7645d6125b5cfa63201f9164aafbbfb7b71803921ac4746c893",
+      "cborBytes": 324
+    },
+    "cardanoBinary": {
+      "cborHex": "8303068a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d8200581c898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d8200581c898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d8200581c4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf8200581c4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf8200581c4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf",
+      "preimageHex": "008303068a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a8200581c898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d8200581c898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d8200581c898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d8200581c4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf8200581c4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf8200581c4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf",
+      "scriptHash": "1a92c7645d6125b5cfa63201f9164aafbbfb7b71803921ac4746c893",
+      "cborBytes": 324
+    },
+    "encodingSensitive": false
+  },
+  "credentials": {
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1wydf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycr2ekes",
+        "preview": "addr_test1wqdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycczd2k4",
+        "preprod": "addr_test1wqdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycczd2k4"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1xydf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3yc6jtrkghtpyk6ulf3jq8u3vj40h0ahkuvq8ys6c36xezfswwl8kd",
+        "preview": "addr_test1xqdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3yc6jtrkghtpyk6ulf3jq8u3vj40h0ahkuvq8ys6c36xezfsdcz86j",
+        "preprod": "addr_test1xqdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3yc6jtrkghtpyk6ulf3jq8u3vj40h0ahkuvq8ys6c36xezfsdcz86j"
+      },
+      "reward": {
+        "mainnet": "stake17ydf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3yclqes9z",
+        "preview": "stake_test17qdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycc2njpl",
+        "preprod": "stake_test17qdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycc2njpl"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1yvdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycz34ts2",
+          "cip105": "drep_script1r2fvwezavyjmtnaxxgqlj9j247alk7m3squjrtz8gmyfxmgrlsz"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zvdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycxenaew",
+          "cip105": "cc_cold_script1r2fvwezavyjmtnaxxgqlj9j247alk7m3squjrtz8gmyfx9p5fqc"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qvdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycs98pr8",
+          "cip105": "cc_hot_script1r2fvwezavyjmtnaxxgqlj9j247alk7m3squjrtz8gmyfxplfkzn"
+        }
+      }
+    },
+    "cardanoBinary": {
+      "enterprise": {
+        "mainnet": "addr1wydf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycr2ekes",
+        "preview": "addr_test1wqdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycczd2k4",
+        "preprod": "addr_test1wqdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycczd2k4"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1xydf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3yc6jtrkghtpyk6ulf3jq8u3vj40h0ahkuvq8ys6c36xezfswwl8kd",
+        "preview": "addr_test1xqdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3yc6jtrkghtpyk6ulf3jq8u3vj40h0ahkuvq8ys6c36xezfsdcz86j",
+        "preprod": "addr_test1xqdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3yc6jtrkghtpyk6ulf3jq8u3vj40h0ahkuvq8ys6c36xezfsdcz86j"
+      },
+      "reward": {
+        "mainnet": "stake17ydf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3yclqes9z",
+        "preview": "stake_test17qdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycc2njpl",
+        "preprod": "stake_test17qdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycc2njpl"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1yvdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycz34ts2",
+          "cip105": "drep_script1r2fvwezavyjmtnaxxgqlj9j247alk7m3squjrtz8gmyfxmgrlsz"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zvdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycxenaew",
+          "cip105": "cc_cold_script1r2fvwezavyjmtnaxxgqlj9j247alk7m3squjrtz8gmyfx9p5fqc"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qvdf93myt4sjtdw05ceqr7gkf2hmh7mmwxqrjgdvgarv3ycs98pr8",
+          "cip105": "cc_hot_script1r2fvwezavyjmtnaxxgqlj9j247alk7m3squjrtz8gmyfxplfkzn"
+        }
+      }
+    }
+  },
+  "satisfaction": [
+    {
+      "id": "none@unbounded",
+      "signers": [],
+      "expected": false,
+      "expectedReason": "0 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "0@unbounded",
+      "signers": [
+        "4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf"
+      ],
+      "expected": false,
+      "expectedReason": "3 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "1@unbounded",
+      "signers": [
+        "816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a"
+      ],
+      "expected": false,
+      "expectedReason": "4 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "0+1@unbounded",
+      "signers": [
+        "4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf",
+        "816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a"
+      ],
+      "expected": true,
+      "expectedReason": "7 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "2@unbounded",
+      "signers": [
+        "898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d"
+      ],
+      "expected": false,
+      "expectedReason": "3 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "0+2@unbounded",
+      "signers": [
+        "4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf",
+        "898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d"
+      ],
+      "expected": true,
+      "expectedReason": "6 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "1+2@unbounded",
+      "signers": [
+        "816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a",
+        "898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d"
+      ],
+      "expected": true,
+      "expectedReason": "7 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "all@unbounded",
+      "signers": [
+        "4df29aa577aa075999b442e8d2c838af2b1d2e8bc93de6319b439dbf",
+        "816a11e9fc714ff1c1b1e131293098988c17f579035dff64cb567b6a",
+        "898f5b529c9802f8825ae06fa955b1a67aa0c8b83995c6ed1574d09d"
+      ],
+      "expected": true,
+      "expectedReason": "10 of 10 sub-scripts satisfied, 6 required"
+    }
+  ],
+  "onchain": []
+}

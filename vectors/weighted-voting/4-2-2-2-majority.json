@@ -1,0 +1,336 @@
+{
+  "formatVersion": 3,
+  "id": "weighted-voting/4-2-2-2-majority",
+  "family": "weighted-voting",
+  "question": "When a holder with several votes is modeled as several copies of one key hash, does the reference evaluator sum weight across holders correctly, and does a statutory quorum floor evaluate differently from the default majority-to-pass threshold over the same cohort?",
+  "params": {
+    "distribution": [
+      4,
+      2,
+      2,
+      2
+    ],
+    "rule": "majority"
+  },
+  "script": {
+    "type": "atLeast",
+    "required": 6,
+    "scripts": [
+      {
+        "type": "sig",
+        "keyHash": "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db"
+      },
+      {
+        "type": "sig",
+        "keyHash": "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db"
+      },
+      {
+        "type": "sig",
+        "keyHash": "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db"
+      },
+      {
+        "type": "sig",
+        "keyHash": "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db"
+      },
+      {
+        "type": "sig",
+        "keyHash": "ea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e"
+      },
+      {
+        "type": "sig",
+        "keyHash": "ea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e"
+      },
+      {
+        "type": "sig",
+        "keyHash": "1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa"
+      },
+      {
+        "type": "sig",
+        "keyHash": "1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa"
+      },
+      {
+        "type": "sig",
+        "keyHash": "1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a"
+      },
+      {
+        "type": "sig",
+        "keyHash": "1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a"
+      }
+    ]
+  },
+  "shape": {
+    "depth": 2,
+    "nodeCount": 11,
+    "sigCount": 10,
+    "keyHashes": [
+      "1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a",
+      "1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa",
+      "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db",
+      "ea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e"
+    ],
+    "timelockCount": 0,
+    "maxBreadth": 10,
+    "containerCounts": {
+      "all": 0,
+      "any": 0,
+      "atLeast": 1
+    }
+  },
+  "remarks": [
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 70365cf4 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 70365cf4 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 70365cf4 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key ea3abe09 appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 1e888bcc appears more than once directly under a threshold, so one signature counts more than once toward required."
+    },
+    {
+      "path": "",
+      "code": "duplicate-key-in-threshold",
+      "detail": "Key 1ab9344c appears more than once directly under a threshold, so one signature counts more than once toward required."
+    }
+  ],
+  "encoding": {
+    "definite": {
+      "cborHex": "8303068a8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581cea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e8200581cea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e8200581c1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa8200581c1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa8200581c1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a8200581c1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a",
+      "preimageHex": "008303068a8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581cea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e8200581cea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e8200581c1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa8200581c1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa8200581c1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a8200581c1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a",
+      "scriptHash": "4ac873a77fb17af18ba28faf50e1b4c15d1d2753a4f46400274a10a2",
+      "cborBytes": 324
+    },
+    "cardanoBinary": {
+      "cborHex": "8303068a8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581cea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e8200581cea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e8200581c1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa8200581c1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa8200581c1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a8200581c1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a",
+      "preimageHex": "008303068a8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581c70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db8200581cea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e8200581cea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e8200581c1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa8200581c1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa8200581c1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a8200581c1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a",
+      "scriptHash": "4ac873a77fb17af18ba28faf50e1b4c15d1d2753a4f46400274a10a2",
+      "cborBytes": 324
+    },
+    "encodingSensitive": false
+  },
+  "credentials": {
+    "definite": {
+      "enterprise": {
+        "mainnet": "addr1w99vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgspeep4w",
+        "preview": "addr_test1wp9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgs63da6t",
+        "preprod": "addr_test1wp9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgs63da6t"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1x99vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgj2epe6wla30tcchg504agwrdxpt5wjw5ay73jqqf62zz3q4c2hcr",
+        "preview": "addr_test1xp9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgj2epe6wla30tcchg504agwrdxpt5wjw5ay73jqqf62zz3qkwhh5u",
+        "preprod": "addr_test1xp9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgj2epe6wla30tcchg504agwrdxpt5wjw5ay73jqqf62zz3qkwhh5u"
+      },
+      "reward": {
+        "mainnet": "stake1799vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgsane8fu",
+        "preview": "stake_test17p9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgs6en9dp",
+        "preprod": "stake_test17p9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgs6en9dp"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1yd9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgsqz4uu5",
+          "cip105": "drep_script1fty88fmlk9a0rzaz37h4pcd5c9w36f6n5n6xgqp8fgg2y0j7wyf"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zd9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgsy2n24s",
+          "cip105": "cc_cold_script1fty88fmlk9a0rzaz37h4pcd5c9w36f6n5n6xgqp8fgg2y3mfc5n"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qd9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgsjk8k0e",
+          "cip105": "cc_hot_script1fty88fmlk9a0rzaz37h4pcd5c9w36f6n5n6xgqp8fgg2y4958kc"
+        }
+      }
+    },
+    "cardanoBinary": {
+      "enterprise": {
+        "mainnet": "addr1w99vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgspeep4w",
+        "preview": "addr_test1wp9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgs63da6t",
+        "preprod": "addr_test1wp9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgs63da6t"
+      },
+      "baseScriptStake": {
+        "mainnet": "addr1x99vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgj2epe6wla30tcchg504agwrdxpt5wjw5ay73jqqf62zz3q4c2hcr",
+        "preview": "addr_test1xp9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgj2epe6wla30tcchg504agwrdxpt5wjw5ay73jqqf62zz3qkwhh5u",
+        "preprod": "addr_test1xp9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgj2epe6wla30tcchg504agwrdxpt5wjw5ay73jqqf62zz3qkwhh5u"
+      },
+      "reward": {
+        "mainnet": "stake1799vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgsane8fu",
+        "preview": "stake_test17p9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgs6en9dp",
+        "preprod": "stake_test17p9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgs6en9dp"
+      },
+      "governance": {
+        "drep": {
+          "cip129": "drep1yd9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgsqz4uu5",
+          "cip105": "drep_script1fty88fmlk9a0rzaz37h4pcd5c9w36f6n5n6xgqp8fgg2y0j7wyf"
+        },
+        "ccCold": {
+          "cip129": "cc_cold1zd9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgsy2n24s",
+          "cip105": "cc_cold_script1fty88fmlk9a0rzaz37h4pcd5c9w36f6n5n6xgqp8fgg2y3mfc5n"
+        },
+        "ccHot": {
+          "cip129": "cc_hot1qd9vsua807ch4uvt5286758pknq468f82wj0geqqya9ppgsjk8k0e",
+          "cip105": "cc_hot_script1fty88fmlk9a0rzaz37h4pcd5c9w36f6n5n6xgqp8fgg2y4958kc"
+        }
+      }
+    }
+  },
+  "satisfaction": [
+    {
+      "id": "none@unbounded",
+      "signers": [],
+      "expected": false,
+      "expectedReason": "0 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "0@unbounded",
+      "signers": [
+        "1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a"
+      ],
+      "expected": false,
+      "expectedReason": "2 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "1@unbounded",
+      "signers": [
+        "1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa"
+      ],
+      "expected": false,
+      "expectedReason": "2 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "0+1@unbounded",
+      "signers": [
+        "1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a",
+        "1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa"
+      ],
+      "expected": false,
+      "expectedReason": "4 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "2@unbounded",
+      "signers": [
+        "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db"
+      ],
+      "expected": false,
+      "expectedReason": "4 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "0+2@unbounded",
+      "signers": [
+        "1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a",
+        "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db"
+      ],
+      "expected": true,
+      "expectedReason": "6 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "1+2@unbounded",
+      "signers": [
+        "1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa",
+        "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db"
+      ],
+      "expected": true,
+      "expectedReason": "6 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "0+1+2@unbounded",
+      "signers": [
+        "1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a",
+        "1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa",
+        "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db"
+      ],
+      "expected": true,
+      "expectedReason": "8 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "3@unbounded",
+      "signers": [
+        "ea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e"
+      ],
+      "expected": false,
+      "expectedReason": "2 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "0+3@unbounded",
+      "signers": [
+        "1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a",
+        "ea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e"
+      ],
+      "expected": false,
+      "expectedReason": "4 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "1+3@unbounded",
+      "signers": [
+        "1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa",
+        "ea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e"
+      ],
+      "expected": false,
+      "expectedReason": "4 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "0+1+3@unbounded",
+      "signers": [
+        "1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a",
+        "1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa",
+        "ea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e"
+      ],
+      "expected": true,
+      "expectedReason": "6 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "2+3@unbounded",
+      "signers": [
+        "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db",
+        "ea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e"
+      ],
+      "expected": true,
+      "expectedReason": "6 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "0+2+3@unbounded",
+      "signers": [
+        "1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a",
+        "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db",
+        "ea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e"
+      ],
+      "expected": true,
+      "expectedReason": "8 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "1+2+3@unbounded",
+      "signers": [
+        "1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa",
+        "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db",
+        "ea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e"
+      ],
+      "expected": true,
+      "expectedReason": "8 of 10 sub-scripts satisfied, 6 required"
+    },
+    {
+      "id": "all@unbounded",
+      "signers": [
+        "1ab9344c7c93e937882901cc2ee5cc2ddbea5cb34cf066b6007a5e8a",
+        "1e888bcc8e852aa95b5264a652afb903f5f7ed94235e9d3f801461fa",
+        "70365cf410bc11b49d7b2898a54ab9bcda5d3002f60be29d70bb42db",
+        "ea3abe09c57923d7e4962771531099d9b83a9d422670ff1d4384aa0e"
+      ],
+      "expected": true,
+      "expectedReason": "10 of 10 sub-scripts satisfied, 6 required"
+    }
+  ],
+  "onchain": []
+}
