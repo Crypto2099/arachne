@@ -156,3 +156,36 @@ export function checkAgainstVector(entry: ChainEvidenceEntry, vectors: Vector[])
   }
   return problems;
 }
+
+/**
+ * Checks the direction `checkAgainstVector` does not: that every observation
+ * a vector actually carries in its own `onchain` array has a matching entry
+ * in the record.
+ *
+ * `checkAgainstVector` only ever looks at entries the record already has, so
+ * a vector observation the record simply never transcribed is invisible to
+ * it: a record missing every rejection would still cross-check clean, since
+ * there was nothing to disagree with. This walks from the vectors instead,
+ * so an observation that exists on disk and has no counterpart here is the
+ * finding, not something a per-entry check could ever produce.
+ */
+export function checkVectorCoverage(vectors: Vector[], record: ChainEvidenceRecord): string[] {
+  const problems: string[] = [];
+  for (const vector of vectors) {
+    for (const observation of vector.onchain ?? []) {
+      const match = record.entries.find(
+        (e) =>
+          e.vectorId === vector.id &&
+          e.network === observation.network &&
+          e.accepted === observation.accepted &&
+          e.txHash === observation.txHash,
+      );
+      if (!match) {
+        problems.push(
+          `${vector.id}: onchain observation on ${observation.network} (accepted=${observation.accepted}, txHash=${observation.txHash ?? '(none)'}) has no matching record entry`,
+        );
+      }
+    }
+  }
+  return problems;
+}

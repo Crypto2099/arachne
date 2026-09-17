@@ -9,6 +9,11 @@ import { fetchTxStatuses, koiosReachable, type KoiosNetwork } from '../../src/ch
  * a transcription is correct is to ask a node's own index whether that
  * transaction exists.
  *
+ * A rejected submission is skipped rather than checked, deliberately: it has
+ * no `txHash`, because a rejected transaction never reaches a chain and so
+ * never receives one, and there is nothing for Koios to resolve. Filtering
+ * on `accepted` is what does this; it is not an oversight to fix later.
+ *
  * Modeled on the `cli` project: an external dependency, here a reachable
  * network rather than a binary on PATH, decides whether this project runs
  * at all, and it skips cleanly rather than failing when that dependency is
@@ -22,9 +27,15 @@ if (!reachable) {
 }
 
 describeKoios('every accepted txHash in the chain evidence record resolves on Koios', () => {
-  it('finds every hash with at least one confirmation', async () => {
+  it('finds every hash with at least one confirmation, and skips every rejection', async () => {
     const record = await loadChainEvidence();
     const accepted = record.entries.filter((e) => e.accepted && e.txHash);
+    const rejected = record.entries.filter((e) => !e.accepted);
+
+    // A rejection has no hash to look up, so it is excluded from the Koios
+    // request rather than treated as a failure to find one.
+    expect(rejected.every((e) => e.txHash === undefined)).toBe(true);
+    expect(accepted.length + rejected.length).toBe(record.entries.length);
 
     const byNetwork = new Map<KoiosNetwork, string[]>();
     for (const entry of accepted) {
@@ -50,7 +61,9 @@ describeKoios('every accepted txHash in the chain evidence record resolves on Ko
     }
 
     // eslint-disable-next-line no-console
-    console.log(`verified ${checked} transaction hashes against Koios`);
+    console.log(
+      `verified ${checked} transaction hashes against Koios, skipped ${rejected.length} rejections`,
+    );
     expect(missing).toEqual([]);
     expect(checked).toBe(accepted.length);
   });

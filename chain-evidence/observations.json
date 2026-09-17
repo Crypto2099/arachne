@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "entryCount": 21,
+  "entryCount": 35,
   "entries": [
     {
       "network": "preprod",
@@ -205,6 +205,128 @@
       "txHash": "7376f87c11960bf638c1fb3b6c2f23e2a3b9e2521ed106b3bd332a5c10a1fe72",
       "accepted": true,
       "demonstrates": "The same script, funded separately at its cardanoBinary-framed address, was spent with cardanoBinary-framed script bytes. A definite address spent with cardanoBinary bytes was refused, naming both the missing definite hash and the extraneous cardanoBinary hash in one error: the two encodings do not interoperate.",
+      "shape": {
+        "keyCount": 24
+      },
+      "source": "spec/07-encoding-divergence.md, \"Confirmed on chain\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "observedAt": "2026-09-15T18:20:00.000Z",
+      "demonstrates": "An `any []` address refused every spend attempt: an empty `any` can never be satisfied, so the funds it holds are locked permanently.",
+      "error": "ConwayUtxowFailure (ScriptWitnessNotValidatingUTXOW (fromList [ScriptHash \"52dc3d43b6d2465e96109ce75ab61abe5e9c1d8a3c9ce6ff8a3af528\"]))",
+      "vectorId": "degenerate/empty-any",
+      "source": "spec/03-satisfaction.md, \"Degenerate thresholds\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "A reference script carrying `after(-1)`, a slot value outside `uint`, was refused. The decoder catches this, not script validation, so the failure names no script.",
+      "error": "DecoderErrorDeserialiseFailure",
+      "source": "spec/01-script-model.md, \"What it takes for a script to reach the chain\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "A reference script carrying bytes that are not CBOR at all was refused. `script_ref` wraps its content in a byte string, so the surrounding transaction stays well formed, but the decoder still looks inside and refuses what it finds.",
+      "error": "DecoderErrorDeserialiseFailure",
+      "source": "spec/01-script-model.md, \"What it takes for a script to reach the chain\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "A script naming `after(-(2^64-1))`, a slot far outside `uint` in the other direction, was refused identically to `after(-1)`: the failure is the same at any magnitude, because the problem is the type rather than the size.",
+      "error": "DecoderErrorDeserialiseFailure",
+      "source": "spec/01-script-model.md, \"What it takes for a script to reach the chain\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "`all [ sig(k), before(0) ] ` was refused: `before(0)` needs `validityEnd <= 0`, so the transaction is refused for being outside its own validity interval before the script is evaluated at all.",
+      "error": "OutsideValidityIntervalUTxO\n  (ValidityInterval {invalidBefore = SNothing, invalidHereafter = SJust (SlotNo 0)})\n  (SlotNo 133854816)",
+      "source": "spec/03-satisfaction.md, \"Extreme and invalid time bounds\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "`all [ sig(k), after(18446744073709551615) ] ` was refused: satisfying `after` at the largest representable slot needs a validity start about 585 billion years away, so the transaction is refused for being outside its own validity interval.",
+      "error": "OutsideValidityIntervalUTxO",
+      "source": "spec/03-satisfaction.md, \"Extreme and invalid time bounds\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "`all [ sig(k), before(-1) ] ` was refused: a negative slot is not in the grammar, so encoding one as CBOR major type 1 makes the whole transaction undecodable, and the refusal is the decoder's rather than the script's.",
+      "error": "DecoderErrorDeserialiseFailure",
+      "source": "spec/03-satisfaction.md, \"Extreme and invalid time bounds\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "`all [ sig(k), after(133000000) ] ` was refused when the spending transaction set no validity interval at all, on an otherwise correct signature: an absent interval bound fails the timelock rather than being skipped.",
+      "error": "ConwayUtxowFailure (ScriptWitnessNotValidatingUTXOW ... ScriptHash \"036b3fb6...\")",
+      "source": "spec/03-satisfaction.md, \"A timelock against an absent interval bound fails\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "A single key nested 5,384 `all` wrappers deep, one level past the 5,383-level script that spent, was refused for size: the node reports `MaxTxSizeUTxO` and says nothing about the script. This is the boundary the 5,383 ceiling is measured against.",
+      "error": "MaxTxSizeUTxO supplied 16385 expected 16384",
+      "shape": {
+        "depth": 5384,
+        "scriptBytes": 16184,
+        "transactionBytes": 16386
+      },
+      "source": "spec/06-chain-exercises.md, \"How deep a single script can nest\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "A 123-of-123 unanimous multisig, one member past the 122-of-122 script that spent inline, was refused for size. This is the boundary the 122-member inline ceiling is measured against.",
+      "error": "MaxTxSizeUTxO supplied 16466 expected 16384",
+      "shape": {
+        "keyCount": 123,
+        "transactionBytes": 16467
+      },
+      "source": "spec/06-chain-exercises.md, \"How large a single multisig can be\", \"Confirmed on preprod\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "A 161-of-161 unanimous multisig, one member past the 160-of-160 script that spent by reference, was refused for size. This is the boundary the 160-member by-reference ceiling is measured against.",
+      "error": "MaxTxSizeUTxO supplied 16398 expected 16384",
+      "shape": {
+        "keyCount": 161,
+        "transactionBytes": 16399
+      },
+      "source": "spec/06-chain-exercises.md, \"How large a single multisig can be\", \"Confirmed on preprod\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "Delegating the 2-of-3 trustee stake credential with no script witness at all and no trustee signatures was refused, naming the credential hash as a missing script witness.",
+      "error": "MissingScriptWitnessesUTXOW",
+      "shape": {
+        "keyCount": 3
+      },
+      "source": "spec/06-chain-exercises.md, \"The delegation already tests the script\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "Delegating the same 2-of-3 trustee stake credential with the script present but only one of the three trustee signatures was refused: the script is present but its threshold is not met.",
+      "error": "ScriptWitnessNotValidatingUTXOW",
+      "shape": {
+        "keyCount": 3
+      },
+      "source": "spec/06-chain-exercises.md, \"The delegation already tests the script\""
+    },
+    {
+      "network": "preprod",
+      "accepted": false,
+      "demonstrates": "Spending the definite-framed address of the 24-key-hash `any` script with cardanoBinary-framed script bytes was refused. The credential wanted the definite hash; the witness supplied the cardanoBinary one; the node treats the two encodings as unrelated scripts.",
+      "error": "ConwayUtxowFailure (MissingScriptWitnessesUTXOW\n  (fromList [ScriptHash \"b7e9fae91f0bd2119ee47c75379439345ec0a5116515e8cea326efcc\"]))\nConwayUtxowFailure (ExtraneousScriptWitnessesUTXOW\n  (fromList [ScriptHash \"cca7321c5acd49f6dcda429401c054adc5724b424774c6097e9bc8ca\"]))",
       "shape": {
         "keyCount": 24
       },

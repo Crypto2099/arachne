@@ -132,7 +132,7 @@ reports it as `{"type": "any", "scripts": []}` against script hash
 `52dc3d43b6d2465e96109ce75ab61abe5e9c1d8a3c9ce6ff8a3af528`. It can never be satisfied and
 it is permanently visible. This transaction is indexed in
 [chain-evidence/observations.json](../chain-evidence/observations.json), alongside every
-other transaction hash named in this specification.
+other submission named in this specification, accepted or refused.
 
 The node does validate what it stores. `script_ref = #6.24(bytes .cbor script)` wraps the
 script in a BYTE STRING, so the surrounding transaction stays well-formed whatever is
