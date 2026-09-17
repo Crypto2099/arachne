@@ -58,6 +58,17 @@ export interface AggregateTool {
   homepage: string;
   engine: EngineLink;
   /**
+   * Which construction paths this tool is registered against in
+   * `compat/tools.json`, carried through unchanged (`tools.json`'s own
+   * default of `['construct']` applies here too, mirroring
+   * `resolvePendingWork` in `src/compat/pending.ts`). A renderer needs this
+   * to tell "not registered against `decode` at all" apart from
+   * "registered, but no result has landed yet": both currently show as zero
+   * `decode` results in `results[]`, and only this field says which one it
+   * is.
+   */
+  paths: ConstructionPath[];
+  /**
    * Other tools in this registry whose agreement with this one is
    * independent evidence about an encoding, per `isIndependentEvidence` in
    * `src/compat/registry.ts`. A tool sharing this one's engine without
@@ -138,6 +149,9 @@ export async function buildAggregate(
       displayName: tool.displayName,
       homepage: tool.homepage,
       engine: tool.engine,
+      // Mirrors resolvePendingWork's own default in src/compat/pending.ts:
+      // a tool entry that omits `paths` runs `construct` only.
+      paths: tool.paths ?? ['construct'],
       independentOf: registry.tools
         .filter((other) => other.id !== tool.id && isIndependentEvidence(tool, other))
         .map((other) => other.id),

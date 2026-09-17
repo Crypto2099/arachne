@@ -7,6 +7,15 @@ import type {
 } from '../../../src/compat/aggregate.js';
 import type { CompatVersionDocument } from '../../../src/compat/version.js';
 
+// The renderer wraps its prose at a readable source-code width, which puts a
+// literal newline into the rendered HTML wherever a browser would only ever
+// show a collapsed space. Assertions against a multi-word phrase pulled from
+// that prose compare against whitespace-normalized text so they track what a
+// reader actually sees rather than where a line happened to wrap in source.
+function normalizeWhitespace(html: string): string {
+  return html.replace(/\s+/g, ' ');
+}
+
 function result(overrides: Partial<AggregateResultSummary> = {}): AggregateResultSummary {
   return {
     version: '1.0.0',
@@ -29,6 +38,7 @@ function tool(overrides: Partial<AggregateTool> = {}): AggregateTool {
     displayName: 'Tool A',
     homepage: 'https://example.invalid/tool-a',
     engine: { id: 'engine-a', relation: 'depends' },
+    paths: ['construct'],
     independentOf: [],
     results: [result()],
     ...overrides,
@@ -222,5 +232,151 @@ describe('renderSite', () => {
       versionDoc(),
     );
     expect(html).not.toContain('<img onerror=alert(1)>');
+  });
+
+  // Requirement: lead with the consequence in plain language before any
+  // table, so a reader never has to reach a row of raw values before
+  // learning why they should care which one it holds.
+  it('states the two-hash consequence before any table on the page', () => {
+    const html = renderSite(aggregate(), versionDoc());
+    const consequenceIndex = html.indexOf('two different script hashes');
+    const firstTableIndex = html.indexOf('<table');
+    expect(consequenceIndex).toBeGreaterThan(-1);
+    expect(firstTableIndex).toBeGreaterThan(-1);
+    expect(consequenceIndex).toBeLessThan(firstTableIndex);
+  });
+
+  // Requirement: a legend defining every framing value, kept on the page
+  // rather than linked away, in the reader's own words rather than the raw
+  // identifier repeated back at them.
+  it('defines every framing value in an on-page legend', () => {
+    const html = normalizeWhitespace(renderSite(aggregate(), versionDoc()));
+    expect(html).toContain('What cardano-serialization-lib, MeshJS and most JavaScript tooling');
+    expect(html).toContain('What cardano-node and cardano-cli produce');
+    expect(html).toContain('Only reachable on the <code>decode</code> path');
+    expect(html).toContain('Never folded into <code>definite</code>');
+    expect(html).toContain('does not yet say which');
+  });
+
+  it('states the tool and engine count once, near the top', () => {
+    const html = normalizeWhitespace(
+      renderSite(
+        aggregate({
+          tools: [
+            tool({ id: 'tool-a', engine: { id: 'engine-a', relation: 'depends' } }),
+            tool({ id: 'tool-b', engine: { id: 'engine-b', relation: 'own' } }),
+          ],
+        }),
+        versionDoc({ toolCount: 2 }),
+      ),
+    );
+    const occurrences = html.split('2 tools are tracked here, sitting on 2 independent engines');
+    expect(occurrences.length - 1).toBe(1);
+  });
+
+  // Requirement: replace the line that repeated the full tool list on every
+  // tool's section. When every tracked tool is independent evidence of
+  // every other, as is true of every fixture above, nothing needs saying
+  // per tool.
+  it('carries no per-tool independence note when every tool corroborates every other', () => {
+    const html = renderSite(
+      aggregate({
+        tools: [
+          tool({
+            id: 'tool-a',
+            engine: { id: 'engine-a', relation: 'depends' },
+            independentOf: ['tool-b'],
+          }),
+          tool({
+            id: 'tool-b',
+            engine: { id: 'engine-b', relation: 'own' },
+            independentOf: ['tool-a'],
+          }),
+        ],
+      }),
+      versionDoc(),
+    );
+    expect(html).not.toContain('Independent evidence alongside');
+    expect(html).not.toContain('class="warning"');
+  });
+
+  // Requirement: surface a warning per tool only where two tools share an
+  // engine and neither reimplements the framing rule, computed from
+  // `independentOf` rather than hardcoded.
+  it('warns a tool that shares an engine with a tool it does not corroborate', () => {
+    const html = renderSite(
+      aggregate({
+        engines: [{ id: 'shared-engine', displayName: 'Shared Engine' }],
+        tools: [
+          tool({
+            id: 'tool-a',
+            displayName: 'Tool A',
+            engine: { id: 'shared-engine', relation: 'depends' },
+            independentOf: [],
+          }),
+          tool({
+            id: 'tool-b',
+            displayName: 'Tool B',
+            engine: { id: 'shared-engine', relation: 'depends' },
+            independentOf: [],
+          }),
+        ],
+      }),
+      versionDoc(),
+    );
+    const toolAIndex = html.indexOf('id="tool-tool-a"');
+    const toolBIndex = html.indexOf('id="tool-tool-b"');
+    const warningIndex = html.indexOf('class="warning"', toolAIndex);
+    expect(warningIndex).toBeGreaterThan(toolAIndex);
+    expect(warningIndex).toBeLessThan(toolBIndex);
+    expect(html.slice(toolAIndex, toolBIndex)).toContain('Tool B');
+  });
+
+  // Requirement: an explicit unmeasured state for a path a tool is not
+  // registered against, filled in from the registered `paths` rather than
+  // inferred from an absent row.
+  it('renders an explicit unmeasured state for a path a tool is not registered against', () => {
+    const html = renderSite(
+      aggregate({
+        tools: [tool({ paths: ['construct'], results: [result({ path: 'construct' })] })],
+      }),
+      versionDoc(),
+    );
+    expect(html).toContain('<code>decode</code> is <span class="unmeasured">unmeasured</span>');
+  });
+
+  it('says nothing extra about a path a tool is registered against and has results for', () => {
+    const html = renderSite(
+      aggregate({
+        tools: [
+          tool({
+            paths: ['construct', 'decode'],
+            results: [result({ path: 'construct' }), result({ path: 'decode' })],
+          }),
+        ],
+      }),
+      versionDoc(),
+    );
+    // The legend still defines the word "unmeasured" (it is a term used
+    // elsewhere on the page), but this tool's own section carries neither
+    // gap note, because both of its registered paths have a result.
+    expect(html).not.toContain('is not registered against the');
+    expect(html).not.toContain('has no recorded result yet');
+  });
+
+  // Requirement: a plain-English verdict alongside the raw framing value,
+  // naming which other tracked tool currently lands on the same side.
+  it('names another tracked tool that currently produces the same encoding', () => {
+    const html = renderSite(
+      aggregate({
+        tools: [
+          tool({ id: 'tool-a', displayName: 'Tool A', results: [result({ framing: 'definite' })] }),
+          tool({ id: 'tool-b', displayName: 'Tool B', results: [result({ framing: 'definite' })] }),
+        ],
+      }),
+      versionDoc(),
+    );
+    expect(html).toContain('Produces the definite encoding');
+    expect(html).toContain('also produced by Tool B');
   });
 });

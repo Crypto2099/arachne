@@ -35,6 +35,9 @@
         "id": "cardano-binary",
         "relation": "depends"
       },
+      "paths": [
+        "construct"
+      ],
       "independentOf": [
         "cardano-address",
         "cardano-serialization-lib-nodejs",
@@ -88,6 +91,9 @@
         "id": "cardano-binary",
         "relation": "reimplements"
       },
+      "paths": [
+        "construct"
+      ],
       "independentOf": [
         "cardano-cli",
         "cardano-serialization-lib-nodejs",
@@ -141,6 +147,9 @@
         "id": "cardano-serialization-lib",
         "relation": "own"
       },
+      "paths": [
+        "construct"
+      ],
       "independentOf": [
         "cardano-cli",
         "cardano-address",
@@ -197,6 +206,9 @@
           "@meshsdk/core-cst"
         ]
       },
+      "paths": [
+        "construct"
+      ],
       "independentOf": [
         "cardano-cli",
         "cardano-address",
@@ -250,6 +262,10 @@
         "id": "gouroboros",
         "relation": "own"
       },
+      "paths": [
+        "construct",
+        "decode"
+      ],
       "independentOf": [
         "cardano-cli",
         "cardano-address",
