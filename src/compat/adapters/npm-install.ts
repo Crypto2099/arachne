@@ -51,9 +51,20 @@ export type DriverBatchOutputEntry =
 
 /**
  * Run a driver script that was installed alongside `pkg`'s `node_modules` in
- * `dir`. The driver reads a JSON array of `{ id, script }` from the path in
- * `argv[2]` and writes a JSON array of `DriverBatchOutputEntry` to stdout, so
- * one child process pays for the whole corpus rather than one per vector.
+ * `dir`. The driver reads a JSON array of its input shape from the path in
+ * the last argument and writes a JSON array to stdout, so one child process
+ * pays for the whole corpus rather than one per vector. `extraArgs`, when
+ * given, are inserted before `inputPath` on the driver's own `argv`; a driver
+ * that answers for more than one construction path, or that needs to know
+ * which package it was installed as, reads them out itself (see
+ * `cml-driver.mjs` and `native-script-classes-driver.mjs`, which both take a
+ * mode and a package name this way rather than hard-coding either).
+ *
+ * The type parameter is the shape of one entry in the driver's own output
+ * array; it defaults to `DriverBatchOutputEntry` because that is every
+ * existing driver's shape, and a driver answering a differently-shaped
+ * question (the decode path's `{ id, definite, cardanoBinary }`) names its
+ * own at the call site instead.
  *
  * The driver is spawned as a plain Node process rather than imported into
  * this one: the scratch install can pull in a different major version of the
@@ -61,18 +72,19 @@ export type DriverBatchOutputEntry =
  * two copies of a native/WASM binding sharing a process is a hazard worth not
  * taking.
  */
-export function runDriverBatch(
+export function runDriverBatch<T = DriverBatchOutputEntry>(
   driverPath: string,
   inputPath: string,
-): { status: 'ok'; entries: DriverBatchOutputEntry[] } | { status: 'failed'; error: string } {
+  extraArgs: string[] = [],
+): { status: 'ok'; entries: T[] } | { status: 'failed'; error: string } {
   try {
-    const stdout = execFileSync('node', [driverPath, inputPath], {
+    const stdout = execFileSync('node', [driverPath, ...extraArgs, inputPath], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
       timeout: 300_000,
       maxBuffer: 64 * 1024 * 1024,
     });
-    return { status: 'ok', entries: JSON.parse(stdout) as DriverBatchOutputEntry[] };
+    return { status: 'ok', entries: JSON.parse(stdout) as T[] };
   } catch (error) {
     const e = error as { stderr?: Buffer | string; stdout?: Buffer | string; message?: string };
     const text = (
