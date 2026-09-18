@@ -200,7 +200,12 @@ observations, along with every other submission named in this document and its
 neighbors, accepted or refused, are indexed in
 [chain-evidence/observations.json](../chain-evidence/observations.json), which
 cross-references back to a vector's own `onchain` array wherever one exists. See
-[chain-evidence/README.md](../chain-evidence/README.md) for its format.
+[chain-evidence/README.md](../chain-evidence/README.md) for its format, and
+[chain-evidence/record.md](../chain-evidence/record.md) for that same record rendered
+for a reader: every submission, grouped by what it establishes rather than by this
+document's narrative order, with every accepted hash linked to a block explorer. This
+document explains why each ceiling sits where it does; that one is the enumerated,
+checkable evidence underneath it.
 
 ## Never fabricate an observation
 

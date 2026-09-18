@@ -61,7 +61,7 @@
     "test:coverage": "vitest run --project unit --project conformance --coverage",
     "vectors:build": "tsx src/cli.ts vectors build",
     "vectors:verify": "tsx src/cli.ts vectors verify",
-    "verify": "npm run lint && npm run typecheck && npm run test && npm run vectors:verify && npm run compat:aggregate:check && npm run compat:version:check",
+    "verify": "npm run lint && npm run typecheck && npm run test && npm run vectors:verify && npm run compat:aggregate:check && npm run compat:version:check && npm run chain-evidence:record:check",
     "test:cli": "vitest run --project cli",
     "test:koios": "vitest run --project koios",
     "compat:check": "tsx scripts/compat-check.ts",
@@ -71,7 +71,9 @@
     "compat:aggregate:check": "tsx scripts/compat-aggregate.ts --check",
     "compat:version": "tsx scripts/compat-version.ts",
     "compat:version:check": "tsx scripts/compat-version.ts --check",
-    "compat:site": "tsx scripts/compat-site.ts"
+    "compat:site": "tsx scripts/compat-site.ts",
+    "chain-evidence:record": "tsx scripts/chain-evidence-record.ts",
+    "chain-evidence:record:check": "tsx scripts/chain-evidence-record.ts --check"
   },
   "keywords": [
     "cardano",
