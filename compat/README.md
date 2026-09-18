@@ -35,12 +35,22 @@ where gouroboros always produces `definite` regardless of which bytes the corpus
 One library, two framing categories, depending only on which of its own APIs is used. See
 "Construction paths" below for how a decode run is represented.
 
+`path: "decode-onchain"` asks the decode question again, against bytes this project did
+not produce. Its inputs are `chain-evidence/scripts.json`, the native scripts a preprod
+node has actually accepted, extracted from the transactions in
+`chain-evidence/observations.json` and framed by whatever software submitted them. A
+corpus vector exists in both encodings, so matching either one is agreement. An observed
+script exists in one, so it has one hash, and a tool that returns the other encoding's
+hash has re-framed a script that is live on a chain: valid bytes for the same logical
+script, and the wrong address for the one people are using. That is recorded as a
+divergence, with `matchedFraming` naming which encoding the tool normalized to.
+
 If a tool's behavior turns out to depend on which of its own APIs is used, the right fix
-is to register it against both paths, each independently run and each with its own
-committed result file, rather than picking one path and calling it "the" result for that
-tool. cardano-multiplatform-lib, `@cardano-sdk/core` and Blaze share this property: each
-keeps the original bytes of whatever it decoded and hashes those on `decode`, while
-`construct` always yields `definite`, the same split gouroboros has.
+is to register it against every path it can answer, each independently run and each with
+its own committed result file. Picking one path and calling it "the" result for that tool
+discards the difference. cardano-multiplatform-lib, `@cardano-sdk/core` and Blaze share this
+property: each keeps the original bytes of whatever it decoded and hashes those on
+`decode`, while `construct` always yields `definite`, the same split gouroboros has.
 
 ## Engines, and why a tool is not an implementation
 
@@ -131,7 +141,7 @@ genuinely different API needs a new adapter under `src/compat/adapters/`.
   arguments are `BigInt`. This is close to `npm-csl`'s shape but not the same one. The
   existing `npm-csl` driver was tried against this package first and throws on the first
   `sig` script it builds, which is why this package gets its own adapter instead of a
-  `npm-csl` entry. Registered against `paths: ["construct", "decode"]`: CML's
+  `npm-csl` entry. Registered against `paths: ["construct", "decode", "decode-onchain"]`: CML's
   `from_cbor_hex` keeps the exact bytes it decoded and `.hash()` hashes those, so
   `construct` (always definite-length) and `decode` (whichever framing was fed in) answer
   differently. The Anastasia Labs fork (`@anastasia-labs/cardano-multiplatform-lib-nodejs`)
@@ -148,14 +158,14 @@ genuinely different API needs a new adapter under `src/compat/adapters/`.
   `"Serialization"` for `@cardano-sdk/core`, or `""` for a package that re-exports the
   same classes at its module root. `@blaze-cardano/core` does the latter: its own source
   aliases `NativeScript` straight from `Serialization.NativeScript` instead of
-  reimplementing it. Registered against `paths: ["construct", "decode"]`: every class
+  reimplementing it. Registered against `paths: ["construct", "decode", "decode-onchain"]`: every class
   here keeps the original bytes it was decoded from and returns them verbatim from
   `toCbor()`, so `.hash()` after `fromCbor(...)` reflects the input's own framing.
 - **`gouroboros`**: assumes a Go toolchain is already on `PATH` the way the npm adapters
   assume npm is, and installs exactly `gouroboros@version` into an isolated module cache
   under a scratch directory (`go mod tidy` resolves the rest of its dependency graph and
   whatever toolchain that release's own `go.mod` requires). Registered against
-  `paths: ["construct", "decode"]`: `construct` builds gouroboros's own Go structs from
+  `paths: ["construct", "decode", "decode-onchain"]`: `construct` builds gouroboros's own Go structs from
   the script's JSON, marshals them to CBOR and hashes the result; `decode` feeds the
   corpus's own CBOR straight to `cbor.Decode` and hashes whatever
   `common.NativeScript.Hash()` returns, once per encoding.
@@ -164,7 +174,7 @@ genuinely different API needs a new adapter under `src/compat/adapters/`.
   `com.bloxbean.cardano:cardano-client-lib:version` into an isolated local Maven
   repository under a scratch directory, packaging a small driver program
   (`cardano-client-lib-driver.java`) and that one dependency into a single runnable jar
-  with the Maven Assembly Plugin. Registered against `paths: ["construct", "decode"]`:
+  with the Maven Assembly Plugin. Registered against `paths: ["construct", "decode", "decode-onchain"]`:
   `construct` hands the script's JSON straight to the library's own
   `NativeScript.deserializeJson`, whose tag and field names already match this project's
   JSON shape, and hashes the result with `getScriptHash()`; `decode` feeds the corpus's
@@ -176,7 +186,7 @@ genuinely different API needs a new adapter under `src/compat/adapters/`.
 - **`pallas`**: assumes a Rust toolchain is already on `PATH`, and writes a scratch
   `Cargo.toml` pinning `pallas-primitives`, `pallas-codec` and `pallas-crypto` to the
   exact version under test (the upstream workspace always releases all three together).
-  Registered against `paths: ["construct", "decode"]`: `construct` builds
+  Registered against `paths: ["construct", "decode", "decode-onchain"]`: `construct` builds
   `pallas_primitives::alonzo::NativeScript` from the script's JSON and hashes it with
   `pallas_crypto::hash::Hasher`; `decode` feeds the corpus's own CBOR to `minicbor` as
   `pallas_codec::utils::KeepRaw<NativeScript>`, which records the exact bytes read and
@@ -187,7 +197,7 @@ genuinely different API needs a new adapter under `src/compat/adapters/`.
   `cbor2pure` to the versions recorded in that pycardano release's own `poetry.lock`
   before installing it, because the package's published metadata alone allows a newer
   `cbor2` than `cbor2pure` has been tested against. Registered against
-  `paths: ["construct", "decode"]`, calling `NativeScript.from_dict(...).hash()` and
+  `paths: ["construct", "decode", "decode-onchain"]`, calling `NativeScript.from_dict(...).hash()` and
   `NativeScript.from_cbor(...).hash()` respectively; unlike gouroboros and pallas,
   `hash()` always re-serializes through `cbor2` rather than hashing the bytes that were
   decoded, so `decode` is not framing-preserving here. Runs one process per vector rather
@@ -207,11 +217,11 @@ no `beta` result for that run; a missing channel is not an error.
 
 One file per tested version per construction path, keyed by exactly the version string
 that was installed. A tool that only runs `construct` (a `tools.json` entry with no
-`paths` field, or `paths: ["construct"]`) keeps the bare `<version>.json` name; a tool
-also registered against `decode` gets a second file, `<version>-decode.json`, for the
-same version. Never hand-edited: a version
-is retested by running the watcher again, which produces a new file if the version
-changed, or leaves the old one alone if it did not.
+`paths` field, or `paths: ["construct"]`) keeps the bare `<version>.json` name; every
+other path is named after itself, so the same version registered against all three has
+`<version>.json`, `<version>-decode.json` and `<version>-decode-onchain.json`. Never
+hand-edited: a version is retested by running the watcher again, which produces a new
+file if the version changed, or leaves the old one alone if it did not.
 
 ```json
 {
@@ -233,17 +243,17 @@ changed, or leaves the old one alone if it did not.
 }
 ```
 
-| Field                      | Meaning                                                                                                                                                                                                                                                                                           |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `path`                     | Which construction path this run exercised. See "Construction paths" below.                                                                                                                                                                                                                       |
-| `engine`                   | The encoder that produced these bytes and the version actually installed. See "Engines" above.                                                                                                                                                                                                    |
-| `corpusDigest`             | `vectors/index.json`'s own digest at the time this ran. Two results are only directly comparable if this matches.                                                                                                                                                                                 |
-| `arachneVersion`           | This project's version that generated the corpus being tested against.                                                                                                                                                                                                                            |
-| `status`                   | `"tested"` or `"untested"`. See below.                                                                                                                                                                                                                                                            |
-| `framing`                  | `"definite"`, `"cardanoBinary"`, `"mixed"`, `"framing-preserving"`, or `"undetermined"`, derived from the vectors below where the two encodings actually differ. Never asserted independently of the per-vector results. `"framing-preserving"` is only reachable on `path: "decode"`; see below. |
-| `vectors[].status`         | `"agreed"`, `"diverged"`, `"refused"`, or `"unsupported"`. See below.                                                                                                                                                                                                                             |
-| `vectors[].matchedFraming` | Which of the corpus's two recorded hashes the tool's answer matched: `"definite"`, `"cardanoBinary"`, `"both"` (the two coincide for this script), or `"neither"`.                                                                                                                                |
-| `vectors[].inputFraming`   | Present only on `path: "decode"`: which of the vector's two CBOR encodings this particular answer is about. See "Construction paths" below.                                                                                                                                                       |
+| Field                      | Meaning                                                                                                                                                                                                                                                                                                           |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `path`                     | Which construction path this run exercised. See "Construction paths" below.                                                                                                                                                                                                                                       |
+| `engine`                   | The encoder that produced these bytes and the version actually installed. See "Engines" above.                                                                                                                                                                                                                    |
+| `corpusDigest`             | The digest of the set this ran against: `vectors/index.json`'s on `construct` and `decode`, `chain-evidence/scripts.json`'s on `decode-onchain`. `path` says which. Two results are only directly comparable if this matches.                                                                                     |
+| `arachneVersion`           | This project's version that generated the corpus being tested against.                                                                                                                                                                                                                                            |
+| `status`                   | `"tested"` or `"untested"`. See below.                                                                                                                                                                                                                                                                            |
+| `framing`                  | `"definite"`, `"cardanoBinary"`, `"mixed"`, `"framing-preserving"`, or `"undetermined"`, derived from the vectors below where the two encodings actually differ. Never asserted independently of the per-vector results. `"framing-preserving"` is only reachable on a path that hands the tool bytes; see below. |
+| `vectors[].status`         | `"agreed"`, `"diverged"`, `"refused"`, or `"unsupported"`. See below.                                                                                                                                                                                                                                             |
+| `vectors[].matchedFraming` | Which of the corpus's two recorded hashes the tool's answer matched: `"definite"`, `"cardanoBinary"`, `"both"` (the two coincide for this script), or `"neither"`.                                                                                                                                                |
+| `vectors[].inputFraming`   | Which encoding the bytes handed over were in. On `decode`, that is which of the vector's two encodings this answer is about; on `decode-onchain`, the framing the observed bytes arrived in, absent when both encoders reproduce them. See "Construction paths" below.                                            |
 
 ### When a tool could not be installed
 
@@ -331,7 +341,7 @@ single implementation; only `deriveFraming` needs the path, because "framing-pre
 is a claim about the relationship between `inputFraming` and `matchedFraming` that has no
 meaning on `construct`, where there is only one input per vector.
 
-`framing-preserving` means that, across every vector where the two encodings actually
+`framing-preserving` means that, across every case where the two encodings actually
 differ, the returned hash matched whichever encoding was fed in: `matchedFraming` equals
 `inputFraming` every time. gouroboros is the case this exists for: run on `construct` it
 reports `definite` like most JavaScript tooling; run on `decode` against the exact same
@@ -339,6 +349,31 @@ corpus it reports `framing-preserving`, because `common.NativeScript.Hash()` has
 bytes it decoded rather than re-encoding them. One release, two committed result files,
 two different framing classifications, both true at once because they answer different
 questions.
+
+### `decode-onchain`
+
+The inputs are `chain-evidence/scripts.json` rather than `vectors/`, so
+`corpusDigest` names that file's digest and a `decode-onchain` result is comparable only
+with another one. Each script is one question, not two: these bytes arrived in the single
+framing whatever submitted them chose, and asking about a second would mean re-encoding
+them here and measuring this project's output again instead of the chain's.
+
+Agreement is stricter for the same reason. `classifyObservedOutcome` records `agreed`
+only when the hash is the one those exact bytes have, where `classifyOutcome` accepts
+either of a vector's two. `matchedFraming` is still reported, so a divergence says what
+the tool did rather than only that it was wrong, and `inputFraming` is set when exactly
+one encoder reproduces the observed bytes. Where both reproduce them the script has one
+hash either way and the answer says nothing about which rule the tool follows. The field
+is absent there, and `deriveFraming` ignores that case the same way it ignores a vector
+whose two encodings coincide.
+
+Two entries in the set are answerable by no encoder at all. `d66ed8e0`, `all [ sig(k),
+before(18446744073709551615) ]`, was accepted by a node and cannot be decoded here, so it
+carries no comparison hash: a tool that returns its hash is right, and `matchedFraming`
+is `"neither"` because there is no framing to attribute that to. `ff3efca6` is 5,383
+nested `all` wrappers in 16,181 bytes, and `@cardano-sdk/core` 0.47.0 refuses it with
+`Maximum call stack size exceeded`, which is the unwritten limit `CLAUDE.md` names under
+"Known limits" showing up in a real library.
 
 ## Rendering a page from this
 
@@ -517,15 +552,14 @@ The same pending/run logic runs locally:
 
 ```
 npx tsx scripts/compat-check.ts              # what is pending, without installing anything
-npx tsx scripts/compat-run.ts <tool> <version> <channel> [construct|decode]   # run and record one version
+npx tsx scripts/compat-run.ts <tool> <version> <channel> [construct|decode|decode-onchain]   # run and record one version
 npx tsx scripts/compat-watch.ts              # run everything pending and write a PR title/body
 npx tsx scripts/compat-watch.ts --dry-run    # the same, without installing or writing results
 npx tsx scripts/compat-aggregate.ts          # regenerate compat/aggregate.json from the above
 ```
 
 The fourth argument to `compat-run.ts` defaults to `construct`. A tool registered against
-more than one path in `tools.json` (gouroboros's and cardano-client-lib's
-`paths: ["construct", "decode"]`) needs one invocation per path; `compat-check.ts` and
+more than one path in `tools.json` needs one invocation per path. `compat-check.ts` and
 `compat-watch.ts` already read `paths` from the registry and treat each (tool, channel,
-path) as its own pending item, so the daily watcher keeps both of each tool's result files
-current as new releases ship.
+path) as its own pending item, so the daily watcher keeps every one of a tool's result
+files current as new releases ship.

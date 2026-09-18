@@ -6,6 +6,7 @@ import type {
   DecodeOutcome,
   HashOutcome,
   InstallOutcome,
+  ObservedItem,
   ScriptItem,
   ToolAdapter,
   ToolDefinition,
@@ -59,6 +60,8 @@ export const NPM_CML_ADAPTER: ToolAdapter = {
         hashScripts: async (items: ScriptItem[]) =>
           runConstruct(driverPath, pkg, scratchDir, items),
         decodeScripts: async (items: DecodeItem[]) => runDecode(driverPath, pkg, scratchDir, items),
+        hashObservedScripts: async (items: ObservedItem[]) =>
+          runOnchain(driverPath, pkg, scratchDir, items),
         // Every tool on this adapter either IS the cardano-multiplatform-lib
         // engine (dcSpark's own build) or ships its own forked build of it
         // under a different package name (Anastasia Labs), so there is never
@@ -119,6 +122,30 @@ async function runDecode(
       cardanoBinary: toHashOutcome(entry.cardanoBinary),
     });
   }
+  return outcomes;
+}
+
+/**
+ * The observed-bytes path. The driver answers it in the same flat shape the
+ * construct path uses, one outcome per item, because an observed script has
+ * one framing and so one question.
+ */
+async function runOnchain(
+  driverPath: string,
+  pkg: string,
+  scratchDir: string,
+  items: ObservedItem[],
+): Promise<Map<string, HashOutcome>> {
+  const inputPath = join(scratchDir, 'onchain-input.json');
+  await writeFile(inputPath, JSON.stringify(items), 'utf8');
+
+  const result = runDriverBatch(driverPath, inputPath, ['onchain', pkg]);
+  const outcomes = new Map<string, HashOutcome>();
+  if (result.status === 'failed') {
+    for (const item of items) outcomes.set(item.id, { status: 'refused', error: result.error });
+    return outcomes;
+  }
+  for (const entry of result.entries) outcomes.set(entry.id, toHashOutcome(entry));
   return outcomes;
 }
 

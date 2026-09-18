@@ -6,7 +6,7 @@
 // isolated scratch directory the same way gouroboros-driver.go is copied next
 // to a scratch go.mod rather than compiled as part of this repository.
 //
-// Exercises both construction paths cardano-client-lib exposes, chosen by
+// Exercises the construction paths cardano-client-lib exposes, chosen by
 // argv[0]:
 //
 // construct <input.json>
@@ -35,7 +35,13 @@
 // That is the finding this path exists to check for, not an assumption
 // this driver makes ahead of running it.
 //
-// Either mode writes one JSON array to stdout and nothing else; all
+// onchain <input.json>
+// input.json is a JSON array of { id, cborHex }, each entry one byte string
+// a node has accepted. Decoded through the same path "decode" uses, one
+// answer per item rather than two, so the re-serialization described above
+// applies here as well.
+//
+// Every mode writes one JSON array to stdout and nothing else; all
 // human-readable diagnostics, including the SLF4J "no provider found"
 // warning cardano-client-lib's own logging call emits, go to stderr,
 // mirroring the other drivers' stdout/stderr split.
@@ -56,7 +62,7 @@ import java.nio.file.Paths;
 public final class Driver {
     public static void main(String[] args) throws Exception {
         if (args.length != 2) {
-            System.err.println("usage: driver <construct|decode> <input.json>");
+            System.err.println("usage: driver <construct|decode|onchain> <input.json>");
             System.exit(1);
             return;
         }
@@ -73,6 +79,9 @@ public final class Driver {
                 break;
             case "decode":
                 for (JsonNode item : items) out.add(decode(mapper, item));
+                break;
+            case "onchain":
+                for (JsonNode item : items) out.add(onchain(mapper, item));
                 break;
             default:
                 System.err.println("unknown mode \"" + mode + "\"");
@@ -110,6 +119,19 @@ public final class Driver {
         result.set("definite", decodeOne(mapper, item.get("definiteCborHex").asText()));
         result.set("cardanoBinary", decodeOne(mapper, item.get("cardanoBinaryCborHex").asText()));
         return result;
+    }
+
+    /**
+     * One answer per byte string, in the same flat shape the construct path
+     * emits: an observed script carries the single framing whatever submitted
+     * it chose, so there is no second encoding to ask about.
+     */
+    private static ObjectNode onchain(ObjectMapper mapper, JsonNode item) {
+        ObjectNode result = decodeOne(mapper, item.get("cborHex").asText());
+        ObjectNode withId = mapper.createObjectNode();
+        withId.put("id", item.get("id").asText());
+        withId.setAll(result);
+        return withId;
     }
 
     private static ObjectNode decodeOne(ObjectMapper mapper, String cborHex) {

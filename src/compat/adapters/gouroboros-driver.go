@@ -4,7 +4,7 @@
 // isolated scratch directory by gouroboros.ts and built there, the same way
 // csl-driver.mjs is copied next to a scratch npm install rather than imported.
 //
-// Exercises both construction paths gouroboros exposes, chosen by argv[1]:
+// Exercises the construction paths gouroboros exposes, chosen by argv[1]:
 //
 //	construct <input.json>
 //	  input.json is a JSON array of { id, script }, where "script" is this
@@ -20,7 +20,12 @@
 //	  decoded rather than re-encoding, so this is the one path that can show
 //	  it reproducing whichever framing it was handed.
 //
-// Either mode writes one JSON array to stdout and nothing else; all
+//	onchain <input.json>
+//	  input.json is a JSON array of { id, cborHex }, each entry one byte
+//	  string a node has accepted. Decoded and hashed exactly as "decode"
+//	  does, one answer per item rather than two.
+//
+// Every mode writes one JSON array to stdout and nothing else; all
 // human-readable diagnostics go to stderr, mirroring the other npm-backed
 // drivers' stdout/stderr split.
 package main
@@ -65,6 +70,11 @@ type decodeItem struct {
 	CardanoBinaryCborHex string `json:"cardanoBinaryCborHex"`
 }
 
+type observedItem struct {
+	ID      string `json:"id"`
+	CborHex string `json:"cborHex"`
+}
+
 type hashOutcome struct {
 	Status string `json:"status"` // "ok" or "error"
 	Hash   string `json:"hash,omitempty"`
@@ -79,7 +89,7 @@ type decodeResult struct {
 
 func main() {
 	if len(os.Args) != 3 {
-		fmt.Fprintln(os.Stderr, "usage: gouroboros-driver <construct|decode> <input.json>")
+		fmt.Fprintln(os.Stderr, "usage: gouroboros-driver <construct|decode|onchain> <input.json>")
 		os.Exit(1)
 	}
 	mode := os.Args[1]
@@ -95,6 +105,8 @@ func main() {
 		runConstruct(raw)
 	case "decode":
 		runDecode(raw)
+	case "onchain":
+		runOnchain(raw)
 	default:
 		fmt.Fprintf(os.Stderr, "unknown mode %q\n", mode)
 		os.Exit(1)
@@ -140,6 +152,28 @@ func runDecode(raw []byte) {
 			ID:            item.ID,
 			Definite:      decodeAndHash(item.DefiniteCborHex),
 			CardanoBinary: decodeAndHash(item.CardanoBinaryCborHex),
+		})
+	}
+	emit(out)
+}
+
+// runOnchain answers one question per byte string, in the same flat shape
+// runConstruct emits: an observed script has the single framing whatever
+// submitted it chose, so there is no second encoding to ask about.
+func runOnchain(raw []byte) {
+	var items []observedItem
+	if err := json.Unmarshal(raw, &items); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
+	out := make([]constructResult, 0, len(items))
+	for _, item := range items {
+		outcome := decodeAndHash(item.CborHex)
+		out = append(out, constructResult{
+			ID:     item.ID,
+			Status: outcome.Status,
+			Hash:   outcome.Hash,
+			Error:  outcome.Error,
 		})
 	}
 	emit(out)

@@ -8,8 +8,8 @@
 // `workflow_dispatch` should be pointed at before trusting an unattended run.
 //
 // Without the flag, it runs every pending (tool, channel, path), writes
-// `compat/results/<tool>/<version>.json` (or `<version>-decode.json` for a
-// tool that also runs the decode path) for each, and writes a PR title and
+// `compat/results/<tool>/<version>.json` (or `<version>-<path>.json` for a
+// tool registered against more than one path) for each, and writes a PR title and
 // body describing what it found: `pr-title.txt` states whether a behavior
 // change was found, and `pr-body.md` lists every version tested with its
 // change report against the version it replaces.

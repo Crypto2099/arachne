@@ -15,8 +15,10 @@
 // is the empty string for the root case and a dotted path ("Serialization")
 // otherwise.
 //
-// `mode` is "construct" (build from the corpus's JSON shape and hash) or
-// "decode" (hash whatever CBOR bytes were handed over, once per encoding).
+// `mode` is "construct" (build from the corpus's JSON shape and hash),
+// "decode" (hash whatever CBOR bytes were handed over, once per encoding), or
+// "onchain" (the same hashing, over one byte string per item, taken from what
+// a node has actually accepted).
 // Both packages preserve the framing of whatever CBOR they decoded: every
 // class here keeps its original bytes internally and `toCbor()` returns them
 // verbatim when present, so `.hash()` after `fromCbor(...)` reflects the
@@ -70,6 +72,14 @@ function toNative(script) {
 
 const items = JSON.parse(readFileSync(inputPath, 'utf8'));
 
+const decodeOne = (cborHex) => {
+  try {
+    return { status: 'ok', hash: NativeScript.fromCbor(cborHex).hash() };
+  } catch (error) {
+    return { status: 'error', error: error instanceof Error ? error.message : String(error) };
+  }
+};
+
 if (mode === 'construct') {
   const out = items.map(({ id, script }) => {
     try {
@@ -81,22 +91,18 @@ if (mode === 'construct') {
   });
   process.stdout.write(JSON.stringify(out));
 } else if (mode === 'decode') {
-  const decodeOne = (cborHex) => {
-    try {
-      return { status: 'ok', hash: NativeScript.fromCbor(cborHex).hash() };
-    } catch (error) {
-      return { status: 'error', error: error instanceof Error ? error.message : String(error) };
-    }
-  };
   const out = items.map(({ id, definiteCborHex, cardanoBinaryCborHex }) => ({
     id,
     definite: decodeOne(definiteCborHex),
     cardanoBinary: decodeOne(cardanoBinaryCborHex),
   }));
   process.stdout.write(JSON.stringify(out));
+} else if (mode === 'onchain') {
+  const out = items.map(({ id, cborHex }) => ({ id, ...decodeOne(cborHex) }));
+  process.stdout.write(JSON.stringify(out));
 } else {
   process.stderr.write(
-    `native-script-classes-driver.mjs: unknown mode "${mode}", expected "construct" or "decode"`,
+    `native-script-classes-driver.mjs: unknown mode "${mode}", expected "construct", "decode" or "onchain"`,
   );
   process.exit(1);
 }

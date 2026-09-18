@@ -11,25 +11,26 @@
 //   npx tsx scripts/compat-run.ts gouroboros v0.205.1 current decode
 //
 // and defaults to "construct" when omitted, which is every path every other
-// registered tool runs.
+// registered tool runs. "decode-onchain" runs against
+// chain-evidence/scripts.json rather than the generated corpus, so its result
+// records that set's digest in "corpusDigest".
 //
 // Human-readable progress goes to stderr; the single line of machine output
 // (the written path plus the change report against the previous version) goes
 // to stdout.
 import { arachneVersion } from '../src/compat/arachne-version.js';
-import type { Channel, ConstructionPath } from '../src/compat/types.js';
+import { CONSTRUCTION_PATHS, type Channel, type ConstructionPath } from '../src/compat/types.js';
 import { runCompatCheck } from '../src/compat/runner.js';
 import { previousResult, writeCompatResult } from '../src/compat/results.js';
 import { compareResults } from '../src/compat/change.js';
 
 const CHANNELS: Channel[] = ['current', 'previous', 'beta'];
-const PATHS: ConstructionPath[] = ['construct', 'decode'];
 
 async function main(argv: string[]): Promise<number> {
   const [toolId, version, channelArg, pathArg] = argv;
   if (!toolId || !version || !channelArg) {
     console.error(
-      'usage: compat-run.ts <toolId> <version> <current|previous|beta> [construct|decode]',
+      `usage: compat-run.ts <toolId> <version> <current|previous|beta> [${CONSTRUCTION_PATHS.join('|')}]`,
     );
     return 1;
   }
@@ -39,8 +40,8 @@ async function main(argv: string[]): Promise<number> {
   }
   const channel = channelArg as Channel;
 
-  if (pathArg !== undefined && !PATHS.includes(pathArg as ConstructionPath)) {
-    console.error(`path must be one of ${PATHS.join(', ')}, got "${pathArg}"`);
+  if (pathArg !== undefined && !CONSTRUCTION_PATHS.includes(pathArg as ConstructionPath)) {
+    console.error(`path must be one of ${CONSTRUCTION_PATHS.join(', ')}, got "${pathArg}"`);
     return 1;
   }
   const path: ConstructionPath = (pathArg as ConstructionPath | undefined) ?? 'construct';

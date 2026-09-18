@@ -7,6 +7,7 @@ import type {
   DecodeOutcome,
   HashOutcome,
   InstallOutcome,
+  ObservedItem,
   ScriptItem,
   ToolAdapter,
   ToolDefinition,
@@ -105,6 +106,8 @@ export const GOUROBOROS_ADAPTER: ToolAdapter = {
       session: {
         hashScripts: async (items: ScriptItem[]) => runConstruct(binaryPath, scratchDir, items),
         decodeScripts: async (items: DecodeItem[]) => runDecode(binaryPath, scratchDir, items),
+        hashObservedScripts: async (items: ObservedItem[]) =>
+          runOnchain(binaryPath, scratchDir, items),
         // gouroboros IS its own engine, and the registry always names an exact
         // release rather than a range, so this reads the version go.mod
         // actually settled on rather than echoing the one requested.
@@ -214,6 +217,41 @@ async function runDecode(
         entry.cardanoBinary.error,
       ),
     });
+  }
+  return outcomes;
+}
+
+/**
+ * The observed-bytes path. The driver answers it in the same flat shape the
+ * construct path uses, one outcome per item, because an observed script has
+ * one framing and so one question.
+ */
+async function runOnchain(
+  binaryPath: string,
+  scratchDir: string,
+  items: ObservedItem[],
+): Promise<Map<string, HashOutcome>> {
+  const inputPath = join(scratchDir, 'onchain-input.json');
+  await writeFile(inputPath, JSON.stringify(items), 'utf8');
+
+  const outcomes = new Map<string, HashOutcome>();
+  let entries: GoConstructResult[];
+  try {
+    const stdout = execFileSync(binaryPath, ['onchain', inputPath], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 300_000,
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    entries = JSON.parse(stdout) as GoConstructResult[];
+  } catch (error) {
+    const text = driverErrorText(error);
+    for (const item of items) outcomes.set(item.id, { status: 'refused', error: text });
+    return outcomes;
+  }
+
+  for (const entry of entries) {
+    outcomes.set(entry.id, toHashOutcome(entry.status, entry.hash, entry.error));
   }
   return outcomes;
 }

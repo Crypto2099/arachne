@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "latestTestedAt": "2026-09-17T19:37:52.227Z",
+  "latestTestedAt": "2026-09-18T18:28:20.210Z",
   "engines": [
     {
       "id": "cardano-binary",
@@ -311,7 +311,8 @@
       },
       "paths": [
         "construct",
-        "decode"
+        "decode",
+        "decode-onchain"
       ],
       "independentOf": [
         "cardano-cli",
@@ -483,7 +484,8 @@
       },
       "paths": [
         "construct",
-        "decode"
+        "decode",
+        "decode-onchain"
       ],
       "independentOf": [
         "cardano-cli",
@@ -498,6 +500,24 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "6.2.0",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:18:07.929Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 14,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-multiplatform-lib-nodejs/6.2.0-decode-onchain.json"
+        },
         {
           "version": "6.2.0",
           "channel": "current",
@@ -533,6 +553,24 @@
             "unsupported": 0
           },
           "resultFile": "compat/results/cardano-multiplatform-lib-nodejs/6.2.0.json"
+        },
+        {
+          "version": "6.1.0",
+          "channel": "previous",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:18:08.618Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 14,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-multiplatform-lib-nodejs/6.1.0-decode-onchain.json"
         },
         {
           "version": "6.1.0",
@@ -582,7 +620,8 @@
       },
       "paths": [
         "construct",
-        "decode"
+        "decode",
+        "decode-onchain"
       ],
       "independentOf": [
         "cardano-cli",
@@ -597,6 +636,24 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "6.2.0-2",
+          "channel": "beta",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:18:10.821Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 14,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/anastasia-labs-cardano-multiplatform-lib-nodejs/6.2.0-2-decode-onchain.json"
+        },
         {
           "version": "6.2.0-2",
           "channel": "beta",
@@ -636,6 +693,24 @@
         {
           "version": "6.0.1",
           "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:18:09.302Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 14,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/anastasia-labs-cardano-multiplatform-lib-nodejs/6.0.1-decode-onchain.json"
+        },
+        {
+          "version": "6.0.1",
+          "channel": "current",
           "path": "decode",
           "testedAt": "2026-09-17T18:56:13.167Z",
           "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
@@ -668,6 +743,24 @@
             "unsupported": 0
           },
           "resultFile": "compat/results/anastasia-labs-cardano-multiplatform-lib-nodejs/6.0.1.json"
+        },
+        {
+          "version": "6.0.0",
+          "channel": "previous",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:18:10.122Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 14,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/anastasia-labs-cardano-multiplatform-lib-nodejs/6.0.0-decode-onchain.json"
         },
         {
           "version": "6.0.0",
@@ -717,7 +810,8 @@
       },
       "paths": [
         "construct",
-        "decode"
+        "decode",
+        "decode-onchain"
       ],
       "independentOf": [
         "cardano-cli",
@@ -731,6 +825,24 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "0.47.0",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:13:53.798Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 15,
+            "diverged": 0,
+            "refused": 1,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-sdk-core/0.47.0-decode-onchain.json"
+        },
         {
           "version": "0.47.0",
           "channel": "current",
@@ -766,6 +878,24 @@
             "unsupported": 0
           },
           "resultFile": "compat/results/cardano-sdk-core/0.47.0.json"
+        },
+        {
+          "version": "0.46.15",
+          "channel": "previous",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:18:11.529Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 15,
+            "diverged": 0,
+            "refused": 1,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-sdk-core/0.46.15-decode-onchain.json"
         },
         {
           "version": "0.46.15",
@@ -815,7 +945,8 @@
       },
       "paths": [
         "construct",
-        "decode"
+        "decode",
+        "decode-onchain"
       ],
       "independentOf": [
         "cardano-cli",
@@ -829,6 +960,24 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "0.9.1",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:21:00.171Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 15,
+            "diverged": 0,
+            "refused": 1,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/blaze-cardano-core/0.9.1-decode-onchain.json"
+        },
         {
           "version": "0.9.1",
           "channel": "current",
@@ -864,6 +1013,24 @@
             "unsupported": 0
           },
           "resultFile": "compat/results/blaze-cardano-core/0.9.1.json"
+        },
+        {
+          "version": "0.9.0",
+          "channel": "previous",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:23:57.809Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 15,
+            "diverged": 0,
+            "refused": 1,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/blaze-cardano-core/0.9.0-decode-onchain.json"
         },
         {
           "version": "0.9.0",
@@ -913,7 +1080,8 @@
       },
       "paths": [
         "construct",
-        "decode"
+        "decode",
+        "decode-onchain"
       ],
       "independentOf": [
         "cardano-cli",
@@ -929,6 +1097,24 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "0.8.0-preview1",
+          "channel": "beta",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:28:20.210Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 16,
+            "agreed": 10,
+            "diverged": 5,
+            "refused": 1,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-client-lib/0.8.0-preview1-decode-onchain.json"
+        },
         {
           "version": "0.8.0-preview1",
           "channel": "beta",
@@ -968,6 +1154,24 @@
         {
           "version": "0.7.2",
           "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:27:45.873Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 16,
+            "agreed": 10,
+            "diverged": 5,
+            "refused": 1,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-client-lib/0.7.2-decode-onchain.json"
+        },
+        {
+          "version": "0.7.2",
+          "channel": "current",
           "path": "decode",
           "testedAt": "2026-09-17T18:55:34.713Z",
           "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
@@ -1000,6 +1204,24 @@
             "unsupported": 0
           },
           "resultFile": "compat/results/cardano-client-lib/0.7.2.json"
+        },
+        {
+          "version": "0.7.1",
+          "channel": "previous",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:28:02.653Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 16,
+            "agreed": 10,
+            "diverged": 5,
+            "refused": 1,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-client-lib/0.7.1-decode-onchain.json"
         },
         {
           "version": "0.7.1",
@@ -1049,7 +1271,8 @@
       },
       "paths": [
         "construct",
-        "decode"
+        "decode",
+        "decode-onchain"
       ],
       "independentOf": [
         "cardano-cli",
@@ -1065,6 +1288,24 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "1.3.0",
+          "channel": "previous",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:27:34.637Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.3.0-decode-onchain.json"
+        },
         {
           "version": "1.3.0",
           "channel": "current",
@@ -1149,7 +1390,8 @@
       },
       "paths": [
         "construct",
-        "decode"
+        "decode",
+        "decode-onchain"
       ],
       "independentOf": [
         "cardano-cli",
@@ -1165,6 +1407,24 @@
         "pallas"
       ],
       "results": [
+        {
+          "version": "0.19.2",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:26:45.809Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 16,
+            "agreed": 11,
+            "diverged": 4,
+            "refused": 1,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pycardano/0.19.2-decode-onchain.json"
+        },
         {
           "version": "0.19.2",
           "channel": "current",
@@ -1200,6 +1460,24 @@
             "unsupported": 0
           },
           "resultFile": "compat/results/pycardano/0.19.2.json"
+        },
+        {
+          "version": "0.19.1",
+          "channel": "previous",
+          "path": "decode-onchain",
+          "testedAt": "2026-09-18T18:27:10.739Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 16,
+            "agreed": 10,
+            "diverged": 4,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pycardano/0.19.1-decode-onchain.json"
         },
         {
           "version": "0.19.1",

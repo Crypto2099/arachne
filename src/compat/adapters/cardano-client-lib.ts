@@ -7,6 +7,7 @@ import type {
   DecodeOutcome,
   HashOutcome,
   InstallOutcome,
+  ObservedItem,
   ScriptItem,
   ToolAdapter,
   ToolDefinition,
@@ -95,6 +96,8 @@ export const CARDANO_CLIENT_LIB_ADAPTER: ToolAdapter = {
       session: {
         hashScripts: async (items: ScriptItem[]) => runConstruct(jarPath, scratchDir, items),
         decodeScripts: async (items: DecodeItem[]) => runDecode(jarPath, scratchDir, items),
+        hashObservedScripts: async (items: ObservedItem[]) =>
+          runOnchain(jarPath, scratchDir, items),
         // cardano-client-lib IS its own engine, and the registry always names
         // an exact release rather than a range, so this reads back the
         // version actually resolved into the isolated local repository
@@ -255,6 +258,41 @@ async function runDecode(
         entry.cardanoBinary.error,
       ),
     });
+  }
+  return outcomes;
+}
+
+/**
+ * The observed-bytes path. The driver answers it in the same flat shape the
+ * construct path uses, one outcome per item, because an observed script has
+ * one framing and so one question.
+ */
+async function runOnchain(
+  jarPath: string,
+  scratchDir: string,
+  items: ObservedItem[],
+): Promise<Map<string, HashOutcome>> {
+  const inputPath = join(scratchDir, 'onchain-input.json');
+  await writeFile(inputPath, JSON.stringify(items), 'utf8');
+
+  const outcomes = new Map<string, HashOutcome>();
+  let entries: JavaConstructResult[];
+  try {
+    const stdout = execFileSync('java', ['-jar', jarPath, 'onchain', inputPath], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 300_000,
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    entries = JSON.parse(stdout) as JavaConstructResult[];
+  } catch (error) {
+    const text = driverErrorText(error);
+    for (const item of items) outcomes.set(item.id, { status: 'refused', error: text });
+    return outcomes;
+  }
+
+  for (const entry of entries) {
+    outcomes.set(entry.id, toHashOutcome(entry.status, entry.hash, entry.error));
   }
   return outcomes;
 }

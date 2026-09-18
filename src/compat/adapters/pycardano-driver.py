@@ -5,7 +5,7 @@ into an isolated scratch directory by pycardano.ts and invoked there with
 the venv's own interpreter, the same way csl-driver.mjs is copied next to a
 scratch npm install rather than imported.
 
-Exercises both construction paths pycardano exposes, chosen by argv[1]:
+Exercises the construction paths pycardano exposes, chosen by argv[1]:
 
     construct <input.json>
       input.json is a JSON array of { id, script }, where "script" is this
@@ -38,7 +38,14 @@ Exercises both construction paths pycardano exposes, chosen by argv[1]:
       script is decoded from the chain and re-encoded before hashing"
       failure mode.
 
-Either mode writes one JSON array to stdout and nothing else; all
+    onchain <input.json>
+      input.json is a JSON array of { id, cborHex }, each entry one byte
+      string a node has accepted. Decoded and hashed exactly as the decode
+      mode does, so the re-encoding described above applies here too and is
+      the point: these bytes are live, and a hash that does not match them is
+      an address that holds no funds.
+
+Every mode writes one JSON array to stdout and nothing else; all
 human-readable diagnostics go to stderr, mirroring the other drivers'
 stdout/stderr split.
 """
@@ -85,9 +92,16 @@ def run_decode(items):
     return out
 
 
+def run_onchain(items):
+    return [{"id": item["id"], **decode_and_hash(item["cborHex"])} for item in items]
+
+
 def main() -> int:
     if len(sys.argv) != 3:
-        print("usage: pycardano-driver.py <construct|decode> <input.json>", file=sys.stderr)
+        print(
+            "usage: pycardano-driver.py <construct|decode|onchain> <input.json>",
+            file=sys.stderr,
+        )
         return 1
     mode, input_path = sys.argv[1], sys.argv[2]
     with open(input_path, "r", encoding="utf8") as f:
@@ -97,6 +111,8 @@ def main() -> int:
         result = run_construct(items)
     elif mode == "decode":
         result = run_decode(items)
+    elif mode == "onchain":
+        result = run_onchain(items)
     else:
         print(f"unknown mode {mode!r}", file=sys.stderr)
         return 1

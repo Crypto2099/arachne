@@ -1,7 +1,7 @@
 import type { AggregateResultSummary, AggregateTool, CompatAggregate } from './aggregate.js';
 import type { CompatVersionDocument } from './version.js';
 import type { Framing } from './classify.js';
-import type { ConstructionPath, EngineDefinition } from './types.js';
+import { CONSTRUCTION_PATHS, type ConstructionPath, type EngineDefinition } from './types.js';
 import { escapeAttr, escapeHtml, FAVICON, THEME_TOKENS } from './html.js';
 
 /**
@@ -111,7 +111,7 @@ ${engineSections}
 }
 
 /** Every path this project currently knows how to ask a tool about. */
-const ALL_PATHS: ConstructionPath[] = ['construct', 'decode'];
+const ALL_PATHS: readonly ConstructionPath[] = CONSTRUCTION_PATHS;
 
 /**
  * The order the five framing values are shown in wherever the page shows all
@@ -365,7 +365,7 @@ function renderResultRow(result: AggregateResultSummary): string {
 <td data-label="Channel"><span class="channel">${escapeHtml(result.channel)}</span></td>
 <td data-label="Path">${escapeHtml(result.path)}</td>
 <td data-label="Tested">${renderTimestamp(result.testedAt)}</td>
-<td data-label="Corpus">${renderDigest(result.corpusDigest)}</td>`;
+<td data-label="Corpus">${renderDigest(result.corpusDigest, result.path)}</td>`;
 
   if (result.status === 'untested') {
     return `<tr class="untested" data-channel="${escapeAttr(result.channel)}">
@@ -472,10 +472,20 @@ function agreeingTools(
  * only: the full digest is always in the `title` attribute, and the
  * comparison a reader should actually trust is the text, not the swatch.
  */
-function renderDigest(digest: string): string {
+/**
+ * The digest of the set a row was measured against, colored by its own value
+ * so two rows measured against the same set read as the same at a glance.
+ *
+ * The title names which set that is, because `decode-onchain` is measured
+ * against the observed scripts rather than the generated corpus. Without it, a
+ * digest that differs from every neighboring row would read as a corpus that
+ * moved rather than as a different question.
+ */
+function renderDigest(digest: string, path: ConstructionPath): string {
   const short = digest.slice(0, 12);
   const hue = hashToHue(digest);
-  return `<span class="corpus" title="${escapeAttr(digest)}"><span class="corpus-mark" style="background: hsl(${hue} 62% 46%)"></span>${escapeHtml(short)}</span>`;
+  const source = path === 'decode-onchain' ? 'chain-evidence/scripts.json' : 'vectors/index.json';
+  return `<span class="corpus" title="${escapeAttr(`${source} ${digest}`)}"><span class="corpus-mark" style="background: hsl(${hue} 62% 46%)"></span>${escapeHtml(short)}</span>`;
 }
 
 /** FNV-1a over the digest string, folded into a hue. Deterministic, not cryptographic: it only has to be stable and roughly well-distributed across the ~16 corpus digests this project has ever produced. */
@@ -526,9 +536,9 @@ cardano-cli produce.</dd>
 </div>
 <div class="side side-framing-preserving">
 <dt><code>framing-preserving</code></dt>
-<dd>Only reachable on the <code>decode</code> path: the tool returned the hash of the
-exact bytes it was handed, whichever of the two encodings that happened to be, instead
-of re-encoding first. It has no fixed side of its own; it reflects whatever it was
+<dd>Only reachable on a path that hands the tool bytes: the tool returned the hash of
+the exact bytes it was given, whichever encoding those happened to be in, instead of
+re-encoding first. It has no fixed side of its own; it reflects whatever it was
 given.</dd>
 </div>
 <div class="side side-mixed">
@@ -559,6 +569,14 @@ tool reproduces the encoding it was given, or normalizes every input toward one
 encoding regardless.</dd>
 </div>
 <div>
+<dt>Path: <code>decode-onchain</code></dt>
+<dd>The same question as <code>decode</code>, asked of bytes a Cardano node has
+actually accepted rather than bytes this project generated. Whatever software submitted
+those transactions chose their framing, so each script here exists in one encoding and
+has one hash, and a tool that returns the other encoding's hash would compute an address
+that holds no funds.</dd>
+</div>
+<div>
 <dt>Path: <span class="unmeasured">unmeasured</span></dt>
 <dd>This tool is not currently registered to run against this path at all, so nothing
 has been measured there. Different from a version that was tested and failed to
@@ -567,19 +585,20 @@ install, which is recorded as "untested" together with the reason.</dd>
 <div>
 <dt>Vectors: <code>agreed</code>, <code>diverged</code>, <code>refused</code>,
 <code>unsupported</code></dt>
-<dd>What happened for each script in the corpus, within one run. <code>agreed</code>:
-the hash matched one of the script's two valid recorded hashes. <code>diverged</code>:
-the tool produced a hash and it matched neither, a third value for a script that
-should have at most two. <code>refused</code>: the tool ran and declined to answer,
+<dd>What happened for each script in the run. <code>agreed</code>: the hash matched
+one of the script's two valid recorded hashes, or on <code>decode-onchain</code>, the
+single hash the observed bytes have. <code>diverged</code>: the tool produced a hash
+and it was not one of those. <code>refused</code>: the tool ran and declined to answer,
 with its own error text kept. <code>unsupported</code>: the tool's own API cannot
 represent this construct at all, so it was never attempted.</dd>
 </div>
 <div>
 <dt>Corpus</dt>
-<dd>A short, colored badge for the digest of the exact corpus (<code>vectors/index.json</code>)
-that run was tested against; the full digest is in the badge's title on hover. Two
-results are only directly comparable when this matches, and the color is a visual aid
-for spotting that at a glance, not a judgment about either result.</dd>
+<dd>A short, colored badge for the digest of the exact set that run was tested against:
+<code>vectors/index.json</code> on most paths, and <code>chain-evidence/scripts.json</code>
+on <code>decode-onchain</code>. The title on hover names the file and gives the full
+digest. Two results are only directly comparable when this matches, and the color is a
+visual aid for spotting that at a glance, not a judgment about either result.</dd>
 </div>
 <div>
 <dt>Engine relation: <code>depends</code>, <code>fork</code>, <code>vendored</code>,

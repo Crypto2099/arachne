@@ -125,7 +125,7 @@
         "tagPrefix": "v"
       },
       "channels": ["current", "previous"],
-      "paths": ["construct", "decode"],
+      "paths": ["construct", "decode", "decode-onchain"],
       "engine": {
         "id": "gouroboros",
         "relation": "own"
@@ -141,7 +141,7 @@
         "type": "npm"
       },
       "channels": ["current", "previous", "beta"],
-      "paths": ["construct", "decode"],
+      "paths": ["construct", "decode", "decode-onchain"],
       "engine": {
         "id": "cardano-multiplatform-lib",
         "relation": "own"
@@ -157,7 +157,7 @@
         "type": "npm"
       },
       "channels": ["current", "previous", "beta"],
-      "paths": ["construct", "decode"],
+      "paths": ["construct", "decode", "decode-onchain"],
       "engine": {
         "id": "cardano-multiplatform-lib",
         "relation": "fork"
@@ -176,7 +176,7 @@
         "type": "npm"
       },
       "channels": ["current", "previous"],
-      "paths": ["construct", "decode"],
+      "paths": ["construct", "decode", "decode-onchain"],
       "engine": {
         "id": "cardano-sdk-core",
         "relation": "own"
@@ -192,7 +192,7 @@
         "type": "npm"
       },
       "channels": ["current", "previous", "beta"],
-      "paths": ["construct", "decode"],
+      "paths": ["construct", "decode", "decode-onchain"],
       "engine": {
         "id": "cardano-sdk-core",
         "relation": "depends"
@@ -209,7 +209,7 @@
         "artifactId": "cardano-client-lib"
       },
       "channels": ["current", "previous", "beta"],
-      "paths": ["construct", "decode"],
+      "paths": ["construct", "decode", "decode-onchain"],
       "engine": {
         "id": "cardano-client-lib",
         "relation": "own"
@@ -226,7 +226,7 @@
         "tagPrefix": "v"
       },
       "channels": ["current", "previous", "beta"],
-      "paths": ["construct", "decode"],
+      "paths": ["construct", "decode", "decode-onchain"],
       "engine": {
         "id": "pallas",
         "relation": "own"
@@ -243,7 +243,7 @@
         "tagPrefix": "v"
       },
       "channels": ["current", "previous", "beta"],
-      "paths": ["construct", "decode"],
+      "paths": ["construct", "decode", "decode-onchain"],
       "engine": {
         "id": "pycardano",
         "relation": "own"
