@@ -226,6 +226,11 @@ describe('renderSite', () => {
     expect(html).toContain('href="version.json"');
   });
 
+  it('links to the chain evidence record, the other page on this site', () => {
+    const html = renderSite(aggregate(), versionDoc());
+    expect(html).toContain('href="chain-evidence.html"');
+  });
+
   it('escapes a tool id containing markup rather than injecting it into the page', () => {
     const html = renderSite(
       aggregate({ tools: [tool({ id: 'tool-<img onerror=alert(1)>' })] }),

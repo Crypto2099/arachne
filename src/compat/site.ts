@@ -2,6 +2,7 @@ import type { AggregateResultSummary, AggregateTool, CompatAggregate } from './a
 import type { CompatVersionDocument } from './version.js';
 import type { Framing } from './classify.js';
 import type { ConstructionPath, EngineDefinition } from './types.js';
+import { escapeAttr, escapeHtml, FAVICON, THEME_TOKENS } from './html.js';
 
 /**
  * Renders the compat matrix as one self-contained HTML document: everything
@@ -85,6 +86,10 @@ for the full data model behind this page.
 Machine-readable: <a href="aggregate.json">aggregate.json</a> carries this whole matrix,
 <a href="version.json">version.json</a> is small enough to poll on a schedule to decide whether to
 refetch it.
+</p>
+<p class="meta-links">
+This page tracks what tooling produces. For what a real node has accepted or refused on
+chain, see the <a href="chain-evidence.html">chain evidence record</a>.
 </p>
 </div>
 </header>
@@ -488,39 +493,6 @@ function renderTimestamp(value: string | null): string {
   return `<time datetime="${escapeAttr(value)}">${escapeHtml(value)}</time>`;
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function escapeAttr(value: string): string {
-  return escapeHtml(value).replace(/'/g, '&#39;');
-}
-
-/**
- * Two rules of equal weight, one unbroken and one segmented, which is the
- * whole subject of this page drawn rather than described: an encoder that
- * frames every array the same way, and one that changes at 24. Inlined as a
- * data URI, so the tab icon costs no request and the "fetches nothing
- * off-origin" rule holds for the favicon too. `currentColor` is not
- * available to a favicon, so both rules are drawn in a mid grey that holds
- * up against a light and a dark tab strip.
- */
-const FAVICON =
-  'data:image/svg+xml,' +
-  encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">' +
-      '<rect width="16" height="16" rx="3" fill="#222733"/>' +
-      '<rect x="4" y="2" width="2.4" height="12" rx="1.2" fill="#d9a94a"/>' +
-      '<rect x="9.6" y="2" width="2.4" height="3.2" rx="1.2" fill="#6f9cf5"/>' +
-      '<rect x="9.6" y="6.4" width="2.4" height="3.2" rx="1.2" fill="#6f9cf5"/>' +
-      '<rect x="9.6" y="10.8" width="2.4" height="3.2" rx="1.2" fill="#6f9cf5"/>' +
-      '</svg>',
-  );
-
 // Defines every term the tables below use, in place rather than linked away,
 // because that is where a reader hits the word for the first time. The five
 // framing entries carry the same `side` marker the overview and every tool's
@@ -645,58 +617,7 @@ ancestry to anything else tracked here.</dd>
 // `undetermined`, which answered for neither. The pattern is redundant with
 // the badge text next to it in every place it appears, so nothing is
 // carried by color alone.
-const STYLE = `
-:root {
-  color-scheme: light dark;
-  --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, Cambria, "Times New Roman", serif;
-  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  --ground: #e9ebf0;
-  --card: #ffffff;
-  --ink: #191d26;
-  --ink-2: #5c6472;
-  --rule: #d3d8e1;
-  --rule-soft: #e6e9ef;
-  --section-rule: #3b4354;
-  --link: #1f4fb0;
-  --node: #2a56b8;
-  --node-ink: #1b3c85;
-  --node-tint: #e8edfb;
-  --node-line: #bacbf0;
-  --node-wash: #f3f6fd;
-  --eco: #9a6a00;
-  --eco-ink: #7a5300;
-  --eco-tint: #fbf1da;
-  --eco-line: #e7d19b;
-  --eco-wash: #fdf8ed;
-  --alarm: #a3201f;
-  --caution: #fdf3e3;
-  --caution-line: #e6cfa4;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ground: #101319;
-    --card: #181c24;
-    --ink: #e4e8f0;
-    --ink-2: #99a1b2;
-    --rule: #2c3240;
-    --rule-soft: #232833;
-    --section-rule: #4b5466;
-    --link: #8ab0ff;
-    --node: #6f9cf5;
-    --node-ink: #bacefb;
-    --node-tint: #182742;
-    --node-line: #2f4a7d;
-    --node-wash: #151e33;
-    --eco: #d9a94a;
-    --eco-ink: #f0cd87;
-    --eco-tint: #332811;
-    --eco-line: #5e4a1c;
-    --eco-wash: #251e11;
-    --alarm: #ff938c;
-    --caution: #2d2413;
-    --caution-line: #574728;
-  }
-}
+const STYLE = `${THEME_TOKENS}
 * { box-sizing: border-box; }
 body {
   margin: 0;

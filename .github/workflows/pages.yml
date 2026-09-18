@@ -1,15 +1,21 @@
 name: pages
 
 # Publishing requires a human to have merged: this runs only on a push to
-# main, and only when it touches the compat data or the code that renders it
-# into a page. No workflow_dispatch and no schedule, unlike upstream-watch.yml,
-# which opens a pull request but never publishes anything itself.
+# main, and only when it touches the compat data, the chain evidence record,
+# or the code that renders either into a page. No workflow_dispatch and no
+# schedule, unlike upstream-watch.yml, which opens a pull request but never
+# publishes anything itself.
 on:
   push:
     branches: [main]
     paths:
       - 'compat/**'
+      - 'chain-evidence/**'
       - 'src/compat/site.ts'
+      - 'src/compat/chain-evidence-site.ts'
+      - 'src/compat/html.ts'
+      - 'src/chain/evidence.ts'
+      - 'src/chain/record.ts'
       - 'scripts/compat-site.ts'
       - '.github/workflows/pages.yml'
 
@@ -46,15 +52,18 @@ jobs:
 
       - run: npm ci
 
-      # compat/aggregate.json and compat/version.json are committed, not
-      # built here; this only checks that what is committed still matches
-      # compat/tools.json, compat/results/ and each other, the same checks
+      # compat/aggregate.json, compat/version.json and
+      # chain-evidence/record.md are all committed, not built here; this
+      # only checks that what is committed still matches its own source
+      # (compat/tools.json and compat/results/ for the first two,
+      # chain-evidence/observations.json for the third), the same checks
       # "npm run verify" already runs. A stale commit fails the deploy
-      # instead of quietly publishing something the corpus does not match.
+      # instead of quietly publishing something its source does not match.
       - name: Compat data is current
         run: |
           npm run compat:aggregate:check
           npm run compat:version:check
+          npm run chain-evidence:record:check
 
       - name: Build the site
         run: npx tsx scripts/compat-site.ts site
