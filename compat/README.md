@@ -131,10 +131,25 @@ genuinely different API needs a new adapter under `src/compat/adapters/`.
 
 - **`cardano-cli-binary`**: downloads the platform-matching release tarball from GitHub,
   verifies it against the release's own `sha256sums.txt`, and runs
-  `cardano-cli hash script --script-file`.
+  `cardano-cli hash script --script-file`. Registered against
+  `paths: ["construct", "decode"]`: `construct` writes the script's native-script JSON
+  shape and lets cardano-cli build it; `decode` writes a generic `TextEnvelope`
+  (`{ type, description, cborHex }`) carrying the corpus's own CBOR instead, which
+  `Cardano.CLI.Read.readFileScriptInAnyLang` falls back to once a file fails to parse as
+  the native-script grammar, decoding `cborHex` as the script's actual bytes rather than
+  rebuilding one from JSON.
+- **`cardano-address-binary`**: downloads and verifies the release tarball the same way,
+  and runs `cardano-address script hash` against the rendered expression grammar. Every
+  `script` subcommand (`hash`, `validate`, `preimage`) takes only that expression string;
+  none accepts an existing CBOR script, so there is no decode path to register this
+  adapter against, and it stays on `paths: ["construct"]` (the default).
 - **`npm-csl`**: installs the npm package into an isolated scratch directory and drives
   cardano-serialization-lib's builder API (`NativeScript.new_script_all`,
-  `ScriptNOfK.new`, and so on) in a child process next to that install.
+  `ScriptNOfK.new`, and so on) in a child process next to that install. Registered
+  against `paths: ["construct", "decode"]`: `decode` calls `NativeScript.from_bytes` on
+  the corpus's own CBOR and hashes the result, once per encoding. Both paths answer
+  `definite`, because `hash()` re-renders the decoded struct in CSL's own framing rather
+  than hashing the bytes it was handed.
 - **`npm-cml`**: installs the npm package and drives cardano-multiplatform-lib's builder
   API: `NativeScript.new_script_pubkey` takes an `Ed25519KeyHash` directly,
   `NativeScriptList.new()` plus `.add(...)` builds a child list, and threshold and slot
@@ -149,7 +164,11 @@ genuinely different API needs a new adapter under `src/compat/adapters/`.
   `tools.json` entry on this adapter rather than new code.
 - **`npm-native-script-json`**: installs the npm package and calls the function named in
   `adapterOptions.exportName` with the script's plain-JSON shape, converting timelock
-  slots to a string first when `adapterOptions.slotEncoding` is `"string"`.
+  slots to a string first when `adapterOptions.slotEncoding` is `"string"`. When
+  `adapterOptions.decodeExportName` is also set, `paths: ["construct", "decode"]`
+  registers a second driver that calls that export with the corpus's own CBOR hex
+  directly, no JSON shape involved; MeshJS's `resolveScriptHash(cborHex)` (called with no
+  language version, which selects its native-script branch) is the first example.
 - **`npm-native-script-classes`**: installs the npm package and drives
   `Serialization.NativeScript`'s constructor-based API:
   `NativeScript.newScriptPubkey(new ScriptPubkey(keyHash))`,
@@ -205,6 +224,32 @@ genuinely different API needs a new adapter under `src/compat/adapters/`.
   field types make hashing cost grow sharply with nesting depth; a script nested past
   about depth 10 does not finish within this adapter's per-vector timeout, and that
   finding would otherwise cost every other vector's result in the same batch.
+
+### What the decode path found
+
+The four tools registered before the decode path existed had only ever been run on
+`construct`. Checked against their own APIs, three of them expose a genuine
+decode-and-hash entry point and one does not:
+
+- **cardano-cli**, **cardano-serialization-lib** and **MeshJS** all decode existing CBOR
+  and hash it without rebuilding a script from JSON. **cardano-address** has no such
+  entry point anywhere in its `script` subcommands; every one of them takes the
+  expression grammar only, so it is not registered against `decode` at all.
+- **cardano-cli** and **MeshJS** are `framing-preserving` on `decode`: fed the corpus's
+  `definite` bytes they return the `definite` hash, fed `cardanoBinary` bytes they
+  return the `cardanoBinary` hash, which is the behavior
+  `spec/07-encoding-divergence.md` recommends (`scriptHashFromCbor` does the same).
+  cardano-cli's `cardanoBinary` framing is the framing the node itself emits, since
+  `cardano-binary` ships inside `cardano-node` as well as `cardano-cli`.
+- **cardano-serialization-lib** is not. `NativeScript.from_bytes` on `cardanoBinary`
+  bytes returns a struct that both `to_bytes()` and `hash()` render back out in
+  `definite` framing, so its decode result reports `framing: "definite"`, identical to
+  its own `construct` result. A script that arrived as `cardanoBinary` bytes is silently
+  rehashed under the other encoding if handed to CSL's `from_bytes` and trusted, which is
+  exactly the hazard `scriptHashFromCbor` exists to avoid in this project's own code.
+  CSL is not alone in this: cardano-client-lib and PyCardano re-serialize on the way to a
+  hash the same way, so three of the eleven tools registered against `decode` answer
+  `definite` on both paths while the other eight preserve what they were given.
 
 ## Channels
 

@@ -2,6 +2,8 @@ import { copyFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type {
+  DecodeItem,
+  DecodeOutcome,
   InstallContext,
   HashOutcome,
   InstallOutcome,
@@ -9,7 +11,7 @@ import type {
   ToolAdapter,
   ToolDefinition,
 } from '../types.js';
-import { isScriptHash, tidyToolMessage } from './hash-shape.js';
+import { driverEntryToHashOutcome, isScriptHash, tidyToolMessage } from './hash-shape.js';
 import { installNpmPackage, resolveInstalledVersion, runDriverBatch } from './npm-install.js';
 
 const DRIVER_SOURCE = join(dirname(fileURLToPath(import.meta.url)), 'csl-driver.mjs');
@@ -21,6 +23,13 @@ const DRIVER_SOURCE = join(dirname(fileURLToPath(import.meta.url)), 'csl-driver.
  * (a CSL fork under a different package name) is a `compat/tools.json` entry
  * with `adapter: "npm-csl"` and its own `package`, not new code; a tool with
  * a materially different construction API needs its own adapter.
+ *
+ * Also registered against `paths: ["construct", "decode"]`. `decode` calls
+ * `NativeScript.from_bytes` on the corpus's own CBOR and hashes the result,
+ * once per encoding; confirmed by running csl-driver.mjs's decode mode
+ * against an `encoding-boundary` vector before this was wired up here that
+ * CSL normalizes both encodings to `definite` on the way back out, rather
+ * than reproducing whichever framing it was handed the way gouroboros does.
  */
 export const NPM_CSL_ADAPTER: ToolAdapter = {
   async install(
@@ -41,6 +50,7 @@ export const NPM_CSL_ADAPTER: ToolAdapter = {
       status: 'ok',
       session: {
         hashScripts: async (items: ScriptItem[]) => runBatch(driverPath, scratchDir, items),
+        decodeScripts: async (items: DecodeItem[]) => runDecodeBatch(driverPath, scratchDir, items),
         // This tool IS its engine, so the resolved version is the installed
         // package. Read from disk anyway rather than echoing the requested
         // version back, since npm is what decides what landed.
@@ -60,7 +70,7 @@ async function runBatch(
   const inputPath = join(scratchDir, 'input.json');
   await writeFile(inputPath, JSON.stringify(items), 'utf8');
 
-  const result = runDriverBatch(driverPath, inputPath);
+  const result = runDriverBatch(driverPath, inputPath, ['construct']);
   const outcomes = new Map<string, HashOutcome>();
   if (result.status === 'failed') {
     for (const item of items) outcomes.set(item.id, { status: 'refused', error: result.error });
@@ -80,6 +90,42 @@ async function runBatch(
             }
         : { status: 'refused', error: entry.error },
     );
+  }
+  return outcomes;
+}
+
+interface CslDriverHashEntry {
+  status: 'ok' | 'error';
+  hash?: string;
+  error?: string;
+}
+
+interface CslDriverDecodeEntry {
+  id: string;
+  definite: CslDriverHashEntry;
+  cardanoBinary: CslDriverHashEntry;
+}
+
+async function runDecodeBatch(
+  driverPath: string,
+  scratchDir: string,
+  items: DecodeItem[],
+): Promise<Map<string, DecodeOutcome>> {
+  const inputPath = join(scratchDir, 'decode-input.json');
+  await writeFile(inputPath, JSON.stringify(items), 'utf8');
+
+  const result = runDriverBatch<CslDriverDecodeEntry>(driverPath, inputPath, ['decode']);
+  const outcomes = new Map<string, DecodeOutcome>();
+  if (result.status === 'failed') {
+    const refused: HashOutcome = { status: 'refused', error: result.error };
+    for (const item of items) outcomes.set(item.id, { definite: refused, cardanoBinary: refused });
+    return outcomes;
+  }
+  for (const entry of result.entries) {
+    outcomes.set(entry.id, {
+      definite: driverEntryToHashOutcome(entry.definite),
+      cardanoBinary: driverEntryToHashOutcome(entry.cardanoBinary),
+    });
   }
   return outcomes;
 }

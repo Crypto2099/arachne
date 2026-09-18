@@ -6,6 +6,8 @@ import { arch as hostArch, platform as hostPlatform } from 'node:os';
 import { join } from 'node:path';
 import { serializeScript } from '../../model/json.js';
 import type {
+  DecodeItem,
+  DecodeOutcome,
   HashOutcome,
   InstallOutcome,
   ScriptItem,
@@ -21,6 +23,22 @@ import { isScriptHash, tidyToolMessage } from './hash-shape.js';
  * watcher can install whatever channel it resolved. Talking to the binary
  * itself mirrors `src/vectors/cardano-cli.ts`'s shape: a refusal is the
  * tool's verbatim stderr, not an exception.
+ *
+ * Also registered against `paths: ["construct", "decode"]`. `hash script
+ * --script-file` takes only one file argument, but that file does not have
+ * to be the native-script JSON grammar the construct path writes:
+ * `Cardano.CLI.Read.readFileScriptInAnyLang` tries that grammar first and,
+ * when the file does not parse as it, falls back to a generic `TextEnvelope`
+ * (`{ type, description, cborHex }`) and decodes `cborHex` as the script's
+ * actual bytes via `deserialiseFromTextEnvelopeAnyOf`. Confirmed by hand
+ * against cardano-cli 11.2.3.1 before this was wired up here: feeding it an
+ * `encoding-boundary` vector's `definite` bytes through that envelope
+ * returns exactly the vector's recorded `definite` hash, and its
+ * `cardanoBinary` bytes return exactly the `cardanoBinary` hash, with the
+ * envelope's own `type` field read but not checked against either value.
+ * That makes this a genuine decode-and-hash path, not the construct path
+ * wearing a different file format: it hashes whichever bytes it was handed
+ * rather than a script rebuilt from JSON.
  */
 export const CARDANO_CLI_ADAPTER: ToolAdapter = {
   async install(
@@ -101,6 +119,28 @@ export const CARDANO_CLI_ADAPTER: ToolAdapter = {
           }
           return Promise.resolve(outcomes);
         },
+        decodeScripts: (items: DecodeItem[]) => {
+          const outcomes = new Map<string, DecodeOutcome>();
+          for (const item of items) {
+            outcomes.set(item.id, {
+              definite: decodeOne(
+                binaryPath,
+                scratchDir,
+                item.id,
+                'definite',
+                item.definiteCborHex,
+              ),
+              cardanoBinary: decodeOne(
+                binaryPath,
+                scratchDir,
+                item.id,
+                'cardanoBinary',
+                item.cardanoBinaryCborHex,
+              ),
+            });
+          }
+          return Promise.resolve(outcomes);
+        },
         dispose: () => {},
       },
     };
@@ -129,6 +169,51 @@ function hashOne(binaryPath: string, scratchDir: string, item: ScriptItem): Hash
     const e = error as { stderr?: string; stdout?: string; message?: string };
     const text = (e.stderr || e.stdout || e.message || 'unknown failure').toString();
     // The message is the finding, so it is passed through rather than reworded.
+    return { status: 'refused', error: tidyToolMessage(text) };
+  }
+}
+
+/**
+ * The generic `TextEnvelope` shape `readFileScriptInAnyLang` falls back to
+ * once a file fails to parse as the native-script JSON grammar (see the
+ * adapter's own doc comment above for the source read backing this). `type`
+ * is required for the file to parse as a `TextEnvelope` at all, but its
+ * value is not checked against a specific string for this command, so
+ * "SimpleScript" is used here as a label rather than a magic constant.
+ */
+export function scriptTextEnvelope(cborHex: string): {
+  type: string;
+  description: string;
+  cborHex: string;
+} {
+  return { type: 'SimpleScript', description: '', cborHex };
+}
+
+function decodeOne(
+  binaryPath: string,
+  scratchDir: string,
+  id: string,
+  framing: 'definite' | 'cardanoBinary',
+  cborHex: string,
+): HashOutcome {
+  const scriptPath = join(scratchDir, `decode-${sanitize(id)}-${framing}.json`);
+  try {
+    writeFileSync(scriptPath, JSON.stringify(scriptTextEnvelope(cborHex)), 'utf8');
+    const value = execFileSync(binaryPath, ['hash', 'script', '--script-file', scriptPath], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 120_000,
+    }).trim();
+    if (!isScriptHash(value)) {
+      return {
+        status: 'refused',
+        error: tidyToolMessage(value || 'exited zero with no hash on stdout'),
+      };
+    }
+    return { status: 'ok', hash: value };
+  } catch (error) {
+    const e = error as { stderr?: string; stdout?: string; message?: string };
+    const text = (e.stderr || e.stdout || e.message || 'unknown failure').toString();
     return { status: 'refused', error: tidyToolMessage(text) };
   }
 }

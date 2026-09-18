@@ -9,6 +9,17 @@
 // is what pins this project's own encoder against CSL. It is duplicated
 // rather than imported because this file runs as a subprocess with no access
 // to this project's TypeScript sources, only to whatever got installed here.
+//
+// `argv`: [mode, inputPath], the order every driver here takes.
+//
+//   node csl-driver.mjs construct <input.json>
+//     input.json is a JSON array of { id, script }. Builds the equivalent
+//     CSL structs via the builder API below and hashes the result.
+//
+//   node csl-driver.mjs decode <input.json>
+//     input.json is a JSON array of { id, definiteCborHex, cardanoBinaryCborHex }.
+//     Decodes each hex string on its own via NativeScript.from_bytes and
+//     hashes it, answering both encodings independently.
 import { readFileSync } from 'node:fs';
 
 const CSLNS = await import('@emurgo/cardano-serialization-lib-nodejs');
@@ -47,14 +58,37 @@ function toCslList(scripts) {
   return list;
 }
 
-const [, , inputPath] = process.argv;
-const items = JSON.parse(readFileSync(inputPath, 'utf8'));
-const out = items.map(({ id, script }) => {
+// NativeScript.from_bytes decodes existing CBOR into a CSL struct; whether
+// the hash that follows reproduces the bytes fed in or CSL's own definite
+// framing is exactly the question the decode path exists to answer, and is
+// not assumed here.
+function decodeAndHash(cborHex) {
   try {
-    const built = toCsl(script);
-    return { id, status: 'ok', hash: built.hash().to_hex() };
+    const script = CSL.NativeScript.from_bytes(Buffer.from(cborHex, 'hex'));
+    return { status: 'ok', hash: script.hash().to_hex() };
   } catch (error) {
-    return { id, status: 'error', error: error instanceof Error ? error.message : String(error) };
+    return { status: 'error', error: error instanceof Error ? error.message : String(error) };
   }
-});
-process.stdout.write(JSON.stringify(out));
+}
+
+const [, , mode, inputPath] = process.argv;
+const items = JSON.parse(readFileSync(inputPath, 'utf8'));
+
+if (mode === 'decode') {
+  const out = items.map(({ id, definiteCborHex, cardanoBinaryCborHex }) => ({
+    id,
+    definite: decodeAndHash(definiteCborHex),
+    cardanoBinary: decodeAndHash(cardanoBinaryCborHex),
+  }));
+  process.stdout.write(JSON.stringify(out));
+} else {
+  const out = items.map(({ id, script }) => {
+    try {
+      const built = toCsl(script);
+      return { id, status: 'ok', hash: built.hash().to_hex() };
+    } catch (error) {
+      return { id, status: 'error', error: error instanceof Error ? error.message : String(error) };
+    }
+  });
+  process.stdout.write(JSON.stringify(out));
+}

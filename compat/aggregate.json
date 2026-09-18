@@ -57,7 +57,8 @@
         "relation": "depends"
       },
       "paths": [
-        "construct"
+        "construct",
+        "decode"
       ],
       "independentOf": [
         "cardano-address",
@@ -76,6 +77,24 @@
         {
           "version": "11.2.3.1",
           "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-09-17T19:06:05.118Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-cli/11.2.3.1-decode.json"
+        },
+        {
+          "version": "11.2.3.1",
+          "channel": "current",
           "path": "construct",
           "testedAt": "2026-09-16T00:27:53.780Z",
           "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
@@ -90,6 +109,24 @@
             "unsupported": 0
           },
           "resultFile": "compat/results/cardano-cli/11.2.3.1.json"
+        },
+        {
+          "version": "11.2.3.0",
+          "channel": "previous",
+          "path": "decode",
+          "testedAt": "2026-09-17T19:06:15.383Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-cli/11.2.3.0-decode.json"
         },
         {
           "version": "11.2.3.0",
@@ -183,7 +220,8 @@
         "relation": "own"
       },
       "paths": [
-        "construct"
+        "construct",
+        "decode"
       ],
       "independentOf": [
         "cardano-cli",
@@ -202,6 +240,24 @@
         {
           "version": "17.0.0",
           "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-09-17T19:06:25.314Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 284,
+            "agreed": 282,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-serialization-lib-nodejs/17.0.0-decode.json"
+        },
+        {
+          "version": "17.0.0",
+          "channel": "current",
           "path": "construct",
           "testedAt": "2026-09-16T00:28:08.086Z",
           "corpusDigest": "a6688f76c41e96e5bc1ebd45ad0bd148898d0bc8f3b5fdcca4c4059f",
@@ -216,6 +272,24 @@
             "unsupported": 0
           },
           "resultFile": "compat/results/cardano-serialization-lib-nodejs/17.0.0.json"
+        },
+        {
+          "version": "16.0.0",
+          "channel": "previous",
+          "path": "decode",
+          "testedAt": "2026-09-17T19:06:44.109Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 284,
+            "agreed": 282,
+            "diverged": 0,
+            "refused": 2,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-serialization-lib-nodejs/16.0.0-decode.json"
         },
         {
           "version": "16.0.0",
@@ -249,7 +323,8 @@
         ]
       },
       "paths": [
-        "construct"
+        "construct",
+        "decode"
       ],
       "independentOf": [
         "cardano-cli",
@@ -263,6 +338,24 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "1.9.1",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-09-17T19:06:49.252Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/meshsdk-core/1.9.1-decode.json"
+        },
         {
           "version": "1.9.1",
           "channel": "current",
@@ -280,6 +373,24 @@
             "unsupported": 0
           },
           "resultFile": "compat/results/meshsdk-core/1.9.1.json"
+        },
+        {
+          "version": "1.9.0",
+          "channel": "previous",
+          "path": "decode",
+          "testedAt": "2026-09-17T19:07:18.568Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/meshsdk-core/1.9.0-decode.json"
         },
         {
           "version": "1.9.0",
