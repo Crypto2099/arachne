@@ -48,6 +48,12 @@ export interface CompatResult {
   path: ConstructionPath;
   engine: ResultEngine;
   testedAt: string;
+  /**
+   * The digest of whichever set this run was measured against:
+   * `vectors/index.json`'s on `construct` and `decode`, and
+   * `chain-evidence/scripts.json`'s on `decode-onchain`. `path` is what says
+   * which of the two a given digest names.
+   */
   corpusDigest: string;
   arachneVersion: string;
   status: 'tested' | 'untested';

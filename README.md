@@ -52,11 +52,14 @@ That finding is a snapshot, and tool releases keep coming. `compat/` runs the cu
 previous releases of cardano-cli, cardano-address, cardano-serialization-lib, MeshJS,
 gouroboros, cardano-client-lib, pallas and PyCardano against the committed corpus, plus a
 beta release wherever a tool publishes one. It records which side of the divergence each
-one actually lands on, not which side its documentation claims. A daily workflow opens a
-pull request when a new version has something to report; nothing under `compat/results/`
-is computed by hand. [compat/README.md](compat/README.md) has the full account, including
-why some of these tools sit on the same underlying encoder and why that means they only
-count once as evidence.
+one actually lands on, not which side its documentation claims. Every tool that can be
+handed existing CBOR is run against `chain-evidence/scripts.json` as well, the scripts a
+preprod node has actually accepted. There, re-encoding before hashing does not produce a
+second valid answer; it produces the wrong address for a script already in use. A daily
+workflow opens a pull request when a new version has something to report; nothing under
+`compat/results/` is computed by hand. [compat/README.md](compat/README.md) has the full
+account, including why some of these tools sit on the same underlying encoder and why
+that means they only count once as evidence.
 
 ## The corpus
 

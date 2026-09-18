@@ -7,6 +7,7 @@ import type {
   HashOutcome,
   InstallContext,
   InstallOutcome,
+  ObservedItem,
   ScriptItem,
   ToolAdapter,
   ToolDefinition,
@@ -67,6 +68,8 @@ export const NPM_NATIVE_SCRIPT_CLASSES_ADAPTER: ToolAdapter = {
           runConstruct(driverPath, pkg, namespace, scratchDir, items),
         decodeScripts: async (items: DecodeItem[]) =>
           runDecode(driverPath, pkg, namespace, scratchDir, items),
+        hashObservedScripts: async (items: ObservedItem[]) =>
+          runOnchain(driverPath, pkg, namespace, scratchDir, items),
         // The engine sits below this package. For "@cardano-sdk/core" itself
         // that is this same package (relation "own"); for a consumer like
         // Blaze it is a separate dependency edge (relation "depends"), read
@@ -143,6 +146,31 @@ async function runDecode(
       cardanoBinary: toHashOutcome(entry.cardanoBinary),
     });
   }
+  return outcomes;
+}
+
+/**
+ * The observed-bytes path. The driver answers it in the same flat shape the
+ * construct path uses, one outcome per item, because an observed script has
+ * one framing and so one question.
+ */
+async function runOnchain(
+  driverPath: string,
+  pkg: string,
+  namespace: string,
+  scratchDir: string,
+  items: ObservedItem[],
+): Promise<Map<string, HashOutcome>> {
+  const inputPath = join(scratchDir, 'onchain-input.json');
+  await writeFile(inputPath, JSON.stringify(items), 'utf8');
+
+  const result = runDriverBatch(driverPath, inputPath, ['onchain', pkg, namespace]);
+  const outcomes = new Map<string, HashOutcome>();
+  if (result.status === 'failed') {
+    for (const item of items) outcomes.set(item.id, { status: 'refused', error: result.error });
+    return outcomes;
+  }
+  for (const entry of result.entries) outcomes.set(entry.id, toHashOutcome(entry));
   return outcomes;
 }
 

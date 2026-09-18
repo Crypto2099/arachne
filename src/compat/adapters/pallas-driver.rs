@@ -6,7 +6,7 @@
 // pallas.ts and built there, the same way gouroboros-driver.go is copied
 // next to a scratch Go module rather than imported.
 //
-// Exercises both construction paths pallas-primitives exposes, chosen by
+// Exercises the construction paths pallas-primitives exposes, chosen by
 // argv[1]:
 //
 //	construct <input.json>
@@ -33,7 +33,13 @@
 //	  "definite" and this path would not be able to tell that apart from
 //	  "construct". KeepRaw is what makes decode answer a different question.
 //
-// Either mode writes one JSON array to stdout and nothing else; all
+//	onchain <input.json>
+//	  input.json is a JSON array of { id, cborHex }, each entry one byte
+//	  string a node has accepted. Decoded through the same KeepRaw path as
+//	  "decode", so the answer is the hash of the bytes handed over rather
+//	  than of a re-serialized tree.
+//
+// Every mode writes one JSON array to stdout and nothing else; all
 // human-readable diagnostics go to stderr, mirroring the other drivers'
 // stdout/stderr split.
 
@@ -205,10 +211,35 @@ fn run_decode(raw: &str) -> Result<Vec<DecodeResult>, String> {
         .collect())
 }
 
+#[derive(Deserialize)]
+struct ObservedItem {
+    id: String,
+    #[serde(rename = "cborHex")]
+    cbor_hex: String,
+}
+
+/// One answer per byte string, in the same flat shape `construct` emits: an
+/// observed script has one framing and so one question, unlike a vector's two.
+fn run_onchain(raw: &str) -> Result<Vec<ConstructResult>, String> {
+    let items: Vec<ObservedItem> = serde_json::from_str(raw).map_err(|e| e.to_string())?;
+    Ok(items
+        .iter()
+        .map(|item| {
+            let outcome = decode_and_hash(&item.cbor_hex);
+            ConstructResult {
+                id: item.id.clone(),
+                status: outcome.status,
+                hash: outcome.hash,
+                error: outcome.error,
+            }
+        })
+        .collect())
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
     if args.len() != 3 {
-        eprintln!("usage: pallas-driver <construct|decode> <input.json>");
+        eprintln!("usage: pallas-driver <construct|decode|onchain> <input.json>");
         return ExitCode::FAILURE;
     }
     let raw = match fs::read_to_string(&args[2]) {
@@ -221,6 +252,7 @@ fn main() -> ExitCode {
     let emitted = match args[1].as_str() {
         "construct" => run_construct(&raw).and_then(|r| serde_json::to_string(&r).map_err(|e| e.to_string())),
         "decode" => run_decode(&raw).and_then(|r| serde_json::to_string(&r).map_err(|e| e.to_string())),
+        "onchain" => run_onchain(&raw).and_then(|r| serde_json::to_string(&r).map_err(|e| e.to_string())),
         other => Err(format!("unknown mode {other:?}")),
     };
     match emitted {

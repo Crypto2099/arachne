@@ -11,8 +11,9 @@ export const DEFAULT_RESULTS_DIR = 'compat/results';
  * One tool version can be run on more than one construction path (gouroboros
  * is, today), and each run is its own committed file rather than two answers
  * folded into one. `construct` keeps the bare `<version>.json` name every
- * tool used before a decode-path adapter existed; `decode` gets its own
- * suffixed name so the two never collide.
+ * tool used before a decode-path adapter existed; every other path is named
+ * after itself, so the files never collide and a directory listing says which
+ * path each one answers for.
  */
 export function resultPath(
   toolId: string,
@@ -20,7 +21,7 @@ export function resultPath(
   dir = DEFAULT_RESULTS_DIR,
   path: ConstructionPath = 'construct',
 ): string {
-  const suffix = path === 'decode' ? '-decode' : '';
+  const suffix = path === 'construct' ? '' : `-${path}`;
   return join(dir, toolId, `${version}${suffix}.json`);
 }
 

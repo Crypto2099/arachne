@@ -68,10 +68,26 @@ export interface EngineLink {
  * hash, which is a different question: a tool that hashes the bytes it received
  * reproduces whichever framing it was given, rather than imposing one.
  *
+ * `decode-onchain` asks the same question as `decode` against different bytes,
+ * and is stricter for it. Its inputs are the scripts in
+ * `chain-evidence/scripts.json`, which a real node has accepted, and they were
+ * framed by whatever software submitted them rather than by this project. That
+ * changes what counts as agreement. A corpus vector has two valid hashes and a
+ * tool matching either one agrees, because neither framing is canonical. An
+ * observed byte string has exactly one hash, the one those bytes actually
+ * have, so a tool that returns anything else has re-framed a script that
+ * exists on chain and would compute the wrong address for it.
+ *
  * A tool can legitimately behave differently on each path, so a classification
  * is only meaningful with the path attached.
  */
-export type ConstructionPath = 'construct' | 'decode';
+export type ConstructionPath = 'construct' | 'decode' | 'decode-onchain';
+
+export const CONSTRUCTION_PATHS: readonly ConstructionPath[] = [
+  'construct',
+  'decode',
+  'decode-onchain',
+];
 
 /**
  * `maven-central` names the two coordinates that address a Java library's
@@ -170,6 +186,20 @@ export interface DecodeOutcome {
 }
 
 /**
+ * One byte string to hash exactly as given, identified by its own script hash.
+ *
+ * Deliberately not a `DecodeItem`. A vector carries two encodings because this
+ * project generated both; an observed script is the single byte string a
+ * transaction actually carried, and there is no second framing to ask about
+ * without inventing one. For `d66ed8e0` there could not be a second framing at
+ * all, since this library cannot decode it and so cannot re-encode it either.
+ */
+export interface ObservedItem {
+  id: string;
+  cborHex: string;
+}
+
+/**
  * A running instance of one tool version, holding whatever scratch state
  * (an extracted binary, an installed npm package) it needs to answer for a
  * batch of scripts. `hashScripts` takes the whole corpus at once so an
@@ -187,6 +217,15 @@ export interface ToolSession {
    * throws when `hashScripts` silently drops a vector.
    */
   decodeScripts?(items: DecodeItem[]): Promise<Map<string, DecodeOutcome>>;
+  /**
+   * The observed-bytes path: hash each byte string exactly as handed over.
+   *
+   * Separate from `decodeScripts` because it answers one question per item
+   * rather than two, and because a tool may support one and not the other. An
+   * adapter that implements this is saying its tool can be handed arbitrary
+   * script CBOR, which is what a script arriving from a chain always is.
+   */
+  hashObservedScripts?(items: ObservedItem[]): Promise<Map<string, HashOutcome>>;
   /**
    * The engine version this install actually resolved, read from what is on
    * disk rather than from the registry.

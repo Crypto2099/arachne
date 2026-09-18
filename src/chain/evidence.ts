@@ -1,5 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import type { Vector } from '../vectors/schema.js';
+import { fromHex } from '../encode/cbor.js';
+import { scriptHashFromCbor } from '../encode/decode.js';
+import { transactionId } from './transaction.js';
+import { referenceScriptIn, transactionBodyBytes } from './scripts.js';
 
 /**
  * The chain evidence record: every real submission cited anywhere in this
@@ -37,6 +41,18 @@ export interface ChainEvidenceShape {
   transactionBytes?: number;
 }
 
+/** The output a submission took its script from, and the transaction that created it. */
+export interface ChainEvidenceReferenceScript {
+  /** Transaction id of the output holding the script. */
+  createdBy: string;
+  /** Index of that output within the creating transaction. */
+  outputIndex: number;
+  /** blake2b-224 of the script bytes as that output stored them. */
+  scriptHash: string;
+  /** The creating transaction's raw CBOR, lowercase hex. */
+  cborHex: string;
+}
+
 export interface ChainEvidenceEntry {
   network: ChainEvidenceNetwork;
   /** Present when accepted. A rejected submission recorded no hash. */
@@ -50,13 +66,31 @@ export interface ChainEvidenceEntry {
   error?: string;
   /**
    * The submitted transaction's raw CBOR, lowercase hex, named to match
-   * `EncodingRecord.cborHex` and `ChainObservation.cborHex`. Left absent
-   * here throughout: the transcription that populated this record has only
-   * the spec's prose to work from, which never quotes transaction bytes, so
-   * inventing a value would be exactly the fabricated observation this
-   * project's invariants forbid.
+   * `EncodingRecord.cborHex` and `ChainObservation.cborHex`.
+   *
+   * Present on every accepted entry and on none of the refused ones. A value
+   * here was refetched from the chain by transaction hash, never transcribed:
+   * the spec prose this record was otherwise built from never quotes a
+   * transaction's bytes, and inventing one would be the fabricated
+   * observation this project's invariants forbid. What makes it safe to carry
+   * at all is that it proves itself. `checkTransactionBytes` below hashes the
+   * body out of these bytes and requires the result to equal `txHash`, so a
+   * fabricated or corrupted value fails the offline suite rather than being
+   * taken on trust.
+   *
+   * A refused submission has none because it never reached a chain and so has
+   * no hash to fetch it by. Those bytes exist only if a future exercise
+   * records them at submission time, through `ChainProvider.submit`.
    */
   cborHex?: string;
+  /**
+   * Where the script came from when the submission referenced it rather than
+   * carrying it, which no amount of reading the submitted transaction can
+   * recover: a reference input names an output, and the bytes sit in whichever
+   * earlier transaction created it. `cborHex` here is that creating
+   * transaction, and it proves its own hash the same way.
+   */
+  referenceScript?: ChainEvidenceReferenceScript;
   /** The corpus vector this observation is about, when the script is a generated one. */
   vectorId?: string;
   shape?: ChainEvidenceShape;
@@ -107,6 +141,81 @@ export function validateChainEvidenceEntry(entry: ChainEvidenceEntry): string[] 
   return problems;
 }
 
+/**
+ * Checks that the bytes an entry carries are the transaction it claims.
+ *
+ * A transaction id is blake2b-256 of the `transaction_body` bytes, so a stored
+ * `cborHex` can be held to its own `txHash` with no network and no trust in
+ * whoever pasted it. This is what separates these bytes from a transcription:
+ * every other field here was read off a document and has to be believed, while
+ * this one fails the offline suite the moment it stops being the transaction
+ * it names. The same check applies to a `referenceScript`, whose `cborHex` is
+ * the creating transaction and whose `scriptHash` must be the hash of the
+ * script that transaction's named output actually holds.
+ */
+export function checkTransactionBytes(entry: ChainEvidenceEntry): string[] {
+  const problems: string[] = [];
+
+  const idOf = (hex: string, label: string): string | undefined => {
+    try {
+      return transactionId(transactionBodyBytes(fromHex(hex)));
+    } catch (error) {
+      problems.push(`${label}: bytes are not a readable transaction: ${(error as Error).message}`);
+      return undefined;
+    }
+  };
+
+  if (entry.cborHex !== undefined) {
+    if (!entry.txHash) {
+      problems.push('cborHex is present but txHash is absent, so the bytes prove nothing');
+    } else {
+      const id = idOf(entry.cborHex, 'cborHex');
+      if (id !== undefined && id !== entry.txHash) {
+        problems.push(`cborHex is a transaction whose id is ${id}, not the txHash ${entry.txHash}`);
+      }
+    }
+  }
+
+  const reference = entry.referenceScript;
+  if (reference !== undefined) {
+    const id = idOf(reference.cborHex, 'referenceScript.cborHex');
+    if (id !== undefined && id !== reference.createdBy) {
+      problems.push(
+        `referenceScript.cborHex is a transaction whose id is ${id}, not the createdBy ${reference.createdBy}`,
+      );
+    }
+    if (id !== undefined) {
+      // A validator reports rather than throws, including when the entry names
+      // an output the creating transaction does not have: that is a finding
+      // about the record, not an error in reading it.
+      let script: string | undefined;
+      try {
+        script = referenceScriptIn(fromHex(reference.cborHex), reference.outputIndex);
+      } catch (error) {
+        problems.push(
+          `referenceScript output ${reference.outputIndex}: ${(error as Error).message}`,
+        );
+      }
+
+      if (script === undefined) {
+        problems.push(
+          `referenceScript names output ${reference.outputIndex} of ${reference.createdBy}, which holds no native script`,
+        );
+      } else {
+        // Hashed as received, never re-encoded: the framing is the evidence.
+        const hash = scriptHashFromCbor(script);
+        if (hash !== reference.scriptHash) {
+          problems.push(
+            `referenceScript output ${reference.outputIndex} holds a script hashing to ${hash}, not the scriptHash ${reference.scriptHash}`,
+          );
+        }
+      }
+    }
+  }
+
+  return problems;
+}
+
 export function validateChainEvidenceRecord(record: ChainEvidenceRecord): string[] {
   const problems: string[] = [];
   if (record.formatVersion !== CHAIN_EVIDENCE_FORMAT_VERSION) {
@@ -118,7 +227,7 @@ export function validateChainEvidenceRecord(record: ChainEvidenceRecord): string
     problems.push(`entryCount is ${record.entryCount}, but entries has ${record.entries.length}`);
   }
   for (const entry of record.entries) {
-    for (const problem of validateChainEvidenceEntry(entry)) {
+    for (const problem of [...validateChainEvidenceEntry(entry), ...checkTransactionBytes(entry)]) {
       problems.push(`${entry.txHash ?? '(no txHash)'}: ${problem}`);
     }
   }

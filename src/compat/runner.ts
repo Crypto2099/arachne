@@ -5,11 +5,12 @@ import { parseScript } from '../model/json.js';
 import { getAdapter } from './adapters/index.js';
 import {
   classifyDecodeOutcome,
+  classifyObservedOutcome,
   classifyOutcome,
   deriveFraming,
   type VectorResult,
 } from './classify.js';
-import { loadCompatCorpus } from './corpus.js';
+import { loadCompatCorpus, loadObservedCorpus, type ObservedCase } from './corpus.js';
 import { getEngine, getTool, loadToolRegistry } from './registry.js';
 import {
   RESULT_FORMAT_VERSION,
@@ -17,7 +18,14 @@ import {
   type CompatResult,
   type ResultEngine,
 } from './result-schema.js';
-import type { Channel, ConstructionPath, DecodeItem, ScriptItem, ToolSession } from './types.js';
+import type {
+  Channel,
+  ConstructionPath,
+  DecodeItem,
+  ObservedItem,
+  ScriptItem,
+  ToolSession,
+} from './types.js';
 import type { Vector } from '../vectors/schema.js';
 
 export interface RunOptions {
@@ -27,13 +35,36 @@ export interface RunOptions {
   arachneVersion: string;
   registryPath?: string;
   corpusDir?: string;
+  /** Where the observed script set lives, for `path: 'decode-onchain'`. */
+  observedScriptsPath?: string;
   /** Which construction path to exercise. Defaults to `'construct'`. */
   path?: ConstructionPath;
 }
 
 /**
- * Install one tool version, run it over the whole committed corpus, and
- * return the result record. Never writes anything under `compat/results/`
+ * What a run is measured against, which is not the same set on every path.
+ *
+ * `construct` and `decode` ask about the generated corpus; `decode-onchain`
+ * asks about the observed script set in `chain-evidence/scripts.json`. A
+ * result's `corpusDigest` names whichever set the run actually used, and
+ * `path` is what tells a reader which of the two that is.
+ */
+type RunInputs =
+  | { kind: 'vectors'; digest: string; vectors: Vector[] }
+  | { kind: 'observed'; digest: string; cases: ObservedCase[] };
+
+async function loadInputs(path: ConstructionPath, options: RunOptions): Promise<RunInputs> {
+  if (path === 'decode-onchain') {
+    const observed = await loadObservedCorpus(options.observedScriptsPath);
+    return { kind: 'observed', digest: observed.digest, cases: observed.cases };
+  }
+  const corpus = await loadCompatCorpus(options.corpusDir);
+  return { kind: 'vectors', digest: corpus.digest, vectors: corpus.vectors };
+}
+
+/**
+ * Install one tool version, run it over every case the chosen path measures,
+ * and return the result record. Never writes anything under `compat/results/`
  * itself; the caller decides whether and where to persist it, which keeps
  * this function usable from a script and from a test alike.
  */
@@ -43,7 +74,7 @@ export async function runCompatCheck(options: RunOptions): Promise<CompatResult>
   const tool = getTool(registry, options.toolId);
   const engineDef = getEngine(registry, tool.engine.id);
   const adapter = getAdapter(tool.adapter);
-  const corpus = await loadCompatCorpus(options.corpusDir);
+  const inputs = await loadInputs(path, options);
   const testedAt = new Date().toISOString();
 
   /**
@@ -70,7 +101,7 @@ export async function runCompatCheck(options: RunOptions): Promise<CompatResult>
         version: options.version,
         channel: options.channel,
         testedAt,
-        corpusDigest: corpus.digest,
+        corpusDigest: inputs.digest,
         arachneVersion: options.arachneVersion,
         path,
         engine: declaredEngine,
@@ -84,9 +115,11 @@ export async function runCompatCheck(options: RunOptions): Promise<CompatResult>
 
     try {
       const vectors =
-        path === 'decode'
-          ? await runDecodePath(tool.id, install.session, corpus.vectors)
-          : await runConstructPath(tool.id, install.session, corpus.vectors);
+        inputs.kind === 'observed'
+          ? await runObservedPath(tool.id, install.session, inputs.cases)
+          : path === 'decode'
+            ? await runDecodePath(tool.id, install.session, inputs.vectors)
+            : await runConstructPath(tool.id, install.session, inputs.vectors);
 
       return {
         formatVersion: RESULT_FORMAT_VERSION,
@@ -96,7 +129,7 @@ export async function runCompatCheck(options: RunOptions): Promise<CompatResult>
         path,
         engine: await resolveEngine(install.session, declaredEngine),
         testedAt,
-        corpusDigest: corpus.digest,
+        corpusDigest: inputs.digest,
         arachneVersion: options.arachneVersion,
         status: 'tested',
         framing: deriveFraming(vectors, path),
@@ -164,6 +197,38 @@ async function runDecodePath(
     results.push(...classifyDecodeOutcome(vector, outcome));
   }
   return results;
+}
+
+/**
+ * Hand over each observed byte string exactly as a transaction carried it and
+ * classify the one hash that comes back.
+ *
+ * One question per script rather than two: these bytes exist in a single
+ * framing, the one whatever software submitted them chose, and asking about a
+ * second would mean re-encoding them here and testing this project's output
+ * again instead of the chain's.
+ */
+async function runObservedPath(
+  toolId: string,
+  session: ToolSession,
+  cases: ObservedCase[],
+): Promise<VectorResult[]> {
+  if (!session.hashObservedScripts) {
+    throw new Error(
+      `adapter for "${toolId}" has no observed-bytes session; "path: 'decode-onchain'" is not available for it`,
+    );
+  }
+  const items: ObservedItem[] = cases.map((c) => ({ id: c.id, cborHex: c.cborHex }));
+  const outcomes = await session.hashObservedScripts(items);
+  return cases.map((observed) => {
+    const outcome = outcomes.get(observed.id);
+    if (!outcome) {
+      throw new Error(
+        `adapter for "${toolId}" produced no outcome for observed script "${observed.id}"`,
+      );
+    }
+    return classifyObservedOutcome(observed, outcome);
+  });
 }
 
 /**

@@ -38,6 +38,12 @@ describe('resultPath', () => {
       'compat/results/gouroboros/0.205.1-decode.json',
     );
   });
+
+  it('gives the observed-bytes path its own suffixed name', () => {
+    expect(resultPath('gouroboros', '0.205.1', 'compat/results', 'decode-onchain')).toBe(
+      'compat/results/gouroboros/0.205.1-decode-onchain.json',
+    );
+  });
 });
 
 describe('writeCompatResult and previousResult', () => {

@@ -33,11 +33,12 @@ export function explorerTxUrl(network: ChainEvidenceNetwork, txHash: string): st
 }
 
 /** `en-US` is fixed rather than left to the host locale, so this stays byte-stable across machines. */
-function formatCount(n: number): string {
+export function formatCount(n: number): string {
   return n.toLocaleString('en-US');
 }
 
-function formatShape(shape: ChainEvidenceEntry['shape']): string | null {
+/** Exported so `chain-evidence-site.ts` states a shape in the same words as this document, rather than a second phrasing that could drift from it. */
+export function formatShape(shape: ChainEvidenceEntry['shape']): string | null {
   if (!shape) return null;
   const parts: string[] = [];
   if (shape.depth !== undefined) parts.push(`nesting depth ${formatCount(shape.depth)}`);

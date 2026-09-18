@@ -30,10 +30,13 @@ export interface AggregateResultSummary {
   path: ConstructionPath;
   testedAt: string;
   /**
-   * `vectors/index.json`'s digest at the time this result was produced. Two
-   * results are only directly comparable when this matches (compat/README.md,
-   * "corpusDigest"); carrying it here is what lets a consumer tell that apart
-   * without opening the underlying result file.
+   * The digest of the set this result was produced against, at the time it
+   * was produced: `vectors/index.json`'s on `construct` and `decode`, and
+   * `chain-evidence/scripts.json`'s on `decode-onchain`, which runs against
+   * observed bytes rather than generated ones. Two results are only directly
+   * comparable when this matches (compat/README.md, "corpusDigest"); carrying
+   * it here is what lets a consumer tell that apart without opening the
+   * underlying result file.
    */
   corpusDigest: string;
   arachneVersion: string;

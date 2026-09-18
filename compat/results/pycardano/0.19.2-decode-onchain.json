@@ -1,0 +1,126 @@
+{
+  "formatVersion": 2,
+  "tool": "pycardano",
+  "version": "0.19.2",
+  "channel": "current",
+  "path": "decode-onchain",
+  "engine": {
+    "id": "pycardano",
+    "relation": "own",
+    "resolvedVersion": "0.19.2"
+  },
+  "testedAt": "2026-09-18T18:26:45.809Z",
+  "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+  "arachneVersion": "arachne@0.1.0",
+  "status": "tested",
+  "framing": "definite",
+  "vectors": [
+    {
+      "id": "036b3fb64de7927879085e130fc0a9b5f9f5e4c89adfa77fa9769a08",
+      "status": "agreed",
+      "hash": "036b3fb64de7927879085e130fc0a9b5f9f5e4c89adfa77fa9769a08",
+      "matchedFraming": "both"
+    },
+    {
+      "id": "14c1d5dafc60b0838a4fa93de66140e7ba91627e89cbdaa365da91f8",
+      "status": "diverged",
+      "hash": "7ff3d2aa76d46d30d64a9693c41ce993f8b8e443f7f396953e0052b5",
+      "matchedFraming": "definite",
+      "inputFraming": "cardanoBinary"
+    },
+    {
+      "id": "1e53c03606458bcf1173bda959ff068333958c012e9f4eebcae6cd6e",
+      "status": "agreed",
+      "hash": "1e53c03606458bcf1173bda959ff068333958c012e9f4eebcae6cd6e",
+      "matchedFraming": "both"
+    },
+    {
+      "id": "1fd356983d4350b7d2ecfedfd847bc375a12e5136f1db707db7f30b4",
+      "status": "agreed",
+      "hash": "1fd356983d4350b7d2ecfedfd847bc375a12e5136f1db707db7f30b4",
+      "matchedFraming": "both"
+    },
+    {
+      "id": "3530cc9ae7f2895111a99b7a02184dd7c0cea7424f1632d73951b1d7",
+      "status": "agreed",
+      "hash": "3530cc9ae7f2895111a99b7a02184dd7c0cea7424f1632d73951b1d7",
+      "matchedFraming": "both"
+    },
+    {
+      "id": "3a2640ad93281967ce64763495bf27064ddce92de689a067072a3b4e",
+      "status": "agreed",
+      "hash": "3a2640ad93281967ce64763495bf27064ddce92de689a067072a3b4e",
+      "matchedFraming": "both"
+    },
+    {
+      "id": "52dc3d43b6d2465e96109ce75ab61abe5e9c1d8a3c9ce6ff8a3af528",
+      "status": "agreed",
+      "hash": "52dc3d43b6d2465e96109ce75ab61abe5e9c1d8a3c9ce6ff8a3af528",
+      "matchedFraming": "both"
+    },
+    {
+      "id": "678f1ce0680cd787baac04fe6e30a82c1fbf2998bee934cc040960d4",
+      "status": "agreed",
+      "hash": "678f1ce0680cd787baac04fe6e30a82c1fbf2998bee934cc040960d4",
+      "matchedFraming": "both"
+    },
+    {
+      "id": "a5dd24497be41c19539be81f8440ac19dced198f6a6fdb6e17907bea",
+      "status": "diverged",
+      "hash": "f9fb32c0831bc5743f8a2449ecaca380185592c69099ff667f1bd015",
+      "matchedFraming": "definite",
+      "inputFraming": "cardanoBinary"
+    },
+    {
+      "id": "a69b61fe37022390d0ad3be62c9b3a1455719a319669a0d8b6a7b454",
+      "status": "diverged",
+      "hash": "36b2f62cafda6a5e09c73ebcb131c9d2edb6e8e8d54a9b7d585fa808",
+      "matchedFraming": "definite",
+      "inputFraming": "cardanoBinary"
+    },
+    {
+      "id": "b7e9fae91f0bd2119ee47c75379439345ec0a5116515e8cea326efcc",
+      "status": "agreed",
+      "hash": "b7e9fae91f0bd2119ee47c75379439345ec0a5116515e8cea326efcc",
+      "matchedFraming": "definite",
+      "inputFraming": "definite"
+    },
+    {
+      "id": "cca7321c5acd49f6dcda429401c054adc5724b424774c6097e9bc8ca",
+      "status": "diverged",
+      "hash": "b7e9fae91f0bd2119ee47c75379439345ec0a5116515e8cea326efcc",
+      "matchedFraming": "definite",
+      "inputFraming": "cardanoBinary"
+    },
+    {
+      "id": "ce021f147f597c5b48affb3d51de3be142ffd9fd898e8631b4948964",
+      "status": "agreed",
+      "hash": "ce021f147f597c5b48affb3d51de3be142ffd9fd898e8631b4948964",
+      "matchedFraming": "both"
+    },
+    {
+      "id": "d441227553a0f1a965fee7d60a0f724b368dd1bddbc208730fccebcf",
+      "status": "agreed",
+      "hash": "d441227553a0f1a965fee7d60a0f724b368dd1bddbc208730fccebcf",
+      "matchedFraming": "both"
+    },
+    {
+      "id": "d66ed8e0a53cd02efadfd8f806697b6decb2a05d5106bf7693f9bdef",
+      "status": "agreed",
+      "hash": "d66ed8e0a53cd02efadfd8f806697b6decb2a05d5106bf7693f9bdef",
+      "matchedFraming": "neither"
+    },
+    {
+      "id": "ff3efca65569f6b0b868a3d34abdb1ad8eccf745e0da71fa94fb4f18",
+      "status": "refused",
+      "error": "maximum recursion depth exceeded"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "agreed": 11,
+    "diverged": 4,
+    "refused": 1,
+    "unsupported": 0
+  }
+}

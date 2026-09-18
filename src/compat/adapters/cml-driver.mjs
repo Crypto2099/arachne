@@ -14,13 +14,15 @@
 // a driver that imported one hard-coded package name would fail to find the
 // other one's install.
 //
-// `mode` is "construct" (build from the corpus's JSON shape and hash) or
-// "decode" (hash whatever CBOR bytes were handed over, once per encoding).
-// CML answers these two questions differently: construction always yields
-// definite-length arrays, matching cardano-serialization-lib, while decoding
-// preserves whichever framing the input CBOR already used, because
-// `NativeScript.from_cbor_hex` keeps the original bytes and `.hash()` hashes
-// those rather than a freshly re-encoded copy.
+// `mode` is "construct" (build from the corpus's JSON shape and hash),
+// "decode" (hash whatever CBOR bytes were handed over, once per encoding), or
+// "onchain" (the same hashing, over one byte string per item, taken from what
+// a node has actually accepted). CML answers construction and decoding
+// differently: construction always yields definite-length arrays, matching
+// cardano-serialization-lib, while decoding preserves whichever framing the
+// input CBOR already used, because `NativeScript.from_cbor_hex` keeps the
+// original bytes and `.hash()` hashes those rather than a freshly re-encoded
+// copy.
 import { readFileSync } from 'node:fs';
 
 const [, , mode, pkg, inputPath] = process.argv;
@@ -62,6 +64,14 @@ function toList(scripts) {
 
 const items = JSON.parse(readFileSync(inputPath, 'utf8'));
 
+const decodeOne = (cborHex) => {
+  try {
+    return { status: 'ok', hash: CML.NativeScript.from_cbor_hex(cborHex).hash().to_hex() };
+  } catch (error) {
+    return { status: 'error', error: error instanceof Error ? error.message : String(error) };
+  }
+};
+
 if (mode === 'construct') {
   const out = items.map(({ id, script }) => {
     try {
@@ -73,20 +83,18 @@ if (mode === 'construct') {
   });
   process.stdout.write(JSON.stringify(out));
 } else if (mode === 'decode') {
-  const decodeOne = (cborHex) => {
-    try {
-      return { status: 'ok', hash: CML.NativeScript.from_cbor_hex(cborHex).hash().to_hex() };
-    } catch (error) {
-      return { status: 'error', error: error instanceof Error ? error.message : String(error) };
-    }
-  };
   const out = items.map(({ id, definiteCborHex, cardanoBinaryCborHex }) => ({
     id,
     definite: decodeOne(definiteCborHex),
     cardanoBinary: decodeOne(cardanoBinaryCborHex),
   }));
   process.stdout.write(JSON.stringify(out));
+} else if (mode === 'onchain') {
+  const out = items.map(({ id, cborHex }) => ({ id, ...decodeOne(cborHex) }));
+  process.stdout.write(JSON.stringify(out));
 } else {
-  process.stderr.write(`cml-driver.mjs: unknown mode "${mode}", expected "construct" or "decode"`);
+  process.stderr.write(
+    `cml-driver.mjs: unknown mode "${mode}", expected "construct", "decode" or "onchain"`,
+  );
   process.exit(1);
 }

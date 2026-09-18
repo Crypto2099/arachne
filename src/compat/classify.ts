@@ -1,4 +1,5 @@
 import type { Vector } from '../vectors/schema.js';
+import type { ObservedCase } from './corpus.js';
 import type { ConstructionPath, DecodeOutcome, HashOutcome } from './types.js';
 
 export type VectorStatus = 'agreed' | 'diverged' | 'refused' | 'unsupported';
@@ -80,6 +81,59 @@ export function classifyDecodeOutcome(vector: Vector, outcome: DecodeOutcome): V
   ];
 }
 
+/**
+ * One observed script's result: did the tool return the hash those exact bytes
+ * have?
+ *
+ * Stricter than `classifyOutcome`, and deliberately so. A corpus vector has two
+ * valid hashes and matching either counts as agreement, because neither framing
+ * is canonical and the vector exists in both. These bytes exist in one form, on
+ * a chain, and have one hash. A tool that returns the other framing's hash has
+ * decoded and re-encoded a script that is live, and would hand back an address
+ * that holds no funds.
+ *
+ * `matchedFraming` still names which framing the answer corresponds to, so a
+ * divergence says what the tool did rather than only that it was wrong. When
+ * this library cannot decode the bytes there is nothing to re-encode, so the
+ * comparison hashes are absent and the answer is either right or unexplained.
+ */
+export function classifyObservedOutcome(
+  observed: ObservedCase,
+  outcome: HashOutcome,
+): VectorResult {
+  if (outcome.status === 'refused' || outcome.status === 'unsupported') {
+    return { id: observed.id, status: outcome.status, error: outcome.error };
+  }
+
+  const hash = outcome.hash.toLowerCase();
+  const matchesDefinite = observed.definiteHash !== undefined && hash === observed.definiteHash;
+  const matchesCardanoBinary =
+    observed.cardanoBinaryHash !== undefined && hash === observed.cardanoBinaryHash;
+
+  const matchedFraming: MatchedFraming =
+    matchesDefinite && matchesCardanoBinary
+      ? 'both'
+      : matchesDefinite
+        ? 'definite'
+        : matchesCardanoBinary
+          ? 'cardanoBinary'
+          : 'neither';
+
+  // `inputFraming` means the same thing here as on the vector decode path:
+  // which framing the bytes handed over are in. It is knowable only when one
+  // encoder reproduces them; where both do, the bytes are the same either way
+  // and the answer says nothing about which rule the tool follows.
+  const inputFraming = observed.framings.length === 1 ? observed.framings[0] : undefined;
+
+  return {
+    id: observed.id,
+    status: hash === observed.observedHash ? 'agreed' : 'diverged',
+    hash: outcome.hash,
+    matchedFraming,
+    ...(inputFraming === undefined ? {} : { inputFraming }),
+  };
+}
+
 export type Framing =
   'definite' | 'cardanoBinary' | 'mixed' | 'framing-preserving' | 'undetermined';
 
@@ -90,12 +144,13 @@ export type Framing =
  * regardless of which rule it follows and says nothing about which one that
  * is, so those are not evidence here.
  *
- * `framing-preserving` is only reachable on `path: 'decode'`: it means that,
- * across every decisive vector, the hash returned matches whichever encoding
- * was actually fed in, rather than the tool normalizing every input toward
- * one framing regardless of what it was handed. That distinction does not
- * exist on `construct`, where there is only one input per vector, so the path
- * has to be given rather than inferred from the results alone.
+ * `framing-preserving` is reachable on the two paths that feed bytes in,
+ * `decode` and `decode-onchain`: it means that, across every decisive case,
+ * the hash returned matches whichever encoding was actually fed in, rather
+ * than the tool normalizing every input toward one framing regardless of what
+ * it was handed. That distinction does not exist on `construct`, where there
+ * is only one input per vector and nothing was handed over to preserve, so
+ * the path has to be given rather than inferred from the results alone.
  */
 export function deriveFraming(results: VectorResult[], path: ConstructionPath): Framing {
   const decisive = results.filter(
@@ -103,7 +158,7 @@ export function deriveFraming(results: VectorResult[], path: ConstructionPath): 
   );
   if (decisive.length === 0) return 'undetermined';
 
-  if (path === 'decode' && decisive.every((r) => r.matchedFraming === r.inputFraming)) {
+  if (path !== 'construct' && decisive.every((r) => r.matchedFraming === r.inputFraming)) {
     return 'framing-preserving';
   }
 

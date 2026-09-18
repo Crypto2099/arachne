@@ -164,9 +164,37 @@ describe('renderSite', () => {
       versionDoc(),
     );
 
-    const sharedOccurrences = html.split('title="shared-digest-value"').length - 1;
+    const sharedOccurrences =
+      html.split('title="vectors/index.json shared-digest-value"').length - 1;
     expect(sharedOccurrences).toBe(2);
-    expect(html).toContain('title="different-digest-value"');
+    expect(html).toContain('title="vectors/index.json different-digest-value"');
+  });
+
+  // A `decode-onchain` row is measured against the observed scripts rather
+  // than the generated corpus, so its digest differs from every neighboring
+  // row's. Naming the file in the badge's title is what keeps that reading as
+  // a different question instead of as a corpus that moved.
+  it('names the file each corpus digest belongs to', () => {
+    const html = renderSite(
+      aggregate({
+        tools: [
+          tool({
+            paths: ['construct', 'decode-onchain'],
+            results: [
+              result({ version: '1.0.0', path: 'construct', corpusDigest: 'vectors-digest' }),
+              result({
+                version: '1.0.0',
+                path: 'decode-onchain',
+                corpusDigest: 'observed-digest',
+              }),
+            ],
+          }),
+        ],
+      }),
+      versionDoc(),
+    );
+    expect(html).toContain('title="vectors/index.json vectors-digest"');
+    expect(html).toContain('title="chain-evidence/scripts.json observed-digest"');
   });
 
   it('renders a placeholder for a tool with no results yet, not an empty table', () => {
@@ -226,6 +254,11 @@ describe('renderSite', () => {
     expect(html).toContain('href="version.json"');
   });
 
+  it('links to the chain evidence record, the other page on this site', () => {
+    const html = renderSite(aggregate(), versionDoc());
+    expect(html).toContain('href="chain-evidence.html"');
+  });
+
   it('escapes a tool id containing markup rather than injecting it into the page', () => {
     const html = renderSite(
       aggregate({ tools: [tool({ id: 'tool-<img onerror=alert(1)>' })] }),
@@ -253,9 +286,16 @@ describe('renderSite', () => {
     const html = normalizeWhitespace(renderSite(aggregate(), versionDoc()));
     expect(html).toContain('What cardano-serialization-lib, MeshJS and most JavaScript tooling');
     expect(html).toContain('What cardano-node and cardano-cli produce');
-    expect(html).toContain('Only reachable on the <code>decode</code> path');
+    expect(html).toContain('Only reachable on a path that hands the tool bytes');
     expect(html).toContain('Never folded into <code>definite</code>');
     expect(html).toContain('does not yet say which');
+  });
+
+  it('defines every construction path in the same legend', () => {
+    const html = normalizeWhitespace(renderSite(aggregate(), versionDoc()));
+    expect(html).toContain('<dt>Path: <code>construct</code></dt>');
+    expect(html).toContain('<dt>Path: <code>decode</code></dt>');
+    expect(html).toContain('<dt>Path: <code>decode-onchain</code></dt>');
   });
 
   it('states the tool and engine count once, near the top', () => {
@@ -350,8 +390,12 @@ describe('renderSite', () => {
       aggregate({
         tools: [
           tool({
-            paths: ['construct', 'decode'],
-            results: [result({ path: 'construct' }), result({ path: 'decode' })],
+            paths: ['construct', 'decode', 'decode-onchain'],
+            results: [
+              result({ path: 'construct' }),
+              result({ path: 'decode' }),
+              result({ path: 'decode-onchain' }),
+            ],
           }),
         ],
       }),
@@ -359,7 +403,7 @@ describe('renderSite', () => {
     );
     // The legend still defines the word "unmeasured" (it is a term used
     // elsewhere on the page), but this tool's own section carries neither
-    // gap note, because both of its registered paths have a result.
+    // gap note, because every one of its registered paths has a result.
     expect(html).not.toContain('is not registered against the');
     expect(html).not.toContain('has no recorded result yet');
   });

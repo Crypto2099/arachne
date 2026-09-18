@@ -4,8 +4,10 @@ import {
   validateChainEvidenceEntry,
   validateChainEvidenceRecord,
   checkAgainstVector,
+  checkTransactionBytes,
   checkVectorCoverage,
   CHAIN_EVIDENCE_FORMAT_VERSION,
+  type ChainEvidenceEntry,
 } from '../../../src/chain/evidence.js';
 import { loadAllVectors } from '../../../src/vectors/load.js';
 
@@ -127,5 +129,85 @@ describe('chain-evidence/observations.json', () => {
       // which is what "the record cross-references it" depends on.
       expect(vector?.onchain?.length ?? 0).toBeGreaterThan(0);
     }
+  });
+});
+
+/**
+ * `cborHex` is the one field here that does not have to be believed.
+ *
+ * A transaction id is blake2b-256 of the `transaction_body` bytes, so a stored
+ * transaction can be held to the `txHash` its own entry claims, offline and
+ * with no trust in whoever fetched it. These tests exist because a check that
+ * cannot fail is worth nothing: each one corrupts a real entry in a different
+ * way and requires the corruption to be reported.
+ */
+describe('the stored transaction bytes prove their own hash', () => {
+  const withBytes = async (): Promise<ChainEvidenceEntry> => {
+    const record = await loadChainEvidence();
+    const entry = record.entries.find((e) => e.cborHex && !e.referenceScript);
+    expect(entry, 'no entry carries cborHex').toBeDefined();
+    return entry!;
+  };
+
+  it('accepts every entry the record actually carries', async () => {
+    const record = await loadChainEvidence();
+    const carrying = record.entries.filter((e) => e.cborHex);
+    // All 21 accepted entries, and none of the refused ones, which never
+    // reached a chain and so have no hash to have been refetched by.
+    expect(carrying.length).toBe(record.entries.filter((e) => e.accepted).length);
+    for (const entry of carrying) {
+      expect(checkTransactionBytes(entry), entry.txHash).toEqual([]);
+    }
+  });
+
+  it('reports bytes that are a different transaction', async () => {
+    const record = await loadChainEvidence();
+    const [a, b] = record.entries.filter((e) => e.cborHex && !e.referenceScript);
+    const swapped = { ...a!, cborHex: b!.cborHex! };
+    expect(checkTransactionBytes(swapped).join('\n')).toMatch(/whose id is .*, not the txHash/);
+  });
+
+  it('reports a single flipped byte in the body', async () => {
+    const entry = await withBytes();
+    // Byte 8 is inside the body, past the outer array header and the body's
+    // own map header, so changing it changes what the id is taken over.
+    const bytes = [...entry.cborHex!];
+    bytes[16] = bytes[16] === '0' ? '1' : '0';
+    const corrupted = { ...entry, cborHex: bytes.join('') };
+    expect(checkTransactionBytes(corrupted).join('\n')).toMatch(/not the txHash|not a readable/);
+  });
+
+  it('reports bytes that are not a transaction at all', async () => {
+    const entry = await withBytes();
+    expect(checkTransactionBytes({ ...entry, cborHex: 'a0' }).join('\n')).toMatch(
+      /not a readable transaction/,
+    );
+  });
+
+  it('reports bytes carried with no hash to check them against', async () => {
+    const entry = { ...(await withBytes()) };
+    delete entry.txHash;
+    expect(checkTransactionBytes(entry).join('\n')).toMatch(/txHash is absent/);
+  });
+
+  it('checks a referenced script against the output that holds it', async () => {
+    const record = await loadChainEvidence();
+    const entry = record.entries.find((e) => e.referenceScript);
+    expect(entry, 'no entry carries a referenceScript').toBeDefined();
+    expect(checkTransactionBytes(entry!)).toEqual([]);
+
+    const wrongHash = {
+      ...entry!,
+      referenceScript: { ...entry!.referenceScript!, scriptHash: 'ff'.repeat(28) },
+    };
+    expect(checkTransactionBytes(wrongHash).join('\n')).toMatch(/not the scriptHash/);
+
+    const wrongOutput = {
+      ...entry!,
+      referenceScript: { ...entry!.referenceScript!, outputIndex: 99 },
+    };
+    expect(checkTransactionBytes(wrongOutput).join('\n')).toMatch(
+      /past the .* outputs|holds no native script/,
+    );
   });
 });

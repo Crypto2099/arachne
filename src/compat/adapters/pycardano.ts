@@ -7,6 +7,7 @@ import type {
   DecodeOutcome,
   HashOutcome,
   InstallOutcome,
+  ObservedItem,
   ScriptItem,
   ToolAdapter,
   ToolDefinition,
@@ -131,6 +132,8 @@ export const PYCARDANO_ADAPTER: ToolAdapter = {
           runConstruct(python, driverPath, scratchDir, items),
         decodeScripts: async (items: DecodeItem[]) =>
           runDecode(python, driverPath, scratchDir, items),
+        hashObservedScripts: async (items: ObservedItem[]) =>
+          runOnchain(python, driverPath, scratchDir, items),
         // pycardano IS its own engine, and the registry always names an exact
         // release rather than a range, so this reads the version actually
         // installed in the venv rather than echoing the one requested.
@@ -238,6 +241,37 @@ async function runDecode(
     } catch (error) {
       const refused: HashOutcome = { status: 'refused', error: driverErrorText(error) };
       outcomes.set(item.id, { definite: refused, cardanoBinary: refused });
+    }
+  }
+  return outcomes;
+}
+
+/**
+ * The observed-bytes path, one process per item for the same reason the other
+ * two paths are: a script that takes pycardano's typeguard-checked dataclasses
+ * past the timeout stays a `refused` entry for itself rather than for the batch.
+ */
+async function runOnchain(
+  python: string,
+  driverPath: string,
+  scratchDir: string,
+  items: ObservedItem[],
+): Promise<Map<string, HashOutcome>> {
+  const inputPath = join(scratchDir, 'onchain-item.json');
+  const outcomes = new Map<string, HashOutcome>();
+  for (const item of items) {
+    await writeFile(inputPath, JSON.stringify([item]), 'utf8');
+    try {
+      const stdout = execFileSync(python, [driverPath, 'onchain', inputPath], {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        timeout: PYCARDANO_PER_VECTOR_TIMEOUT_MS,
+        maxBuffer: 64 * 1024 * 1024,
+      });
+      const [entry] = JSON.parse(stdout) as PyResult[];
+      outcomes.set(item.id, toHashOutcome(entry?.status, entry?.hash, entry?.error));
+    } catch (error) {
+      outcomes.set(item.id, { status: 'refused', error: driverErrorText(error) });
     }
   }
   return outcomes;
