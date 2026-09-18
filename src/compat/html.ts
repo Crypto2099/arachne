@@ -1,8 +1,8 @@
 /**
  * Rendering primitives shared by every self-contained HTML page this
- * project publishes to GitHub Pages (the compat matrix in `site.ts`, the
- * chain evidence record in `chain-evidence-site.ts`), so the two read as one
- * site rather than two pages that happen to share a directory.
+ * project publishes to GitHub Pages (everything under `src/compat/site/`),
+ * so the pages read as one site rather than files that happen to share a
+ * directory.
  */
 
 export function escapeHtml(value: string): string {
@@ -18,15 +18,13 @@ export function escapeAttr(value: string): string {
 }
 
 /**
- * Two rules of equal weight, one unbroken and one segmented: the compat
- * matrix's own thesis, an encoder that frames every array the same way
- * against one that changes at 24. Shared as the tab icon for every page on
- * this site, including the chain evidence page, which corroborates that same
- * divergence on chain rather than drawing a different motif. Inlined as a
+ * Two rules of equal weight, one unbroken and one segmented: the site's own
+ * thesis, an encoder that frames every list the same way against one that
+ * changes at 24 items. Shared as the tab icon for every page. Inlined as a
  * data URI, so the icon costs no request and the "fetches nothing
  * off-origin" rule holds for it too. `currentColor` is not available to a
- * favicon, so both rules are drawn in a mid grey that holds up against a
- * light and a dark tab strip.
+ * favicon, so both rules are drawn in colours that hold up against a light
+ * and a dark tab strip.
  */
 export const FAVICON =
   'data:image/svg+xml,' +
@@ -41,42 +39,52 @@ export const FAVICON =
   );
 
 /**
- * The color tokens and typefaces every page on this site is built from.
+ * The colour tokens and typefaces every page on this site is built from.
  * Inline and same-origin only, per the deploy contract: no external
  * stylesheet or font is fetched, so both families below are system stacks.
  * `color-scheme` plus the `prefers-color-scheme` override are what keep this
  * correct in both light and dark without any script deciding at runtime.
  *
- * Kept in one place so a page added later inherits the same palette rather
- * than a copy that can drift from it; each page still owns its own layout
- * and component rules.
+ * Two hues carry the two framings, gold for definite-length everywhere and
+ * blue for the Haskell rule that switches at 24, because those two already
+ * carry that meaning in the favicon and the masthead. Three more carry
+ * outcomes: green for a correct hash, red for a wrong one, plum for a
+ * refusal. None of the five is reused for anything else, so a colour on
+ * this site always means one thing.
  */
 export const THEME_TOKENS = `
 :root {
   color-scheme: light dark;
   --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, Cambria, "Times New Roman", serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  --ground: #e9ebf0;
+  --ground: #eceef3;
   --card: #ffffff;
-  --ink: #191d26;
-  --ink-2: #5c6472;
+  --ink: #171b24;
+  --ink-2: #5a6170;
   --rule: #d3d8e1;
   --rule-soft: #e6e9ef;
   --section-rule: #3b4354;
   --link: #1f4fb0;
-  --node: #2a56b8;
-  --node-ink: #1b3c85;
-  --node-tint: #e8edfb;
-  --node-line: #bacbf0;
-  --node-wash: #f3f6fd;
-  --eco: #9a6a00;
-  --eco-ink: #7a5300;
-  --eco-tint: #fbf1da;
-  --eco-line: #e7d19b;
-  --eco-wash: #fdf8ed;
-  --alarm: #a3201f;
-  --caution: #fdf3e3;
-  --caution-line: #e6cfa4;
+  --blue: #2a56b8;
+  --blue-ink: #1b3c85;
+  --blue-tint: #e8edfb;
+  --blue-line: #bacbf0;
+  --gold: #9a6a00;
+  --gold-ink: #6f4c00;
+  --gold-tint: #fbf1da;
+  --gold-line: #e7d19b;
+  --ok: #1d7a4a;
+  --ok-ink: #145c37;
+  --ok-tint: #e2f3e9;
+  --ok-line: #a9dbbf;
+  --bad: #b3261e;
+  --bad-ink: #8f1d17;
+  --bad-tint: #fbe7e5;
+  --bad-line: #f0b3ad;
+  --plum: #6f3f9c;
+  --plum-ink: #55307a;
+  --plum-tint: #efe7f8;
+  --plum-line: #cdb6e6;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -88,18 +96,25 @@ export const THEME_TOKENS = `
     --rule-soft: #232833;
     --section-rule: #4b5466;
     --link: #8ab0ff;
-    --node: #6f9cf5;
-    --node-ink: #bacefb;
-    --node-tint: #182742;
-    --node-line: #2f4a7d;
-    --node-wash: #151e33;
-    --eco: #d9a94a;
-    --eco-ink: #f0cd87;
-    --eco-tint: #332811;
-    --eco-line: #5e4a1c;
-    --eco-wash: #251e11;
-    --alarm: #ff938c;
-    --caution: #2d2413;
-    --caution-line: #574728;
+    --blue: #6f9cf5;
+    --blue-ink: #bacefb;
+    --blue-tint: #182742;
+    --blue-line: #2f4a7d;
+    --gold: #d9a94a;
+    --gold-ink: #f0cd87;
+    --gold-tint: #332811;
+    --gold-line: #5e4a1c;
+    --ok: #5fc48f;
+    --ok-ink: #a8e6c4;
+    --ok-tint: #12301f;
+    --ok-line: #24583a;
+    --bad: #ff8a80;
+    --bad-ink: #ffb4ad;
+    --bad-tint: #3a1614;
+    --bad-line: #6b2a26;
+    --plum: #c19bea;
+    --plum-ink: #dcc4f5;
+    --plum-tint: #261a35;
+    --plum-line: #4a3566;
   }
 }`;

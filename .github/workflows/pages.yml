@@ -11,8 +11,8 @@ on:
     paths:
       - 'compat/**'
       - 'chain-evidence/**'
-      - 'src/compat/site.ts'
-      - 'src/compat/chain-evidence-site.ts'
+      - 'vectors/**'
+      - 'src/compat/site/**'
       - 'src/compat/html.ts'
       - 'src/chain/evidence.ts'
       - 'src/chain/record.ts'

@@ -5,45 +5,53 @@
     {
       "id": "cardano-binary",
       "displayName": "cardano-binary (Haskell)",
+      "language": "Haskell",
       "homepage": "https://github.com/IntersectMBO/cardano-base",
       "note": "Not separately versioned in a way a tool install exposes. It ships inside each Haskell binary, so the tool version is the only version there is."
     },
     {
       "id": "cardano-serialization-lib",
       "displayName": "cardano-serialization-lib",
+      "language": "Rust",
       "homepage": "https://github.com/Emurgo/cardano-serialization-lib",
       "package": "@emurgo/cardano-serialization-lib-nodejs"
     },
     {
       "id": "cardano-sdk-core",
       "displayName": "cardano-js-sdk core",
+      "language": "TypeScript",
       "homepage": "https://github.com/input-output-hk/cardano-js-sdk",
       "package": "@cardano-sdk/core"
     },
     {
       "id": "gouroboros",
       "displayName": "gouroboros",
+      "language": "Go",
       "homepage": "https://github.com/blinklabs-io/gouroboros"
     },
     {
       "id": "cardano-multiplatform-lib",
       "displayName": "cardano-multiplatform-lib",
+      "language": "Rust",
       "homepage": "https://github.com/dcSpark/cardano-multiplatform-lib",
       "package": "@dcspark/cardano-multiplatform-lib-nodejs"
     },
     {
       "id": "cardano-client-lib",
       "displayName": "cardano-client-lib",
+      "language": "Java",
       "homepage": "https://github.com/bloxbean/cardano-client-lib"
     },
     {
       "id": "pallas",
       "displayName": "pallas",
+      "language": "Rust",
       "homepage": "https://github.com/txpipe/pallas"
     },
     {
       "id": "pycardano",
       "displayName": "pycardano",
+      "language": "Python",
       "homepage": "https://github.com/Python-Cardano/pycardano"
     }
   ],
@@ -51,6 +59,8 @@
     {
       "id": "cardano-cli",
       "displayName": "cardano-cli",
+      "language": "Haskell",
+      "usedFrom": "the command line",
       "homepage": "https://github.com/IntersectMBO/cardano-cli",
       "engine": {
         "id": "cardano-binary",
@@ -151,6 +161,8 @@
     {
       "id": "cardano-address",
       "displayName": "cardano-address",
+      "language": "Haskell",
+      "usedFrom": "the command line",
       "homepage": "https://github.com/IntersectMBO/cardano-addresses",
       "engine": {
         "id": "cardano-binary",
@@ -214,6 +226,8 @@
     {
       "id": "cardano-serialization-lib-nodejs",
       "displayName": "cardano-serialization-lib (nodejs)",
+      "language": "Rust",
+      "usedFrom": "JavaScript and TypeScript, through the WebAssembly build published to npm",
       "homepage": "https://github.com/Emurgo/cardano-serialization-lib",
       "engine": {
         "id": "cardano-serialization-lib",
@@ -314,6 +328,8 @@
     {
       "id": "meshsdk-core",
       "displayName": "MeshJS core",
+      "language": "TypeScript",
+      "usedFrom": "JavaScript and TypeScript, from npm",
       "homepage": "https://github.com/MeshJS/mesh",
       "engine": {
         "id": "cardano-sdk-core",
@@ -415,6 +431,8 @@
     {
       "id": "gouroboros",
       "displayName": "gouroboros",
+      "language": "Go",
+      "usedFrom": "Go",
       "homepage": "https://github.com/blinklabs-io/gouroboros",
       "engine": {
         "id": "gouroboros",
@@ -588,6 +606,8 @@
     {
       "id": "cardano-multiplatform-lib-nodejs",
       "displayName": "cardano-multiplatform-lib (nodejs)",
+      "language": "Rust",
+      "usedFrom": "JavaScript and TypeScript, through the WebAssembly build published to npm",
       "homepage": "https://github.com/dcSpark/cardano-multiplatform-lib",
       "engine": {
         "id": "cardano-multiplatform-lib",
@@ -724,6 +744,8 @@
     {
       "id": "anastasia-labs-cardano-multiplatform-lib-nodejs",
       "displayName": "cardano-multiplatform-lib (Anastasia Labs fork, nodejs)",
+      "language": "Rust",
+      "usedFrom": "JavaScript and TypeScript, through the WebAssembly build published to npm",
       "homepage": "https://github.com/Anastasia-Labs/cardano-multiplatform-lib",
       "engine": {
         "id": "cardano-multiplatform-lib",
@@ -914,6 +936,8 @@
     {
       "id": "cardano-sdk-core",
       "displayName": "cardano-js-sdk core",
+      "language": "TypeScript",
+      "usedFrom": "JavaScript and TypeScript, from npm",
       "homepage": "https://github.com/input-output-hk/cardano-js-sdk",
       "engine": {
         "id": "cardano-sdk-core",
@@ -1049,6 +1073,8 @@
     {
       "id": "blaze-cardano-core",
       "displayName": "Blaze core",
+      "language": "TypeScript",
+      "usedFrom": "JavaScript and TypeScript, from npm",
       "homepage": "https://github.com/butaneprotocol/blaze-cardano",
       "engine": {
         "id": "cardano-sdk-core",
@@ -1184,6 +1210,8 @@
     {
       "id": "cardano-client-lib",
       "displayName": "cardano-client-lib",
+      "language": "Java",
+      "usedFrom": "Java and other JVM languages, from Maven Central",
       "homepage": "https://github.com/bloxbean/cardano-client-lib",
       "engine": {
         "id": "cardano-client-lib",
@@ -1375,6 +1403,8 @@
     {
       "id": "pallas",
       "displayName": "pallas-primitives",
+      "language": "Rust",
+      "usedFrom": "Rust, from crates.io",
       "homepage": "https://github.com/txpipe/pallas",
       "engine": {
         "id": "pallas",
@@ -1494,6 +1524,8 @@
     {
       "id": "pycardano",
       "displayName": "PyCardano",
+      "language": "Python",
+      "usedFrom": "Python, from PyPI",
       "homepage": "https://github.com/Python-Cardano/pycardano",
       "engine": {
         "id": "pycardano",

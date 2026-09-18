@@ -58,6 +58,9 @@ export interface AggregateResultSummary {
 export interface AggregateTool {
   id: string;
   displayName: string;
+  /** Carried from `compat/tools.json` unchanged; see `ToolDefinition`. */
+  language?: string;
+  usedFrom?: string;
   homepage: string;
   engine: EngineLink;
   /**
@@ -150,6 +153,8 @@ export async function buildAggregate(
     tools.push({
       id: tool.id,
       displayName: tool.displayName,
+      ...(tool.language === undefined ? {} : { language: tool.language }),
+      ...(tool.usedFrom === undefined ? {} : { usedFrom: tool.usedFrom }),
       homepage: tool.homepage,
       engine: tool.engine,
       // Mirrors resolvePendingWork's own default in src/compat/pending.ts:
