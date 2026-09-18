@@ -34,6 +34,16 @@
       "id": "cardano-client-lib",
       "displayName": "cardano-client-lib",
       "homepage": "https://github.com/bloxbean/cardano-client-lib"
+    },
+    {
+      "id": "pallas",
+      "displayName": "pallas",
+      "homepage": "https://github.com/txpipe/pallas"
+    },
+    {
+      "id": "pycardano",
+      "displayName": "pycardano",
+      "homepage": "https://github.com/Python-Cardano/pycardano"
     }
   ],
   "tools": [
@@ -202,6 +212,40 @@
       "paths": ["construct", "decode"],
       "engine": {
         "id": "cardano-client-lib",
+        "relation": "own"
+      }
+    },
+    {
+      "id": "pallas",
+      "displayName": "pallas-primitives",
+      "homepage": "https://github.com/txpipe/pallas",
+      "adapter": "pallas",
+      "discovery": {
+        "type": "github-releases",
+        "repo": "txpipe/pallas",
+        "tagPrefix": "v"
+      },
+      "channels": ["current", "previous", "beta"],
+      "paths": ["construct", "decode"],
+      "engine": {
+        "id": "pallas",
+        "relation": "own"
+      }
+    },
+    {
+      "id": "pycardano",
+      "displayName": "PyCardano",
+      "homepage": "https://github.com/Python-Cardano/pycardano",
+      "adapter": "pycardano",
+      "discovery": {
+        "type": "github-releases",
+        "repo": "Python-Cardano/pycardano",
+        "tagPrefix": "v"
+      },
+      "channels": ["current", "previous", "beta"],
+      "paths": ["construct", "decode"],
+      "engine": {
+        "id": "pycardano",
         "relation": "own"
       }
     }
