@@ -16,6 +16,8 @@ on:
       - 'src/compat/html.ts'
       - 'src/chain/evidence.ts'
       - 'src/chain/record.ts'
+      - 'src/chain/scripts.ts'
+      - 'src/chain/observed.ts'
       - 'scripts/compat-site.ts'
       - '.github/workflows/pages.yml'
 
@@ -52,11 +54,11 @@ jobs:
 
       - run: npm ci
 
-      # compat/aggregate.json, compat/version.json and
-      # chain-evidence/record.md are all committed, not built here; this
-      # only checks that what is committed still matches its own source
+      # compat/aggregate.json, compat/version.json, chain-evidence/record.md
+      # and chain-evidence/scripts.json are all committed, not built here;
+      # this only checks that what is committed still matches its own source
       # (compat/tools.json and compat/results/ for the first two,
-      # chain-evidence/observations.json for the third), the same checks
+      # chain-evidence/observations.json for the other two), the same checks
       # "npm run verify" already runs. A stale commit fails the deploy
       # instead of quietly publishing something its source does not match.
       - name: Compat data is current
@@ -64,6 +66,7 @@ jobs:
           npm run compat:aggregate:check
           npm run compat:version:check
           npm run chain-evidence:record:check
+          npm run chain-evidence:scripts:check
 
       - name: Build the site
         run: npx tsx scripts/compat-site.ts site
