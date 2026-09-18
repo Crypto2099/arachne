@@ -1,6 +1,7 @@
 import type { ArrayEncoding } from '../encode/script.js';
 import { decodeScript, scriptHashFromCbor } from '../encode/decode.js';
-import { fromHex } from '../encode/cbor.js';
+import { fromHex, toHex } from '../encode/cbor.js';
+import { blake2b224 } from '../encode/script.js';
 import { shapeOf, type ScriptShape } from '../model/invariants.js';
 import type { Vector } from '../vectors/schema.js';
 import type { ChainEvidenceEntry, ChainEvidenceNetwork, ChainEvidenceRecord } from './evidence.js';
@@ -76,7 +77,23 @@ export interface ObservedScriptRecord {
 export interface ObservedScriptsFile {
   formatVersion: number;
   scriptCount: number;
+  /**
+   * Digest over the script hashes this set holds, so a compat result can name
+   * the set it ran against the way it already names `vectors/index.json`'s.
+   * A script hash is taken over the bytes, so two sets with the same digest
+   * hold the same bytes.
+   */
+  digest: string;
   scripts: ObservedScriptRecord[];
+}
+
+/** Digest over script hashes, mirroring `corpusDigest` in `src/vectors/build.ts`. */
+export function observedScriptsDigest(scripts: readonly ObservedScriptRecord[]): string {
+  const material = scripts
+    .map((s) => s.scriptHash)
+    .sort()
+    .join('\n');
+  return toHex(blake2b224(new TextEncoder().encode(material)));
 }
 
 /**
@@ -171,6 +188,7 @@ export function deriveObservedScripts(
   return {
     formatVersion: OBSERVED_SCRIPTS_FORMAT_VERSION,
     scriptCount: ordered.length,
+    digest: observedScriptsDigest(ordered),
     scripts: ordered,
   };
 }

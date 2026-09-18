@@ -4,6 +4,7 @@ import { DEFAULT_CHAIN_EVIDENCE_PATH, loadChainEvidence } from '../../../src/cha
 import {
   DEFAULT_OBSERVED_SCRIPTS_PATH,
   deriveObservedScripts,
+  observedScriptsDigest,
   serializeObservedScripts,
   type ObservedScriptRecord,
   type ObservedScriptsFile,
@@ -58,6 +59,19 @@ describe('the committed observed script set', () => {
       expect(scriptHashFromCbor(script.cborHex), script.scriptHash).toBe(script.scriptHash);
       expect(script.cborHex.length / 2, script.scriptHash).toBe(script.scriptBytes);
     }
+  });
+
+  // The digest is what a compat result names when it says which set it ran
+  // against, the way `corpusDigest` names `vectors/index.json`. It is taken
+  // over script hashes, which are taken over bytes, so two sets agreeing on
+  // it hold the same bytes.
+  it('digests the script hashes it holds, independently of their order', () => {
+    expect(record.digest).toBe(observedScriptsDigest(record.scripts));
+    expect(observedScriptsDigest([...record.scripts].reverse())).toBe(record.digest);
+  });
+
+  it('changes its digest when a script is removed', () => {
+    expect(observedScriptsDigest(record.scripts.slice(1))).not.toBe(record.digest);
   });
 
   it('names a real transaction for every script it carries', () => {

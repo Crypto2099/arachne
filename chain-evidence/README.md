@@ -95,6 +95,11 @@ Two others, `b7e9fae9` and `cca7321c`, are the same 24-key `any`, funded and spe
 each of its two addresses. They decode to the same script, differ in bytes, and hash
 differently.
 
+The file also carries a `digest` over the script hashes it holds, computed the same way
+`vectors/index.json`'s digest is. A script hash is taken over bytes, so two sets agreeing
+on the digest hold the same bytes. That is what a compat result on `path: "decode-onchain"`
+records as its `corpusDigest`, naming the set a tool was actually run against.
+
 Like `record.md`, `scripts.json` is derived and never authored: `npm run
 chain-evidence:scripts` writes it, `npm run chain-evidence:scripts:check` fails if the
 committed file disagrees with what `observations.json` produces, and that check runs in
