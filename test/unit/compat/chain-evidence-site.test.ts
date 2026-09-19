@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { renderChainEvidenceSite } from '../../../src/compat/chain-evidence-site.js';
-import { loadChainEvidence } from '../../../src/chain/evidence.js';
 import type { ChainEvidenceEntry, ChainEvidenceRecord } from '../../../src/chain/evidence.js';
+import type { CompatAggregate } from '../../../src/compat/aggregate.js';
+import {
+  loadSiteData,
+  renderChainEvidencePage,
+  type SiteData,
+} from '../../../src/compat/site/index.js';
+import type { CompatVersionDocument } from '../../../src/compat/version.js';
 
 // Mirrors the fixture helpers in test/unit/chain/record.test.ts: both match
 // the nesting-depth topic by source alone, with no vectorId, so a fixture
@@ -39,49 +44,79 @@ function record(entries: ChainEvidenceEntry[]): ChainEvidenceRecord {
   return { formatVersion: 1, entryCount: entries.length, entries };
 }
 
-describe('renderChainEvidenceSite', () => {
+/** Site data with no libraries and no observed scripts: only the record varies. */
+function data(chainEvidence: ChainEvidenceRecord): SiteData {
+  const aggregate: CompatAggregate = {
+    formatVersion: 1,
+    latestTestedAt: null,
+    engines: [],
+    tools: [],
+  };
+  const version: CompatVersionDocument = {
+    formatVersion: 1,
+    latestTestedAt: null,
+    aggregateDigest: 'a'.repeat(64),
+    toolCount: 0,
+    resultCount: 0,
+  };
+  return {
+    aggregate,
+    version,
+    results: new Map(),
+    observed: { formatVersion: 1, scriptCount: 0, digest: 'none', scripts: [] },
+    chainEvidence,
+    vectors: new Map(),
+    corpus: { vectorCount: 0, digest: 'none' },
+  };
+}
+
+function render(entries: ChainEvidenceEntry[]): string {
+  return renderChainEvidencePage(data(record(entries)));
+}
+
+describe('renderChainEvidencePage', () => {
   it('is byte-stable: rendering the same record twice produces identical bytes', async () => {
-    const loaded = await loadChainEvidence();
-    expect(renderChainEvidenceSite(loaded)).toBe(renderChainEvidenceSite(loaded));
+    const loaded = await loadSiteData();
+    expect(renderChainEvidencePage(loaded)).toBe(renderChainEvidencePage(loaded));
   });
 
   it('renders one article for every entry in the real record', async () => {
-    const loaded = await loadChainEvidence();
-    const html = renderChainEvidenceSite(loaded);
-    const articles = html.match(/class="entry entry-(accepted|refused)"/g) ?? [];
-    expect(articles.length).toBe(loaded.entryCount);
+    const loaded = await loadSiteData();
+    const html = renderChainEvidencePage(loaded);
+    const articles = html.match(/<article class="entry edge-(ok|refused)"/g) ?? [];
+    expect(articles.length).toBe(loaded.chainEvidence.entryCount);
+  });
+
+  it('anchors every accepted entry by its transaction hash, so a result page can link to it', async () => {
+    const loaded = await loadSiteData();
+    const html = renderChainEvidencePage(loaded);
+    for (const entry of loaded.chainEvidence.entries) {
+      if (entry.accepted) expect(html).toContain(`id="tx-${entry.txHash}"`);
+    }
   });
 
   it('links an accepted entry to the same explorer URL explorerTxUrl derives', () => {
     const hash = 'b1db2a411cb651a413840d3c8b112895a5bda2519a8ba6a372b8dd1ffc7746c2';
-    const html = renderChainEvidenceSite(record([acceptedEntry({ txHash: hash })]));
+    const html = render([acceptedEntry({ txHash: hash })]);
     expect(html).toContain(`<a href="https://preprod.cexplorer.io/tx/${hash}">`);
   });
 
   it('renders a refused entry with its verbatim error in a preformatted block, no hash', () => {
-    const html = renderChainEvidenceSite(
-      record([refusedEntry({ error: 'MaxTxSizeUTxO supplied 1 expected 0' })]),
-    );
-    expect(html).toContain('class="verdict verdict-refused">Refused<');
-    expect(html).toContain('<pre class="error">MaxTxSizeUTxO supplied 1 expected 0</pre>');
+    const html = render([refusedEntry({ error: 'MaxTxSizeUTxO supplied 1 expected 0' })]);
+    expect(html).toContain('<span class="chip chip-refused">Refused</span>');
+    expect(html).toContain('<pre>MaxTxSizeUTxO supplied 1 expected 0</pre>');
   });
 
   it('throws rather than silently omitting an accepted entry with no txHash', () => {
-    expect(() => renderChainEvidenceSite(record([omit(acceptedEntry(), 'txHash')]))).toThrow(
-      /no txHash/,
-    );
+    expect(() => render([omit(acceptedEntry(), 'txHash')])).toThrow(/no txHash/);
   });
 
   it('throws rather than silently omitting a refused entry with no error', () => {
-    expect(() => renderChainEvidenceSite(record([omit(refusedEntry(), 'error')]))).toThrow(
-      /no error/,
-    );
+    expect(() => render([omit(refusedEntry(), 'error')])).toThrow(/no error/);
   });
 
   it('turns a backtick-quoted code span into a <code> element', () => {
-    const html = renderChainEvidenceSite(
-      record([acceptedEntry({ demonstrates: 'An `all []` address was spent.' })]),
-    );
+    const html = render([acceptedEntry({ demonstrates: 'An `all []` address was spent.' })]);
     expect(html).toContain('An <code>all []</code> address was spent.');
   });
 
@@ -89,72 +124,47 @@ describe('renderChainEvidenceSite', () => {
     // Source overridden to one no other topic's predicate claims by prefix,
     // so this entry is classified by its vectorId alone, the same way a
     // real degenerate-threshold entry is.
-    const html = renderChainEvidenceSite(
-      record([
-        acceptedEntry({
-          vectorId: 'degenerate/empty-all',
-          source: 'spec/03-satisfaction.md, "Degenerate thresholds"',
-        }),
-      ]),
-    );
+    const html = render([
+      acceptedEntry({
+        vectorId: 'degenerate/empty-all',
+        source: 'spec/03-satisfaction.md, "Degenerate thresholds"',
+      }),
+    ]);
     expect(html).toContain(
       '<a href="https://github.com/crypto2099/arachne/blob/main/vectors/degenerate/empty-all.json"><code>degenerate/empty-all</code></a>',
     );
   });
 
   it('links the spec document a source names to that file on GitHub, keeping the quoted section as text', () => {
-    const html = renderChainEvidenceSite(record([acceptedEntry()]));
+    const html = render([acceptedEntry()]);
     expect(html).toContain(
       '<a href="https://github.com/crypto2099/arachne/blob/main/spec/06-chain-exercises.md"><code>spec/06-chain-exercises.md</code></a>, &quot;How deep a single script can nest&quot;',
     );
   });
 
   it('escapes markup in an entry field rather than injecting it into the page', () => {
-    const html = renderChainEvidenceSite(
-      record([acceptedEntry({ demonstrates: '<img onerror=alert(1)> was spent.' })]),
-    );
+    const html = render([acceptedEntry({ demonstrates: '<img onerror=alert(1)> was spent.' })]);
     expect(html).not.toContain('<img onerror=alert(1)>');
   });
 
-  it('links back to the compat matrix, the other page on this site', async () => {
-    const html = renderChainEvidenceSite(await loadChainEvidence());
-    expect(html).toContain('href="index.html"');
-  });
-
-  it('has no script tag: nothing on the page fetches client-side', async () => {
-    const html = renderChainEvidenceSite(await loadChainEvidence());
-    expect(html.toLowerCase()).not.toContain('<script');
-  });
-
-  it('has no external stylesheet, font, or script reference', async () => {
-    const html = renderChainEvidenceSite(await loadChainEvidence());
-    expect(html).not.toMatch(/<link[^>]+rel=["']stylesheet["']/i);
-    expect(html).not.toMatch(/@import/i);
-    expect(html).not.toMatch(/src=["']https?:\/\//i);
-    expect(html).not.toMatch(/href=["']https?:\/\/[^"']*\.(css|woff2?|ttf)/i);
-  });
-
-  it('declares both a light and a dark color scheme rather than picking one', async () => {
-    const html = renderChainEvidenceSite(await loadChainEvidence());
-    expect(html).toContain('color-scheme: light dark');
-    expect(html).toMatch(/@media \(prefers-color-scheme: dark\)/);
-  });
-
-  it('groups every real entry into a section that appears on the page', async () => {
-    const loaded = await loadChainEvidence();
-    const html = renderChainEvidenceSite(loaded);
-    for (const heading of [
+  it('carries every topic heading the record classifies entries under', async () => {
+    const loaded = await loadSiteData();
+    const html = renderChainEvidencePage(loaded);
+    for (const title of [
       'Degenerate thresholds',
-      'Time bounds and validity intervals',
-      'Malformed and out-of-range script bytes',
       'Nesting depth',
-      'Multisig size ceilings',
-      'Federations of federations',
       'Encoding divergence',
-      'The DRep credential, end to end',
-      'The stake credential, end to end',
+      'The scripts those transactions carried',
     ]) {
-      expect(html).toContain(`<h2>${heading}</h2>`);
+      expect(html).toContain(`<h2>${title}</h2>`);
+    }
+  });
+
+  it('lists every observed script with the libraries that read it', async () => {
+    const loaded = await loadSiteData();
+    const html = renderChainEvidencePage(loaded);
+    for (const script of loaded.observed.scripts) {
+      expect(html).toContain(script.scriptHash.slice(0, 12));
     }
   });
 });

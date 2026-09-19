@@ -108,17 +108,19 @@ like MeshJS or Blaze shows which pin is stale.
 
 The registry of tools to watch. Each entry:
 
-| Field            | Meaning                                                                                                                                                         |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`             | Stable identifier, also the directory name under `results/`.                                                                                                    |
-| `displayName`    | Name for a rendered page.                                                                                                                                       |
-| `homepage`       | Where the tool's source or release notes live.                                                                                                                  |
-| `package`        | npm package name, for tools discovered or installed via npm.                                                                                                    |
-| `adapter`        | Which installer/hasher this tool uses. See below.                                                                                                               |
-| `adapterOptions` | Small adapter-specific configuration, e.g. which function to call.                                                                                              |
-| `discovery`      | How to find new versions: `{ "type": "npm" }`, `{ "type": "github-releases", "repo", "tagPrefix" }`, or `{ "type": "maven-central", "groupId", "artifactId" }`. |
-| `channels`       | Which of `current`, `previous`, `beta` to track for this tool.                                                                                                  |
-| `paths`          | Which construction paths to run this tool against. Defaults to `["construct"]` when absent.                                                                     |
+| Field            | Meaning                                                                                                                                                           |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`             | Stable identifier, also the directory name under `results/`.                                                                                                      |
+| `displayName`    | Name for a rendered page.                                                                                                                                         |
+| `language`       | The language the tool is written in, as a reader would name it: `Haskell`, `Rust`, `TypeScript`, `Go`, `Java`, `Python`.                                          |
+| `usedFrom`       | Where a reader uses it from, which differs from `language` for a Rust library consumed from JavaScript through WebAssembly, or a Haskell binary run from a shell. |
+| `homepage`       | Where the tool's source or release notes live.                                                                                                                    |
+| `package`        | npm package name, for tools discovered or installed via npm.                                                                                                      |
+| `adapter`        | Which installer/hasher this tool uses. See below.                                                                                                                 |
+| `adapterOptions` | Small adapter-specific configuration, e.g. which function to call.                                                                                                |
+| `discovery`      | How to find new versions: `{ "type": "npm" }`, `{ "type": "github-releases", "repo", "tagPrefix" }`, or `{ "type": "maven-central", "groupId", "artifactId" }`.   |
+| `channels`       | Which of `current`, `previous`, `beta` to track for this tool.                                                                                                    |
+| `paths`          | Which construction paths to run this tool against. Defaults to `["construct"]` when absent.                                                                       |
 
 Adding a tool that shares an existing adapter's API is adding an entry here. That covers
 another cardano-serialization-lib fork, another library exposing the same
@@ -492,6 +494,8 @@ commands.
 | `formatVersion`          | The aggregate's own format version, currently `1`, independent of a result file's `formatVersion` (currently `2`) because the two are separate documents with separate consumers.                                                                                                                |
 | `latestTestedAt`         | The latest `testedAt` among every result carried below, derived from the data rather than the wall clock at generation time. Regenerating from an unchanged set of result files reproduces the same value, which is what lets CI compare this file byte for byte the way it compares `vectors/`. |
 | `engines`                | `tools.json`'s own `engines` array, passed through unchanged.                                                                                                                                                                                                                                    |
+| `tools[].language`       | Carried from `tools.json` unchanged: the language the tool is written in.                                                                                                                                                                                                                        |
+| `tools[].usedFrom`       | Carried from `tools.json` unchanged: where a reader uses the tool from, when that is not the language it is written in.                                                                                                                                                                          |
 | `tools[].engine`         | The tool's engine link from `tools.json`: which encoder produces its bytes, and by what relation (`depends`, `fork`, `vendored`, `reimplements`, or `own`).                                                                                                                                      |
 | `tools[].paths`          | Which construction paths this tool is registered against, carried from `tools.json` with the same `["construct"]` default applied there when the entry omits it. Lets a consumer tell a path with no results because it is not registered apart from one that is registered but has not run yet. |
 | `tools[].independentOf`  | Other tool ids in the registry whose agreement with this one is independent evidence about an encoding, computed with `isIndependentEvidence` in `src/compat/registry.ts`. A tool sharing this one's engine without reimplementing it is excluded from its own list, and vice versa.             |
@@ -502,21 +506,30 @@ commands.
 
 ## The published site
 
-`aggregate.json`, `version.json`, and a matrix page rendered from both are published as
-static files, laid out flat so the same three paths keep working if a custom domain is
-ever pointed at them instead:
+The result files, the aggregate and the chain evidence record are rendered as a static
+site at `https://crypto2099.github.io/arachne/`. Every page is built at deploy time from
+the committed files; no page fetches anything, and the data files are served beside the
+pages unchanged, so the same paths keep working if a custom domain is ever pointed at them:
 
-- `https://crypto2099.github.io/arachne/`: the rendered matrix. Everything on it is
-  baked in at build time from the committed `aggregate.json`; nothing on the page fetches
-  anything.
-- `https://crypto2099.github.io/arachne/aggregate.json`: the file documented above,
-  served as-is.
-- `https://crypto2099.github.io/arachne/version.json`: described next.
+| Path                                    | What it is                                                                                                                                                                                                                              |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                                     | Every library's latest release on each question, and what those releases get wrong: every wrong hash, refusal and unsupported construct, with the libraries and scripts involved.                                                       |
+| `/tools/<id>.html`                      | One library: what it is written in and used from, the encoder under it, its latest release on each question, every problem found across every tested release with the verbatim text and the releases it was seen in, and every release. |
+| `/results/<id>/<version>[-<path>].html` | One result file, script by script. The name mirrors the file under `results/`, and the file itself is served beside the page as `.json`.                                                                                                |
+| `/chain-evidence.html`                  | Every real submission the chain evidence record holds, grouped by the question it answers, and the distinct scripts those transactions carried with what each library's latest release did when handed them.                            |
+| `/methods.html`                         | The words the pages use, what each question measures, and the mapping from those words to the identifiers in the files.                                                                                                                 |
+| `/aggregate.json`, `/version.json`      | The files documented on this page, served as-is.                                                                                                                                                                                        |
+| `/chain-evidence.json`, `/scripts.json` | `chain-evidence/observations.json` and `chain-evidence/scripts.json`, served as-is.                                                                                                                                                     |
 
-Publishing is tied to `main`: a workflow rebuilds and redeploys these three whenever a
-change to this directory or to the renderer merges, and to nothing else. There is no
-schedule and no manual trigger for it, so nothing here moves without a merged change to
-look at.
+The pages use plain words where the files use identifiers: `definite` is written as
+"definite-length lists at every size", `cardanoBinary` as "indefinite-length lists from 24
+items", and so on. The identifiers in the files are unchanged, and the methods page
+carries the full mapping, so a program reading `aggregate.json` and a person reading the
+site are looking at the same values under different names.
+
+Publishing is tied to `main`: a workflow rebuilds and redeploys the site whenever a change
+to this directory, to `chain-evidence/`, to `vectors/`, or to the renderer merges, and to
+nothing else. There is no schedule and no manual trigger for it.
 
 ### `version.json`
 

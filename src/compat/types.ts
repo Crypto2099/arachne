@@ -43,6 +43,8 @@ export type EngineRelation = 'depends' | 'fork' | 'vendored' | 'reimplements' | 
 export interface EngineDefinition {
   id: string;
   displayName: string;
+  /** The language the encoder itself is written in, for a reader picking a library. */
+  language?: string;
   homepage?: string;
   /** npm package name, when the engine is resolvable from a JavaScript install. */
   package?: string;
@@ -110,6 +112,15 @@ export type DiscoveryConfig =
 export interface ToolDefinition {
   id: string;
   displayName: string;
+  /**
+   * The language the tool is written in, and the language or environment a
+   * user calls it from, which differ for a Rust library shipped to npm as
+   * WebAssembly. Both are for the published site: a reader choosing a
+   * library needs to know which ecosystem each row belongs to before any
+   * result about it is useful to them.
+   */
+  language?: string;
+  usedFrom?: string;
   homepage: string;
   /** npm package name, for tools whose adapter or discovery is npm-based. */
   package?: string;
