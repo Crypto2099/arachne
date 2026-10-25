@@ -71,11 +71,18 @@ export const GOUROBOROS_ADAPTER: ToolAdapter = {
     );
     await copyFile(DRIVER_SOURCE, join(scratchDir, 'main.go'));
 
+    // Go marks every directory it extracts into the module cache read-only,
+    // so nothing edits a cached copy in place. That also makes the runner's
+    // plain recursive delete of scratchDir fail with EACCES, and it has to
+    // succeed on every path out of here, including a "go build" that fails
+    // after "go mod tidy" has already filled the cache. "-modcacherw" leaves
+    // those directories writable from the start; it costs nothing in a cache
+    // that lives and dies with one run.
     const goEnv = {
       ...process.env,
       GOPATH: join(scratchDir, 'gopath'),
       GOCACHE: join(scratchDir, 'gocache'),
-      GOFLAGS: '-mod=mod',
+      GOFLAGS: '-mod=mod -modcacherw',
     };
 
     try {
@@ -112,23 +119,7 @@ export const GOUROBOROS_ADAPTER: ToolAdapter = {
         // release rather than a range, so this reads the version go.mod
         // actually settled on rather than echoing the one requested.
         resolveEngineVersion: async () => resolveInstalledGouroborosVersion(scratchDir),
-        // "go mod download" marks every extracted module directory read-only
-        // (dr-xr-xr-x), which is correct so nothing edits a cached copy in
-        // place, but it also means the caller's plain "rm -rf" on scratchDir
-        // fails with EACCES once this returns. Restoring write permission
-        // first is this adapter's job, since it is the one that knows the
-        // module cache lives under here.
-        dispose: () => {
-          try {
-            execFileSync('chmod', ['-R', 'u+w', join(scratchDir, 'gopath')], {
-              stdio: ['ignore', 'pipe', 'pipe'],
-              timeout: 30_000,
-            });
-          } catch {
-            // Best-effort: if this fails, cleanup below may leave scratch
-            // files behind, which costs disk, not correctness.
-          }
-        },
+        dispose: () => {},
       },
     };
   },
