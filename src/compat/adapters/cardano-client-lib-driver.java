@@ -95,9 +95,9 @@ public final class Driver {
      * Builds a NativeScript from the corpus's own JSON shape via the library's
      * own deserializer and hashes it. Every status this driver can report is
      * "ok" or "error": cardano-client-lib's ScriptAtLeast.required is a
-     * BigInteger, unlike gouroboros's Go uint, so it represents the corpus's
-     * one negative-threshold vector natively rather than needing an
-     * "unsupported" case ahead of calling into the library.
+     * BigInteger, unlike gouroboros's Go uint before v0.206.0, so it
+     * represents the corpus's one negative-threshold vector natively rather
+     * than needing an "unsupported" case ahead of calling into the library.
      */
     private static ObjectNode construct(ObjectMapper mapper, JsonNode item) {
         ObjectNode result = mapper.createObjectNode();
