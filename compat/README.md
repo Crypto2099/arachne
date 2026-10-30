@@ -344,11 +344,11 @@ with the verbatim error rather than guessing when it is not.
   hidden.
 - **`unsupported`**: reserved for a construct an adapter recognizes ahead of time as
   unrepresentable in a tool's API at all, as opposed to an attempt the tool itself
-  rejected. gouroboros's `construct` path is the first to use it: its
+  rejected. gouroboros's `construct` path is the first to use it: up to v0.205.x its
   `NativeScriptNofK.N` field is a Go `uint`, which cannot hold the corpus's one
-  negative-threshold vector without wrapping to a nonsense value, so the adapter reports
-  `unsupported` instead of attempting a conversion that would silently misrepresent the
-  tool.
+  negative-threshold vector without wrapping to a large positive value, so the adapter
+  reports `unsupported` instead of converting it. From v0.206.0 the field is an `int64`,
+  and the vector is handed to gouroboros like any other.
 
 ### Errors are verbatim
 

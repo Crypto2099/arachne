@@ -36,6 +36,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"reflect"
 
 	"github.com/blinklabs-io/gouroboros/cbor"
 	"github.com/blinklabs-io/gouroboros/ledger/common"
@@ -234,24 +235,17 @@ func buildNativeScript(s jsonScript) (*common.NativeScript, error) {
 		// Type 2: script_any, CDDL native_script index 2.
 		return encodeAndWrap(&common.NativeScriptAny{Type: 2, Scripts: subs})
 	case "atLeast":
-		// gouroboros declares NativeScriptNofK.N as a Go uint. There is no way
-		// to hand it a negative threshold without an unsafe integer conversion
-		// that would wrap to a huge unsigned value instead of reporting
-		// anything, so this is recognized as unrepresentable ahead of calling
-		// into the library at all, the same way an adapter would return
-		// "unsupported" for any other construct a tool's own API cannot hold.
-		if s.Required < 0 {
-			return nil, unsupportedError{fmt.Errorf(
-				"atLeast required is %d: gouroboros's NativeScriptNofK.N is a Go uint and cannot represent a negative threshold",
-				s.Required,
-			)}
+		// Type 3: script_n_of_k, CDDL native_script index 3.
+		nofk := &common.NativeScriptNofK{Type: 3}
+		if err := setThreshold(nofk, s.Required); err != nil {
+			return nil, err
 		}
 		subs, err := buildChildren(s.Scripts)
 		if err != nil {
 			return nil, err
 		}
-		// Type 3: script_n_of_k, CDDL native_script index 3.
-		return encodeAndWrap(&common.NativeScriptNofK{Type: 3, N: uint(s.Required), Scripts: subs})
+		nofk.Scripts = subs
+		return encodeAndWrap(nofk)
 	case "after":
 		// JSON "after" is CDDL invalid_before (index 4): valid only at or after
 		// this slot. See src/model/types.ts's ScriptAfter doc comment.
@@ -271,6 +265,36 @@ func buildNativeScript(s jsonScript) (*common.NativeScript, error) {
 	default:
 		return nil, fmt.Errorf("unknown script type %q", s.Type)
 	}
+}
+
+// setThreshold writes required into nofk.N through reflection, because the
+// field's type depends on the gouroboros release this file is built against:
+// a Go uint up to v0.205.x, and an int64 from v0.206.0 on, matching the
+// CDDL's int. A plain assignment compiles against only one of the two.
+//
+// A negative threshold against the uint field is recognized as
+// unrepresentable ahead of calling into the library at all. There is no way
+// to hand it over without a conversion that wraps to a huge unsigned value
+// instead of reporting anything, so it is "unsupported" in the same way an
+// adapter reports any other construct a tool's own API cannot hold. Against
+// the int64 field it is handed to gouroboros like any other threshold.
+func setThreshold(nofk *common.NativeScriptNofK, required int) error {
+	n := reflect.ValueOf(nofk).Elem().FieldByName("N")
+	switch n.Kind() {
+	case reflect.Int, reflect.Int64:
+		n.SetInt(int64(required))
+	case reflect.Uint, reflect.Uint64:
+		if required < 0 {
+			return unsupportedError{fmt.Errorf(
+				"atLeast required is %d: gouroboros's NativeScriptNofK.N is a Go %s and cannot represent a negative threshold",
+				required, n.Type(),
+			)}
+		}
+		n.SetUint(uint64(required))
+	default:
+		return fmt.Errorf("gouroboros's NativeScriptNofK.N is a Go %s, which this driver does not know how to set", n.Type())
+	}
+	return nil
 }
 
 func buildChildren(children []jsonScript) ([]common.NativeScript, error) {
