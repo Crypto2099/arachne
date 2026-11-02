@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "latestTestedAt": "2026-11-01T13:32:12.968Z",
+  "latestTestedAt": "2026-11-02T16:05:08.687Z",
   "engines": [
     {
       "id": "cardano-binary",
@@ -583,6 +583,60 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "0.216.4",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-02T16:05:08.687Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.216.4-decode-onchain.json"
+        },
+        {
+          "version": "0.216.4",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-11-02T16:04:54.441Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.216.4-decode.json"
+        },
+        {
+          "version": "0.216.4",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-11-02T16:04:37.806Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.216.4.json"
+        },
         {
           "version": "0.216.3",
           "channel": "current",
