@@ -15,6 +15,14 @@ on:
 permissions:
   contents: read
 
+# Every run rebuilds and force-pushes the same branch, so two at once, a
+# scheduled run and a manual one, would each build on a working tree that
+# lacks the other's results and the later push would discard the earlier.
+# Queued rather than cancelled, so a run already testing is never cut short.
+concurrency:
+  group: upstream-watch
+  cancel-in-progress: false
+
 jobs:
   watch:
     runs-on: ubuntu-latest
@@ -24,7 +32,16 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      # GitHub fixes a scheduled run's commit when it queues the event, and
+      # the job can start a quarter of an hour or more after that. With no
+      # ref, checkout uses that fixed commit, so a results pull request merged
+      # in the meantime is missing here: its versions look pending again and
+      # are rerun, and the branch below is rebuilt on a main that has already
+      # moved past it, conflicting with main as soon as it is pushed. Naming
+      # the ref makes checkout fetch the branch's tip when the job starts.
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
 
       - uses: actions/setup-node@v5
         with:
@@ -86,8 +103,11 @@ jobs:
             # upstream-watch/results pull request before deciding what is
             # pending, so a result recorded there is neither rerun nor, once
             # the branch below is rebuilt from this checkout, dropped.
-            npx tsx scripts/carry-forward-results.ts
-            npx tsx scripts/compat-watch.ts
+            # The list it writes lets compat-watch describe the carried
+            # results in the title and body as well as the ones it tests,
+            # since both replace whatever the open pull request said before.
+            npx tsx scripts/carry-forward-results.ts --out compat-carried.json
+            npx tsx scripts/compat-watch.ts --carried compat-carried.json
           fi
           echo "title=$(cat compat-watch-title.txt)" >> "$GITHUB_OUTPUT"
 
@@ -125,6 +145,25 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Checking out the tip above shortens the window in which main can move
+      # under this run, but a results pull request merged while the job is
+      # testing still leaves this working tree behind main, with the same
+      # conflict as before. Comparing against the tip immediately before the
+      # branch is rebuilt catches that case. The results this run produced are
+      # discarded with it; the versions they cover are still pending against
+      # the new main, so a rerun tests them again.
+      - name: Check the branch has not moved during this run
+        if: ${{ inputs.dry_run != true && steps.diff.outputs.changed == 'true' }}
+        run: |
+          set -euo pipefail
+          checked_out=$(git rev-parse HEAD)
+          git fetch --quiet origin "${GITHUB_REF}"
+          tip=$(git rev-parse FETCH_HEAD)
+          if [ "$checked_out" != "$tip" ]; then
+            echo "::error::${GITHUB_REF} moved from ${checked_out} to ${tip} while this run was testing, so no pull request was opened on the old base. Rerun the workflow to test the same versions against the new tip."
+            exit 1
           fi
 
       - name: Open pull request

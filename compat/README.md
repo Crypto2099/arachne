@@ -606,6 +606,20 @@ day with nothing pending, or a day when everything pending had already been carr
 forward, must leave an already-open pull request alone instead of force-pushing a branch
 with no diff against `main`, which closes the pull request and deletes it.
 
+The title and body the watcher writes replace whatever the open pull request said
+before, so they cover every result the rebuilt branch carries: the ones tested in that
+run and the ones carried forward, each carried result marked with the time an earlier
+run tested it.
+
+The branch is built on `main` as it stood when the job started. GitHub fixes a scheduled
+run's commit when it queues the event, and the job can start a quarter of an hour or
+more later, so the workflow checks out the tip of `main` by name rather than that fixed
+commit. Immediately before rebuilding the branch it fetches the tip again, and if `main`
+has moved, the run fails without opening a pull request: a branch built on the old base
+would conflict with whatever was merged in between. A rerun finds the same versions
+still pending and tests them against the new tip. Runs are also serialized, so a manual
+run and a scheduled one never rebuild the branch at the same time.
+
 The same pending/run logic runs locally:
 
 ```

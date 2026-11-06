@@ -14,10 +14,11 @@ coverage/
 .DS_Store
 *.log
 
-# scripts/compat-watch.ts writes these locally; the workflow reads them
-# straight out of its own ephemeral runner.
+# scripts/compat-watch.ts and scripts/carry-forward-results.ts write these
+# locally; the workflow reads them straight out of its own ephemeral runner.
 compat-watch-title.txt
 compat-watch-body.md
+compat-carried.json
 
 # Testnet key material for chain exercises. Never committed.
 .secrets/
