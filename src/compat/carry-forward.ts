@@ -1,6 +1,40 @@
+import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { copyFile, mkdir, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
+
+export interface ExportPathOptions {
+  /** Any tree-ish `git archive` accepts: a branch, a remote-tracking ref, a commit or a tree. */
+  ref: string;
+  /** Repository-relative path to export, such as `compat/results`. */
+  path: string;
+  /** Existing directory to extract into. */
+  into: string;
+  /** Repository to read from; defaults to the process's working directory. */
+  cwd?: string;
+}
+
+/**
+ * Extract `path` as it stands at `ref` into `into`, and return where it
+ * landed, `join(into, path)`.
+ *
+ * The archive goes to a file and is never read back through this process.
+ * `execFileSync` holds a child's entire stdout in memory and kills the child
+ * with ENOBUFS once it passes `maxBuffer`, which is 1 MiB by default, and an
+ * archive of `compat/results` is several times that. Writing the archive to
+ * disk keeps this step working however large the results directory grows.
+ */
+export function exportPathFromRef(options: ExportPathOptions): string {
+  const { ref, path, into, cwd } = options;
+  const archive = join(into, 'export.tar');
+  const stdio: ['ignore', 'ignore', 'inherit'] = ['ignore', 'ignore', 'inherit'];
+  execFileSync('git', ['archive', '--format=tar', `--output=${archive}`, ref, '--', path], {
+    stdio,
+    ...(cwd !== undefined && { cwd }),
+  });
+  execFileSync('tar', ['-x', '-f', archive, '-C', into], { stdio });
+  return join(into, path);
+}
 
 /**
  * Copy every result file present under `sourceDir` but not already present

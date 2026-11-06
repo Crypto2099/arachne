@@ -12,30 +12,50 @@
 // Skips cleanly, doing nothing, when GITHUB_REPOSITORY is unset (not running
 // under Actions), when upstream-watch/results does not exist on origin, or
 // when it exists but has no open pull request.
+//
+// `--out <file>` writes the paths it copied, relative to compat/results, as a
+// JSON array, and writes an empty array when it skips. scripts/compat-watch.ts
+// reads that file through its own `--carried` flag, so the pull request it
+// describes lists the results carried forward here alongside the ones it
+// tested itself, rather than only the latter.
 import { execFileSync } from 'node:child_process';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { carryForwardResults, hasOpenPullRequestForBranch } from '../src/compat/carry-forward.js';
+import {
+  carryForwardResults,
+  exportPathFromRef,
+  hasOpenPullRequestForBranch,
+} from '../src/compat/carry-forward.js';
 import { DEFAULT_RESULTS_DIR } from '../src/compat/results.js';
 
 const BRANCH = 'upstream-watch/results';
 
-async function main(): Promise<number> {
+async function main(argv: string[]): Promise<number> {
+  const outIndex = argv.indexOf('--out');
+  const out = outIndex === -1 ? undefined : argv[outIndex + 1];
+  if (outIndex !== -1 && !out) throw new Error('--out needs a file path');
+
+  const copied = await carryForward();
+  if (out) await writeFile(out, `${JSON.stringify(copied, null, 2)}\n`, 'utf8');
+  return 0;
+}
+
+async function carryForward(): Promise<string[]> {
   const repo = process.env.GITHUB_REPOSITORY;
   if (!repo) {
     console.error('GITHUB_REPOSITORY is not set; skipping carry-forward');
-    return 0;
+    return [];
   }
   const [owner, name] = repo.split('/');
   if (!owner || !name) {
     console.error(`GITHUB_REPOSITORY "${repo}" is not "owner/repo"; skipping carry-forward`);
-    return 0;
+    return [];
   }
 
   if (!remoteBranchExists(BRANCH)) {
     console.error(`no "${BRANCH}" branch on origin; nothing to carry forward`);
-    return 0;
+    return [];
   }
 
   const token = process.env.GITHUB_TOKEN;
@@ -47,7 +67,7 @@ async function main(): Promise<number> {
   });
   if (!hasOpenPr) {
     console.error(`"${BRANCH}" exists but has no open pull request; nothing to carry forward`);
-    return 0;
+    return [];
   }
 
   const scratch = await mkdtemp(join(tmpdir(), 'arachne-carry-forward-'));
@@ -55,18 +75,13 @@ async function main(): Promise<number> {
     execFileSync('git', ['fetch', 'origin', `refs/heads/${BRANCH}:refs/remotes/origin/${BRANCH}`], {
       stdio: 'inherit',
     });
-    const archive = execFileSync('git', [
-      'archive',
-      `refs/remotes/origin/${BRANCH}`,
-      '--',
-      DEFAULT_RESULTS_DIR,
-    ]);
-    execFileSync('tar', ['-x', '-C', scratch], { input: archive });
+    const exported = exportPathFromRef({
+      ref: `refs/remotes/origin/${BRANCH}`,
+      path: DEFAULT_RESULTS_DIR,
+      into: scratch,
+    });
 
-    const copied = await carryForwardResults(
-      join(scratch, DEFAULT_RESULTS_DIR),
-      DEFAULT_RESULTS_DIR,
-    );
+    const copied = await carryForwardResults(exported, DEFAULT_RESULTS_DIR);
     console.error(
       copied.length === 0
         ? `"${BRANCH}" had nothing not already on disk`
@@ -74,10 +89,10 @@ async function main(): Promise<number> {
             .map((p) => `  ${p}`)
             .join('\n')}`,
     );
+    return copied;
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }
-  return 0;
 }
 
 /**
@@ -101,7 +116,7 @@ function remoteBranchExists(branch: string): boolean {
   }
 }
 
-main()
+main(process.argv.slice(2))
   .then((code) => process.exit(code))
   .catch((error: unknown) => {
     console.error(error instanceof Error ? error.message : String(error));
