@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "latestTestedAt": "2026-11-02T16:05:08.687Z",
+  "latestTestedAt": "2026-11-07T13:13:38.152Z",
   "engines": [
     {
       "id": "cardano-binary",
@@ -84,6 +84,42 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "11.7.0.0",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-11-07T13:10:55.654Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-cli/11.7.0.0-decode.json"
+        },
+        {
+          "version": "11.7.0.0",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-11-07T13:10:51.024Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 142,
+            "agreed": 135,
+            "diverged": 0,
+            "refused": 7,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-cli/11.7.0.0.json"
+        },
         {
           "version": "11.6.0.0",
           "channel": "current",
@@ -583,6 +619,168 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "0.218.1",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-07T13:11:43.447Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.218.1-decode-onchain.json"
+        },
+        {
+          "version": "0.218.1",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-11-07T13:11:23.590Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.218.1-decode.json"
+        },
+        {
+          "version": "0.218.1",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-11-07T13:11:02.526Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.218.1.json"
+        },
+        {
+          "version": "0.218.0",
+          "channel": "previous",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-07T13:12:43.602Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.218.0-decode-onchain.json"
+        },
+        {
+          "version": "0.218.0",
+          "channel": "previous",
+          "path": "decode",
+          "testedAt": "2026-11-07T13:12:23.872Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.218.0-decode.json"
+        },
+        {
+          "version": "0.218.0",
+          "channel": "previous",
+          "path": "construct",
+          "testedAt": "2026-11-07T13:12:03.874Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.218.0.json"
+        },
+        {
+          "version": "0.216.5",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-03T14:40:14.584Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.216.5-decode-onchain.json"
+        },
+        {
+          "version": "0.216.5",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-11-03T14:39:52.150Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.216.5-decode.json"
+        },
+        {
+          "version": "0.216.5",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-11-03T14:39:28.999Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.216.5.json"
+        },
         {
           "version": "0.216.4",
           "channel": "current",
@@ -1987,6 +2185,60 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "1.5.0-rc.1",
+          "channel": "beta",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-07T13:13:38.152Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.5.0-rc.1-decode-onchain.json"
+        },
+        {
+          "version": "1.5.0-rc.1",
+          "channel": "beta",
+          "path": "decode",
+          "testedAt": "2026-11-07T13:13:21.679Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.5.0-rc.1-decode.json"
+        },
+        {
+          "version": "1.5.0-rc.1",
+          "channel": "beta",
+          "path": "construct",
+          "testedAt": "2026-11-07T13:13:04.440Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.5.0-rc.1.json"
+        },
         {
           "version": "1.4.0",
           "channel": "current",
