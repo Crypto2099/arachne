@@ -1,0 +1,26 @@
+{
+  "formatVersion": 2,
+  "tool": "gouroboros",
+  "version": "0.220.2",
+  "channel": "current",
+  "testedAt": "2026-11-16T15:55:51.615Z",
+  "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+  "arachneVersion": "arachne@0.1.0",
+  "path": "decode",
+  "engine": {
+    "id": "gouroboros",
+    "relation": "own",
+    "resolvedVersion": null
+  },
+  "status": "untested",
+  "reason": "go mod tidy for 0.220.2: go: downloading github.com/blinklabs-io/gouroboros v0.220.2\ngo: downloading github.com/fxamacker/cbor/v2 v2.10.0\ngo: downloading github.com/jinzhu/copier v0.4.0\ngo: downloading github.com/stretchr/testify v1.12.1\ngo: downloading github.com/blinklabs-io/plutigo v0.12.1\ngo: downloading github.com/btcsuite/btcd/btcutil v1.2.0\ngo: downloading github.com/utxorpc/go-codegen v0.19.2\ngo: downloading golang.org/x/crypto v0.59.0\ngo: downloading github.com/blinklabs-io/ouroboros-mo",
+  "framing": null,
+  "vectors": [],
+  "summary": {
+    "total": 0,
+    "agreed": 0,
+    "diverged": 0,
+    "refused": 0,
+    "unsupported": 0
+  }
+}

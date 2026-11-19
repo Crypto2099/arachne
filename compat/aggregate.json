@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "latestTestedAt": "2026-11-13T14:42:05.333Z",
+  "latestTestedAt": "2026-11-19T15:51:13.336Z",
   "engines": [
     {
       "id": "cardano-binary",
@@ -619,6 +619,169 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "0.220.4",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-19T15:51:13.336Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.220.4-decode-onchain.json"
+        },
+        {
+          "version": "0.220.4",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-11-19T15:50:53.112Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.220.4-decode.json"
+        },
+        {
+          "version": "0.220.4",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-11-19T15:50:31.808Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.220.4.json"
+        },
+        {
+          "version": "0.220.3",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-17T16:08:35.253Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.220.3-decode-onchain.json"
+        },
+        {
+          "version": "0.220.3",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-11-17T16:08:13.898Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.220.3-decode.json"
+        },
+        {
+          "version": "0.220.3",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-11-17T16:07:51.710Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.220.3.json"
+        },
+        {
+          "version": "0.220.2",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-16T15:59:58.289Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.220.2-decode-onchain.json"
+        },
+        {
+          "version": "0.220.2",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-11-16T15:55:51.615Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "untested",
+          "reason": "go mod tidy for 0.220.2: go: downloading github.com/blinklabs-io/gouroboros v0.220.2\ngo: downloading github.com/fxamacker/cbor/v2 v2.10.0\ngo: downloading github.com/jinzhu/copier v0.4.0\ngo: downloading github.com/stretchr/testify v1.12.1\ngo: downloading github.com/blinklabs-io/plutigo v0.12.1\ngo: downloading github.com/btcsuite/btcd/btcutil v1.2.0\ngo: downloading github.com/utxorpc/go-codegen v0.19.2\ngo: downloading golang.org/x/crypto v0.59.0\ngo: downloading github.com/blinklabs-io/ouroboros-mo",
+          "framing": null,
+          "summary": {
+            "total": 0,
+            "agreed": 0,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.220.2-decode.json"
+        },
+        {
+          "version": "0.220.2",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-11-16T15:55:29.157Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.220.2.json"
+        },
         {
           "version": "0.220.1",
           "channel": "current",
