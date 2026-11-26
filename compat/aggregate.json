@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "latestTestedAt": "2026-11-23T18:19:36.788Z",
+  "latestTestedAt": "2026-11-26T17:00:30.202Z",
   "engines": [
     {
       "id": "cardano-binary",
@@ -2672,6 +2672,114 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "1.5.0",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-26T16:59:56.771Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.5.0-decode-onchain.json"
+        },
+        {
+          "version": "1.5.0",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-11-26T16:59:45.347Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.5.0-decode.json"
+        },
+        {
+          "version": "1.5.0",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-11-26T16:59:18.349Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.5.0.json"
+        },
+        {
+          "version": "1.5.0-rc.3",
+          "channel": "beta",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-26T17:00:30.202Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.5.0-rc.3-decode-onchain.json"
+        },
+        {
+          "version": "1.5.0-rc.3",
+          "channel": "beta",
+          "path": "decode",
+          "testedAt": "2026-11-26T17:00:19.288Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.5.0-rc.3-decode.json"
+        },
+        {
+          "version": "1.5.0-rc.3",
+          "channel": "beta",
+          "path": "construct",
+          "testedAt": "2026-11-26T17:00:07.882Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.5.0-rc.3.json"
+        },
         {
           "version": "1.5.0-rc.2",
           "channel": "beta",
