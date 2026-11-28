@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "latestTestedAt": "2026-11-26T17:00:30.202Z",
+  "latestTestedAt": "2026-11-28T15:40:38.084Z",
   "engines": [
     {
       "id": "cardano-binary",
@@ -294,6 +294,24 @@
       ],
       "results": [
         {
+          "version": "4.2.0",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-11-27T16:45:19.206Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 142,
+            "agreed": 132,
+            "diverged": 0,
+            "refused": 10,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/cardano-address/4.2.0.json"
+        },
+        {
           "version": "4.1.0",
           "channel": "current",
           "path": "construct",
@@ -517,6 +535,42 @@
       ],
       "results": [
         {
+          "version": "1.9.2",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-11-28T15:37:44.189Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/meshsdk-core/1.9.2-decode.json"
+        },
+        {
+          "version": "1.9.2",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-11-28T15:37:27.917Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/meshsdk-core/1.9.2.json"
+        },
+        {
           "version": "1.9.1",
           "channel": "current",
           "path": "decode",
@@ -619,6 +673,114 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "0.223.1",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-28T15:38:36.644Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.223.1-decode-onchain.json"
+        },
+        {
+          "version": "0.223.1",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-11-28T15:38:15.147Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.223.1-decode.json"
+        },
+        {
+          "version": "0.223.1",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-11-28T15:37:52.537Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.223.1.json"
+        },
+        {
+          "version": "0.223.0",
+          "channel": "previous",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-28T15:39:42.104Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.223.0-decode-onchain.json"
+        },
+        {
+          "version": "0.223.0",
+          "channel": "previous",
+          "path": "decode",
+          "testedAt": "2026-11-28T15:39:20.435Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.223.0-decode.json"
+        },
+        {
+          "version": "0.223.0",
+          "channel": "previous",
+          "path": "construct",
+          "testedAt": "2026-11-28T15:38:58.448Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "cardanoBinary",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/gouroboros/0.223.0.json"
+        },
         {
           "version": "0.221.0",
           "channel": "current",
@@ -2672,6 +2834,60 @@
         "pycardano"
       ],
       "results": [
+        {
+          "version": "1.5.1",
+          "channel": "current",
+          "path": "decode-onchain",
+          "testedAt": "2026-11-28T15:40:38.084Z",
+          "corpusDigest": "b7c8500b241d5a390de1a0db9f9560b0460913352f35392ec34a9bac",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 16,
+            "agreed": 16,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.5.1-decode-onchain.json"
+        },
+        {
+          "version": "1.5.1",
+          "channel": "current",
+          "path": "decode",
+          "testedAt": "2026-11-28T15:40:20.999Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "framing-preserving",
+          "summary": {
+            "total": 284,
+            "agreed": 284,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.5.1-decode.json"
+        },
+        {
+          "version": "1.5.1",
+          "channel": "current",
+          "path": "construct",
+          "testedAt": "2026-11-28T15:40:03.620Z",
+          "corpusDigest": "82c304f8fbb84fb18394632434d291dd0d1668f61c8751d162c7660d",
+          "arachneVersion": "arachne@0.1.0",
+          "status": "tested",
+          "framing": "definite",
+          "summary": {
+            "total": 142,
+            "agreed": 142,
+            "diverged": 0,
+            "refused": 0,
+            "unsupported": 0
+          },
+          "resultFile": "compat/results/pallas/1.5.1.json"
+        },
         {
           "version": "1.5.0",
           "channel": "current",
