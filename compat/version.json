@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
-  "latestTestedAt": "2026-11-26T17:00:30.202Z",
-  "aggregateDigest": "063c38b5f1a34a26b05b2751085f3a12a3596fd41e3ab3c154fb436fc932b421",
+  "latestTestedAt": "2026-11-28T15:40:38.084Z",
+  "aggregateDigest": "a4c275efa5a55d5d9ab56d045be9a5c08c86ede6f8ae0b5a58301ab00517f641",
   "toolCount": 12,
-  "resultCount": 153
+  "resultCount": 165
 }
